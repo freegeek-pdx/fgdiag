@@ -149,6 +149,42 @@ class Key(Window):
             self.win.attron(curses.A_BOLD | curses.color_pair(KEY_HILITE))
             self.draw()
 
+class SpecialCharKey(Key):
+
+    def __init__(self, parent, size, pos, color, name, char):
+        Key.__init__(self, parent, size, pos, color, name)
+        self.char = char
+
+    def draw_label(self):
+        if self.win:
+	    # been centered horizontally in __init__()). 
+	    centr = (self.height()/2)
+	    for row in range(0, self.height()):
+                if row == centr:
+		    self.win.addch(row, self.width()/2, self.char)
+		else:
+		    self.win.addstr(row, 0, "    ")
+
+class UpArrowKey(SpecialCharKey):
+
+    def __init__(self, parent, size, pos, color, name):
+        SpecialCharKey.__init__(self, parent, size, pos, color, name, curses.ACS_UARROW)
+
+class LeftArrowKey(SpecialCharKey):
+
+    def __init__(self, parent, size, pos, color, name):
+        SpecialCharKey.__init__(self, parent, size, pos, color, name, curses.ACS_LARROW)
+
+class DownArrowKey(SpecialCharKey):
+
+    def __init__(self, parent, size, pos, color, name):
+        SpecialCharKey.__init__(self, parent, size, pos, color, name, curses.ACS_DARROW)
+
+class RightArrowKey(SpecialCharKey):
+
+    def __init__(self, parent, size, pos, color, name):
+        SpecialCharKey.__init__(self, parent, size, pos, color, name, curses.ACS_RARROW)
+
 class JShapedKey(Key):
 
     def __init__(self, parent, size, pos, color, name, upperpos, uppersize):

@@ -1,5 +1,8 @@
 2004-07-13    <chromakode@fgdefault>
 
+	* fgdiag/keyboard/keyboard.py (Module): Added beginnings of Arrow
+	key curses char support
+
 	* doc/TODO (Module): Added Keyboard tester todos
 
 	* doc/HACKING, doc/TODO (Module): Added lib related stuff
