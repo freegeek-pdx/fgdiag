@@ -19,7 +19,7 @@ def prompt_for_id(db, wantedtype, name, description=""):
         try:
             gizmo = db.get_gizmo_by_id(gid)
         except ValueError:
-            userinteraction.warning("The ID you entered does not seem to be valid. Please make sure it's a number and re-enter it.")
+            userinteraction.warning("The ID you entered does not seem to be valid, or may be too long. Please make sure it's a number and re-enter it.")
             continue
         except InvalidRowError:
             userinteraction.warning("The Gizmo you entered does not exist. Please check and re-enter your Gizmo id.")
