@@ -1,6 +1,6 @@
 fgdiag release management
 =========================
- - make Debian package
+ - make Debian package, RT ticket #101.
 
 Non-FreekBox Projects
 =====================
@@ -50,6 +50,8 @@ SMART Hard Drives
 
    See Debian package "smartmontools" and the manpage for "smartctl".
 
+   RT ticket #98.
+
 Enhancements:
 =============
 	Video -- better support for AGP cards 
@@ -68,10 +70,10 @@ Enhancements:
 	Floppy Drive -- dd an image to a floppy (from HD) and 
 		boot from it (for in an existing FreekBox)
 	Modem -- dial in to another modem (on server) and 
-		check for speed and data corruption 
+		check for speed and data corruption, RT ticket #104.
 	Modem -- make an EXTERNAL mode -- this shouldn't report the
 		serial port (irrelevant) and should allow user to plug in a
-		new modem without power cycling.
+		new modem without power cycling.  RT ticket #105.
 	Keyboard -- Port to new fgdiag database api
 	Keyboard -- Use curses arrows for arrow keys
 	Keyboard -- Simplify handling of different keyboard layouts; use different dictionary for each layout, specify key class in dict
