@@ -1,7 +1,7 @@
 """Python Module for FreeGeek testing."""
 import sys
 
-from prompts import prompt_for_gizmos, confirm_data, report_success
+from prompts import prompt_for_gizmos, confirm_data, report_success, confirm_devices
 from userinteraction import notice, error
 from testdata import register_test_data
 from config import get_fgdb_login
@@ -172,6 +172,11 @@ class GizmoTester:
 
         # Run scan first
         devices = self.scan()
+
+        if not confirm_devices(devices):
+            print "press <enter> to reboot"
+            return
+        
         db = connect()
         devicegizmos = prompt_for_gizmos(db, self.gizmotype, devices)
         db.disconnect()

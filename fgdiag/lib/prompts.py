@@ -77,6 +77,18 @@ Please double-check any Gizmo IDs you have entered before continuing.
 Is there anything you'd like to correct?""" % ("\n".join(datastringlist))
     return not userinteraction.yesno("Confirmation", body)
 
+def confirm_devices(devices):
+    datastringlist = list()
+    template = "%s: %s"
+    for device in devices:
+        datastringlist.append(template%(device.name, device.description))
+    body = """Found these devices:
+---
+%s
+---
+Does this look right?""" % ("\n".join(datastringlist))
+    return userinteraction.yesno("Confirmation", body)
+
 def report_success(data):
     datastringlist = list()
     template = """%s %s:
