@@ -19,7 +19,7 @@ else:
     # but we still have python1.5 on the modem tester, so don't switch
     # over yet -- just ignore the warning.
     warnings.filterwarnings("ignore", module="TERMIOS")
-import fcntl, FCNTL, termios, TERMIOS
+import fcntl, termios, TERMIOS
 
 # sibling import
 from fgdiag.lib import pyutil
@@ -194,7 +194,7 @@ def open_modem(dev):
     # VTIME - maximum time to wait
     # (unset both for non-blocking)
     termios.tcsetattr(fd, TERMIOS.TCSANOW, mode)
-    fcntl.fcntl(fd,FCNTL.F_SETFL,FCNTL.O_NONBLOCK)
+    fcntl.fcntl(fd,fcntl.F_SETFL,os.O_NONBLOCK)
 
     return f
 
