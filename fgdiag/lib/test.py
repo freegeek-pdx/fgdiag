@@ -5,17 +5,7 @@ from prompts import prompt_for_ids, confirm_data
 from userinteraction import notice
 from testdata import register_test_data
 from config import get_fgdb_login
-
-class Error(Exception):
-    """Base class for exceptions in this module."""
-    pass
-
-class InvalidStatusError(Error):
-    """Exception raised when an invalid status is returned by a test."""
-    def __init__(self, status):
-        self.status = status
-    def __str__(self):
-        return repr(self.status)
+from exceptions import InvalidStatusError
 
 # TODO: Collect these into a container of some kind.
 Status_Unknown = -1

@@ -17,8 +17,8 @@ True
 <fgdb.FieldMapMultipleTable instance at 0x402b2c2c>
 
 """
-
 import psycopg
+from exceptions import InvalidRowError, InvalidFieldError
 
 def connect(host, db, user, passwd):
     """Return a Database instance connected to dburl.
@@ -104,24 +104,6 @@ def _select_sql(fieldlist, table, where):
 def _update_sql(valuedict, table, where):
     return _update_sql_template % (table, valuedict, where)
 #---
-
-class Error(Exception):
-    """Base class for exceptions in this module."""
-    pass
-
-class InvalidRowError(Error):
-    """Exception raised when an invalid TableRow is requested."""
-    def __init__(self, rowname):
-        self.rowname = rowname
-    def __str__(self):
-        return repr(self.rowname)
-    
-class InvalidFieldError(Error):
-    """Exception raised when an invalid TableRow is requested."""
-    def __init__(self, columnname):
-        self.columnname = columnname
-    def __str__(self):
-        return repr(self.columnname)
 
 class Cache:
     """
