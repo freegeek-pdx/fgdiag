@@ -8,13 +8,14 @@
 
 """
 
-# from lib import test, userinteraction
-# from lib.logging import create_node
+from lib import test, userinteraction
+from lib.logging import create_node
 
 import string 
 import commands 
-import test, userinteraction
-from logging import create_node
+
+#import test, userinteraction
+#from logging import create_node
 
 # Create main log node
 _log = create_node(__name__)
@@ -201,17 +202,14 @@ class CDTester(test.GizmoTester):
             CD.test()
         return CDs
 
-'''
-    def destination(self, pogo):
-        if pogo.data["notes"] == "Colored Purple":
-            return test.Destination["Stored"], "Purple Pogo"
-        else:
-            return test.Destination["Recycled"], "Recycling"
-'''
+    def destination(self, CD):
+      if CD.status == test.Status["Passed"]:
+         return test.Destination["Stored"], "Please put this CD drive in the \"Good CD Drive\" bin."
+      else:
+         return test.Destination["Recycled"], "Please put this CD drive in the Recycling bin."
 
 def main():
-#    from lib import testscript
-    import testscript
+    from lib import testscript
     testscript.start(CDTester)
 
 if __name__ == '__main__': main()
