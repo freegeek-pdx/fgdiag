@@ -42,7 +42,7 @@ class PogoTester(test.GizmoTester):
         pogos = pogo_scan()
         for pogo in pogos:
             pogo.get_data()
-            status = pogo.test()
+            pogo.test()
         return pogos
 
 def main():
