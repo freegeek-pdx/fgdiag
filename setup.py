@@ -22,9 +22,11 @@ scripts = [
 
 scripts = ["bin/" + i for i in scripts]
 
+import fgdiag
+
 from distutils.core import setup
 setup(name="fgdiag",
-      version="0.0.1",
+      version=fgdiag.__version__,
       author="Free Geek",
       author_email="coders@lists.freegeek.org",
       maintainer="Kevin Turner",
@@ -32,15 +34,17 @@ setup(name="fgdiag",
       url="http://www.freegeek.org/?FIXME",
       description="Free Geek Hardware Diagnostics",
 #      long_description="FIXME",
-      classifiers=[
-    "Development Status :: 3 - Alpha",
-    "Environment :: Console",
-    "Intended Audience :: Information Technology",
-    "License :: OSI Approved :: GNU General Public License (GPL)",
-    "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python",
-    "Topic :: System :: Hardware",
-    ],
+# As long as we're deploying with Python 2.2 distutils, we can't include
+# classifiers.
+#       classifiers=[
+#     "Development Status :: 3 - Alpha",
+#     "Environment :: Console",
+#     "Intended Audience :: Information Technology",
+#     "License :: OSI Approved :: GNU General Public License (GPL)",
+#     "Operating System :: POSIX :: Linux",
+#     "Programming Language :: Python",
+#     "Topic :: System :: Hardware",
+#     ],
       packages=packages,
       scripts=scripts,
       )
