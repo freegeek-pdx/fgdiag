@@ -7,6 +7,6 @@ diag-disk.1 diag-modem.1 diag-cd.1: fgdiag.1
 	ln -s fgdiag.1 $@
 
 clean:
-	rm diag-disk.1 diag-modem.1 diag-cd.1 fgdiag.1
+	rm -f diag-disk.1 diag-modem.1 diag-cd.1 fgdiag.1
 
 .PHONY: ALL clean
