@@ -1,12 +1,16 @@
 2004-03-25  Kevin Turner  <kevin@freegeek.org>
 
+	* fgdiag/modem/pcimodem.py: 1.1 use new path for pyutil.
+
+2004-03-25  Kevin Turner  <kevin@freegeek.org>
+
 	* selftest/test_modem.py, test_syslog: 1.3 use trial for unit tests.
 
 	* selftest/cursesnodisk: 1.1 test __name__ == "main"
 
 	* meminfo.py: 1.1 add shebang.
 
-	* selftest/test_syslog.py, test_modem.py, __init__.py: 
+	* selftest/test_syslog.py, test_modem.py, __init__.py:
 	* badblocks.py, __init__.py: Added module-level docstrings.
 
 	* README: 1.4 mention documents HACKING and testing-purpose, and

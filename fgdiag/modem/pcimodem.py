@@ -8,11 +8,10 @@ Looks for telltale signs of a winmodem too.
 
 # Depends: pciutils
 
-LSPCI = "/sbin/lspci"
+LSPCI = "lspci"
 
 import os, re
-# sibling import
-from pyutil import bold, exists_in_path
+from fgdiag.lib.pyutil import bold, exists_in_path
 
 # Don't let the import succeed if we can't get lspci.
 _lspci_fullpath = exists_in_path(LSPCI)
