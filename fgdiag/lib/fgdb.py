@@ -51,6 +51,22 @@ def _single_tuple_list(l):
         newl += item
     return newl
 
+def _string_list(l):
+    if len(l)==1:
+	lstr = "(\"%s\")" % l[0]
+    else:
+        lstr = repr(tuple(l))
+    return lstr
+
+def _simplify_list(l):
+    try:
+        if len(l)==1:
+    	     return l[0]
+    	else:
+             return l
+    except:
+        return l
+
 def _tables(l):
     return ", ".join(l)
 
@@ -176,11 +192,11 @@ class Database:
 
     def query_one(self, sql):
         c = self.__try_execute(sql)
-        return self.__process_result(c.fetchone())
+        return _simplify_list(c.fetchone())
     
     def query_all(self, sql):
         c = self.__try_execute(sql)
-        return self.__process_result(c.fetchall())
+        return _simplify_list(c.fetchall())
 
     def execute(self, sql):
         self.__try_execute(sql)
@@ -196,14 +212,6 @@ class Database:
             raise
         return c
 
-    def __process_result(self, result):
-        try:
-            if len(result)==1:
-                return result[0]
-            else:
-                return result
-        except:
-            return result
 
     def __get_conn(self):
         return self.__conn
@@ -324,7 +332,7 @@ class FieldMapMultipleTable(MultipleTable):
     def set_by_id(self, id_, valuedict):
         return MultipleTable.set_by_id(self, id_, self.database.field_map.process_value_dict(self.tables, valuedict))
 
-class TableRow:
+class TableRow(object):
     def __init__(self, tb, id_, idname = "id"):
         self.__tb = tb
         self.__id = id_
@@ -353,20 +361,46 @@ class TableRow:
         return self.__id
 
     id = property(__get_id, doc="ID of the TableRow.")
-    table = property(__get_table, doc="Name of Table containing the TableRow.")
+    table = property(__get_table, doc="Table containing the TableRow.")
 
 class FieldMapTableRow(TableRow):
     def __init__(self, tb, id_, idname = "id"):
         TableRow.__init__(self,tb,id_,idname)
-        
+	fields = self.table.database.field_map.get_fields(self.table.tables)
+	values = TableRow.get(self, *fields)
+	self.data = dict()
+	for i in range(len(fields)):
+	    self.data[fields[i]] = values[i]
+
+    def __getattr__(self, name):
+	if name in self.data.keys():
+	    return self.data[name]
+	else:
+	    raise AttributeError
+
+    def get(self, *fieldlist):
+        return _simplify_list(tuple(map(self.data.get, fieldlist)))
+
+    def set(self, valuedict=None, **keywordvaluedict):
+	if valuedict!=None:
+            vd = valuedict
+        else:
+            vd = keywordvaluedict
+	self.data.update(vd)
+	return True
+
+    def commit(self):
+	TableRow.set(self, self.data)
+	return True
+
     
-class Gizmo(TableRow):
+class Gizmo(FieldMapTableRow):
     def __init__(self, db, gid):
         # This is where I was planning to use Cache; is it bad to be passing each Gizmo a different Table instance? I think it is (bad)...
         # Chicken and the Egg: Needs class_tree to initialize TableRow, TableRow needs to be initialized to get class_tree. I'll make it create a temporary tablerow and then use that to initialize TableRow.
         temptablerow = TableRow(db.get_table("Gizmo"), gid)
         class_tree = tuple(temptablerow.get("classTree").split("."))
-        TableRow.__init__(self, db.get_field_map_tables(class_tree), gid)
+        FieldMapTableRow.__init__(self, db.get_field_map_tables(class_tree), gid)
 
     def __get_class_tree(self):
         return self.get("classTree")
@@ -378,14 +412,9 @@ class FieldMap(Table):
         Table.__init__(self, db, "FieldMap")
 
     def __get_location(self, classes, fieldname):
-        """Return the Table fieldname belongs to."""
-        #What does this do again?
-        #if len(classes)==1:
-        #    classesstr = str(classes)
-        #else:
-        #    classesstr = repr(tuple(classes))
-        sql = _select_sql("tableName", "fieldMap", _AND(_IN("tableName", _tables(classes)), _equals("fieldName",fieldname)))
-        tablename = self.database.query_one(sql)
+        """Return Table fieldname belongs to."""
+        sql = _select_sql("tableName", "fieldMap", _AND(_IN("tableName", _string_list(classes)), _equals("fieldName",fieldname)))
+	tablename = self.database.query_one(sql)
         if not tablename:
             raise InvalidFieldError(fieldname)
         return tablename
@@ -398,7 +427,7 @@ class FieldMap(Table):
     #---
 
     def get_fields(self, classes):
-        sql = _select_sql(_fields("fieldName", "fieldMap", _IN("tableName", _tables(classes))))
+        sql = _select_sql("fieldName", "fieldMap", _IN("tableName", _string_list(classes)))
         fields = self.database.query_all(sql)
         return _single_tuple_list(fields)
 
@@ -420,7 +449,7 @@ class FieldMap(Table):
                 newvaluedict[self.get_location(classes, field) + "." + field] = value
             else:
                 newvaluedict[field] = value
-        return newvaluedict
+      	return newvaluedict
 
 class ClassTree(Table):
     def __init__(self, db):
