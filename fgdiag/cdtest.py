@@ -130,7 +130,7 @@ class CDDevice(test.TestableDevice):
         # If that doesn't work, try fstab...  
 
         if not status==0:
-            status, output = self.run_command("cat /etc/fstab | grep cd | awk '{print $1}' | sort -u")
+            status, output = self.run_command("cat /etc/fstab | grep cd | awk '{print $2}' | sort -u")
             device=output
             cmd=string.join(["mount",device])
             status, output = self.run_command(cmd)
