@@ -1,5 +1,4 @@
 import userinteraction
-from fgdb import InvalidRowError
 
 def prompt_for_ids(db, wantedtype, devices):
     devicegizmos = dict()
@@ -9,6 +8,8 @@ def prompt_for_ids(db, wantedtype, devices):
 
 def prompt_for_id(db, wantedtype, name, description=""):
     """Ask for the ID of a Gizmo and get it."""
+    from fgdb import InvalidRowError
+
     goodgizmo = False
     gizmo = None
     
