@@ -3,7 +3,7 @@
 """Install script for Free Geek Diagnostics
 
 FIXME: docs are included in the tarball, but not installed anywhere.
- (Maybe this is okay, package maintainers can install the docs?)
+ (Maybe this is okay. Package maintainers can install the docs?)
 """
 
 # Should these lists be auto-generated?
