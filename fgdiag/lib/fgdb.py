@@ -220,8 +220,9 @@ class Table:
         self.__db = db
         self.__table = table
         self.__idname = idname
-
+        
     def get_row(self, id_):
+        # TableRow can stay unchanged because it just wraps the Table object given to it.
         return TableRow(self, id_, self.__idname)
 
     def get_by_id(self, id_, fieldlist):
@@ -235,6 +236,12 @@ class Table:
     
     def select_by_id(self, id_, fields):
         return self.select(fields, _equals(self.__idname, id_))
+
+    def get_exists_by_id(self, id_):
+        if self.select_by_id(id_, _count())==0:
+            return False
+        else:
+            return True
     
     def update_by_id(self, id_, values):
         return self.update(values, _equals(self.__idname, id_))
@@ -287,6 +294,12 @@ class MultipleTable:
     
     def select_by_id(self, id_, fields):
         return self.select(fields, _id_values(self.__tables, id_, self.__idname))
+
+    def get_exists_by_id(self, id_):
+        if self.select_by_id(id_, _count())==0:
+            return False
+        else:
+            return True
     
     def update_by_id(self, id_, values):
         return self.update(values, _id_values(self.__tables, id_, self.__idname))
@@ -324,15 +337,9 @@ class FieldMapMultipleTable(MultipleTable):
 
 class TableRow:
     def __init__(self, tb, id_, idname = "id"):
+        if not tb.get_exists_by_id(id_): raise InvalidRowError(id_)
         self.__tb = tb
         self.__id = id_
-        if not self.__get_exists(): raise InvalidRowError(self.__id)
-
-    def __get_exists(self):
-        if self.__tb.select_by_id(self.__id, _count())==0:
-            return False
-        else:
-            return True
         
     def get(self, *fieldlist):
         return self.__tb.get_by_id(self.__id, fieldlist)
@@ -397,7 +404,7 @@ class Gizmo(FieldMapTableRow):
     def __init__(self, db, gid):
         # This is where I was planning to use Cache; is it bad to be passing each Gizmo a different Table instance? I think it is (bad)...
         # Chicken and the Egg: Needs class_tree to initialize TableRow, TableRow needs to be initialized to get class_tree. I'll make it create a temporary tablerow and then use that to initialize TableRow.
-        temptablerow = TableRow(db.get_table("Gizmo"), gid)
+        temptablerow = db.get_table("Gizmo").get_row(gid)
         class_tree = tuple(temptablerow.get("classTree").split("."))
         FieldMapTableRow.__init__(self, db.get_field_map_tables(class_tree), gid)
 

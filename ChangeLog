@@ -1,3 +1,8 @@
+2004-05-07    <chromakode@llama>
+
+	* fgdiag/lib/fgdb.py (TableRow): Moved code to verify a row's
+	existence to the Table classes.
+
 2004-05-05    <chromakode@llama>
 
 	* fgdiag/pogotest.profile: Added profiling data for pogotest.py in pogotest.profile
