@@ -8,3 +8,6 @@ def process(data, fieldmap):
         tableloc = fieldmap.get_field_location(item[0])
         newdata[tableloc] = item[1]
     return newdata
+    
+def register_test_data(self, gizmo):
+        """Put data into appropriate fields in database."""
