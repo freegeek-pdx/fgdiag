@@ -1,6 +1,10 @@
+2004-07-06    <chromakode@fgdefault>
+
+	* fgdiag/pogotest.py (Module): Added comments on statuses
+
 2004-06-08    <chromakode@llama>
 
-	* fgdiag/lib/test.py (Module): Destinations, and intructions too.
+	* fgdiag/lib/test.py (Module): Destinations, and instructions too.
 
 2004-05-29  Kevin Turner  <kevin@freegeek.org>
 

@@ -39,14 +39,25 @@ class _StatusConstantCollection(dict):
         return constant.name in self.keys()
 
 Status = _StatusConstantCollection()
+
+# Statuses:
+# Test was inconclusive
 Status.create_status("Unknown", {"working":"M", "needsexpert":"M"})
+# Gizmo is bad
 Status.create_status("Failed", {"working":"N", "needsexpert":"N"})
+# Gizmo is good
 Status.create_status("Passed", {"working":"Y", "needsexpert":"N"})
+# Gizmo is bad, could possibly be fixed by and expert
 Status.create_status("NeedsExpert", {"working":"M", "needsexpert":"Y"})
 
 Destination = _StatusConstantCollection()
+
+# Destinations
+# We don't know where to put it
 Destination.create_status("Unknown", {})
+# Recycle it
 Destination.create_status("Recycled", {"newstatus":"Recycled"})
+# Store it
 Destination.create_status("Stored", {"newstatus":"Stored"})
 
 def status_from_boolean(bool):
