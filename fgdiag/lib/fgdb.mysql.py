@@ -1,3 +1,4 @@
+#Note: This is a deprecated MySQL version, and is probably incomplete.
 
 """FreeGeek Database access.
 
@@ -18,7 +19,7 @@ True
 
 """
 
-from pyPgSQL import PgSQL
+import MySQLdb
 
 def connect(host, db, user, passwd):
     """Return a Database instance connected to dburl.
@@ -28,7 +29,7 @@ def connect(host, db, user, passwd):
     """
 
     try:
-        conn = PgSQL.connect(host=host, database=db, user=user, password=passwd)
+        conn = MySQLdb.connect(host=host, db=db, user=user, passwd=passwd)
         mydb = Database(conn)
     except:
         # (Insert graceful failure here) ;)
@@ -37,7 +38,7 @@ def connect(host, db, user, passwd):
     return mydb
 
 def _equals(field, value):
-    return "%s = %s" % (field, PgSQL.PgQuoteString(value))
+    return "%s = %s" % (field, MySQLdb.string_literal(value))
 
 def _AND(*l):
     return " AND ".join(l)
@@ -46,15 +47,14 @@ def _IN(*l):
     return " IN ".join(l)
 
 def _single_tuple_list(l):
-    l = tuple(l)
-    newl = tuple()
+    newl = ()
     for item in l:
-        newl += (item[0],)
+        newl += item
     return newl
 
 def _string_list(l):
     if len(l)==1:
-        lstr = "(\"%s\")" % l[0]
+	lstr = "(\"%s\")" % l[0]
     else:
         lstr = repr(tuple(l))
     return lstr
@@ -207,7 +207,7 @@ class Database:
         c = self.__conn.cursor()
         try:
             c.execute(sql)
-        except PgSQL.libpq.OperationalError:
+        except MySQLdb.ProgrammingError:
             print "SQL call failed: " + sql
             # FIXME: Fall back here?
             raise
@@ -377,7 +377,7 @@ class FieldMapTableRow(TableRow):
 	if name in self.data.keys():
 	    return self.data[name]
 	else:
-	    raise AttributeError, key
+	    raise AttributeError
 
     def get(self, *fieldlist):
         return _simplify_list(tuple(map(self.data.get, fieldlist)))
