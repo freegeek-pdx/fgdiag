@@ -39,35 +39,60 @@ def connect(host, db, user, passwd):
 def _equals(field, value):
     return "%s = '%s'" % (field, value)
 
-def _list_to_string(l):
-    return ", ".join(l)
-
-def _list_to_AND_string(l):
+def _AND(*l):
     return " AND ".join(l)
 
-def _value_dict_to_string(valuedict):
+def _IN(*l):
+    return " IN ".join(l)
+
+def _tables(l):
+    return ", ".join(l)
+
+def _fields(l):
+    return ", ".join(l)
+
+def _values(valuedict):
     sets = tuple()
     for item in valuedict.iteritems():
         sets += (_equals(item[0],item[1]),)
-    return _list_to_string(sets)
-
+    return _fields(sets)
+    
 def _id_values(tables, id_, idname="id"):
     sets = tuple()
     for table in tables:
         sets += (_equals(table + "." + idname, id_),)
-    return _list_to_AND_string(sets)
+    return _AND(*sets)
+    
+def _count():
+    return "COUNT(*)"
 
-def _single_select_sql(fields, table, where):
-    return "SELECT %s FROM %s WHERE %s" % (_list_to_string(fields), table, where)
+_select_sql_template = "SELECT %s FROM %s WHERE %s"
+_update_sql_template = "UPDATE %s SET %s WHERE %s"
 
-def _single_update_sql(valuedict, table, where):
-    return "UPDATE %s SET %s WHERE %s" % (table, _value_dict_to_string(valuedict), where)
+def _select_sql(fieldlist, table, where):
+    return _select_sql_template % (fieldlist, table, where)
 
-def _multiple_select_sql(fields, tables, where):
-    return "SELECT %s FROM %s WHERE %s" % (_list_to_string(fields), _list_to_string(tables), where)
+def _update_sql(valuedict, table, where):
+    return _update_sql_template % (table, valuedict, where)
+#---
 
-def _multiple_update_sql(valuedict, tables, where):
-    return "UPDATE %s SET %s WHERE %s" % (_list_to_string(tables), _value_dict_to_string(valuedict), where)
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+class InvalidRowError(Error):
+    """Exception raised when an invalid TableRow is requested."""
+    def __init__(self, rowname):
+        self.rowname = rowname
+    def __str__(self):
+        return repr(self.rowname)
+    
+class InvalidFieldError(Error):
+    """Exception raised when an invalid TableRow is requested."""
+    def __init__(self, columnname):
+        self.columnname = columnname
+    def __str__(self):
+        return repr(self.columnname)
 
 class Cache:
     """
@@ -135,9 +160,12 @@ class Database:
         return c
 
     def __process_result(self, result):
-        if len(result)==1:
-            return result[0]
-        else:
+        try:
+            if len(result)==1:
+                return result[0]
+            else:
+                return result
+        except:
             return result
 
     def __get_conn(self):
@@ -159,14 +187,26 @@ class Table:
     def get_row(self, id_):
         return TableRow(self, id_, self.__idname)
 
-    def get_by_id(self, id_, fields):
-        sql = _single_select_sql(fields, self.table, _equals(self.__idname, id_))
-        return self.__db.query_one(sql)
+    def get_by_id(self, id_, fieldlist):
+        return self.select_by_id(id_, _fields(fieldlist))
 
     def set_by_id(self, id_, valuedict):
-        sql = _single_update_sql(valuedict, self.__table, _equals(self.__idname, id_))
+        return self.update_by_id(id_, _values(valuedict))
+    
+    def select_by_id(self, id_, fields):
+        return self.select(fields, _equals(self.__idname, id_))
+    
+    def update_by_id(self, id_, values):
+        return self.update(values, _equals(self.__idname, id_))
+    
+    def select(self, fields, where):
+        sql = _select_sql(fields, self.table, where)
+        return self.__db.query_one(sql)
+    
+    def update(self, values, where):
+        sql = _update_sql(values, self.__table, where)
         return self.__db.execute(sql)
-
+        
     def __get_table(self):
         return self.__table
 
@@ -187,13 +227,10 @@ class MultipleTable:
         # TableRow can stay unchanged because it just wraps the Table object given to it.
         return TableRow(self, id_, self.__idname)
 
-    def get_by_id(self, id_, fields):
-        sql = _multiple_select_sql(fields, self.__tables, _id_values(self.tables, id_, self.__idname))
-        return self.__db.query_one(sql)        
+    def get_by_id(self, id_, fieldlist):
+        return self.select_by_id(id_, _fields(fieldlist))     
 
     def set_by_id(self, id_, valuedict):
-        #sql = _multiple_update_sql(valuedict, self.__tables, _id_values(self.tables, id_, self.__idname))
-        #return self.__db.execute(sql)
         # Quick fix for older mysql versions
         tablevalues = dict()
         for item in valuedict.iteritems():
@@ -202,9 +239,25 @@ class MultipleTable:
                 tablevalues[table] = dict()
             tablevalues[table][field] = item[1]
         for table in tablevalues.iteritems():
-            sql = _single_update_sql(table[1], table[0], _equals(self.__idname, id_))
+            sql = _update_sql(_values(table[1]), table[0], _equals(self.__idname, id_))
             self.__db.execute(sql)
         return True
+    
+    def select_by_id(self, id_, fields):
+        return self.select(fields, _id_values(self.__tables, id_, self.__idname))
+    
+    def update_by_id(self, id_, values):
+        return self.update(values, _id_values(self.__tables, id_, self.__idname))
+    
+    def select(self, fields, where):
+        sql = _select_sql(fields, _tables(self.__tables), where)
+        return self.__db.query_one(sql)
+        
+    def update(self, values, where):
+        #sql = _multiple_update_sql(valuedict, self.__tables, _id_values(self.tables, id_, self.__idname))
+        #return self.__db.execute(sql)
+        sql = _update_sql(values, _tables(self.__tables), where)
+        self.__db.execute(sql)
         
     def __get_tables(self):
         return self.__tables
@@ -221,8 +274,8 @@ class FieldMapMultipleTable(MultipleTable):
     def __init__(self, db, tables, idname = "id"):
         MultipleTable.__init__(self, db, tables, idname)
 
-    def get_by_id(self, id_, fields):
-        return MultipleTable.get_by_id(self, id_, self.database.field_map.process_field_list(self.tables, fields))
+    def get_by_id(self, id_, fieldlist):
+        return MultipleTable.get_by_id(self, id_, self.database.field_map.process_field_list(self.tables, fieldlist))
 
     def set_by_id(self, id_, valuedict):
         return MultipleTable.set_by_id(self, id_, self.database.field_map.process_value_dict(self.tables, valuedict))
@@ -231,9 +284,16 @@ class TableRow:
     def __init__(self, tb, id_, idname = "id"):
         self.__tb = tb
         self.__id = id_
+        if not self.__get_exists(): raise InvalidRowError(self.__id)
 
-    def get(self, *fields):
-        return self.__tb.get_by_id(self.__id, fields)
+    def __get_exists(self):
+        if self.__tb.select_by_id(self.__id, _count())==0:
+            return False
+        else:
+            return True
+        
+    def get(self, *fieldlist):
+        return self.__tb.get_by_id(self.__id, fieldlist)
 
     def set(self, valuedict=None, **keywordvaluedict):
         if valuedict!=None:
@@ -270,8 +330,14 @@ class FieldMap(Table):
 
     def __get_field_location(self, classes, fieldname):
         """Return the Table fieldname belongs to."""
-        sql = "SELECT tableName FROM fieldMap WHERE tableName IN %s AND fieldName='%s'" % (repr(tuple(classes)), fieldname)
+        if len(classes)==1:
+            classesstr = str(classes)
+        else:
+            classesstr = repr(tuple(classes))
+        sql = _select_sql("tableName", "fieldMap", _AND(_IN("tableName", classesstr), _equals("fieldName",fieldname)))
         tablename = self.database.query_one(sql)
+        if not tablename:
+            raise InvalidFieldError(fieldname)
         return tablename
 
     # Cache stuff
