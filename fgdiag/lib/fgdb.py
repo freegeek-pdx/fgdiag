@@ -101,7 +101,7 @@ def _no_where():
 
 def _check_id(id_):
     try:
-        psycopg.INTEGER(id_)
+        psycopg.INTEGER(str(id_))
     except ValueError:
         raise ValueError("ID value must be a valid integer.")
 
