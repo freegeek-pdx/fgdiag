@@ -10,7 +10,6 @@ from logging import create_node
 
 _log = create_node(__name__)
 
-
 # TODO: Collect these into a container of some kind.
 # Would it make more sense for Status_Unknown to be 0, and Status_Failed to be -1?
 Status_Unknown = -1
@@ -28,7 +27,7 @@ def start_test(test):
     """Helper function. Initializes test and runs its test."""
     testinstance = test()
     testinstance.start_test()
-
+    
 class TestableDevice:
 
     name = "Device"
@@ -83,7 +82,7 @@ class TestableDevice:
 
         self.__log("test", "Running _d_test()")
         self.status = self._d_test()
-        self.__log("get_data", "Returned %s." % self.status)
+        self.__log("test", "Returned %s." % self.status)
         return self.status
 
 class GizmoTester:
