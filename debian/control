@@ -7,7 +7,7 @@ Standards-Version: 3.6.1
 
 Package: fgdiag
 Architecture: all
-Depends: ${python:Depends}, mtools, console-tools, time, isapnptools, python2.2-psycopg
+Depends: ${python:Depends}, mtools, console-tools, time, isapnptools, setserial, python2.2-psycopg
 Suggests: python2.2-twisted, python-epydoc
 Description: Free Geek Diagnostics
  Software used to test hardware at Free Geek.
