@@ -19,9 +19,9 @@ True
 """
 import psycopg
 from errors import InvalidRowError, InvalidFieldError, SQLError, DBConnectError
-from debug import start, debug
+from logging import create_node
 
-start("fgdb")
+_log = create_node(__name__)
 
 def connect(host, db, user, passwd):
     """Return a Database instance connected to dburl.
@@ -32,14 +32,16 @@ def connect(host, db, user, passwd):
 
     try:
         dbstr = "host=%s dbname=%s user=%s password=%s" % (host,db,user,passwd)
+        _log("Connect", dbstr)
         conn = psycopg.connect(dbstr)
-        conn.autocommit(True)
-        debug("Connect", dbstr)
-        
-        mydb = Database(conn)
         # Make it autocommit - Without this changes will not save
+        conn.autocommit(True)
+        mydb = Database(conn, host, db, user)
+        _log("Connect", "Connection Succeeded.")
+        
     except Exception, e:
         # (Insert graceful failure here) ;)
+        _log("Connect", "Connection Failed.")
         raise DBConnectError(e)
 
     return mydb
@@ -172,11 +174,14 @@ class Queue:
             call(*args, **kwds)     
         
 class Database:
-    def __init__(self, conn):
+    def __init__(self, conn, host, dbname, user):
         self.__conn = conn
         self.__field_map = FieldMap(self)
         self.__class_tree = ClassTree(self)
-        debug("Database", "Instance created")
+        self.__host = host
+        self.__dbname = dbname
+        self.__user = user
+        self.__log = _log.child_node("Database", "%s@%s/%s" % (self.__user, self.__host, self.__dbname))
 
     def get_table(self, name, idname = "id"):
         """Get Table object by name."""
@@ -207,7 +212,7 @@ class Database:
 	return True
 
     def __try_execute(self, sql):
-        debug("Database", "SQL call: %s" % sql)
+        self.__log("SQL Call", sql)
         c = self.__conn.cursor()
         try:
             c.execute(sql)
@@ -226,9 +231,22 @@ class Database:
     def __get_class_tree(self):
         return self.__class_tree
 
+    def __get_host(self):
+        return self.__host
+
+    def __get_dbname(self):
+        return self.__dbname
+
+    def __get_user(self):
+        return self.__user
+
+
     connection = property(__get_conn, doc="Connection object for the Database.")
     field_map = property(__get_field_map, doc="FieldMap of the Database.")
     class_tree = property(__get_class_tree, doc="FieldMap of the Database.")
+    host = property(__get_host, doc="Host of the Database connection.")
+    dbname = property(__get_dbname, doc="Database name of the Database connection.")
+    user = property(__get_user, doc="User name of the Database connection.")
 
 class Table:
     """Generates queries for a table."""
@@ -423,7 +441,7 @@ class Gizmo(FieldMapTableRow):
         temptablerow = db.get_table("Gizmo").get_row(gid)
         class_tree = tuple(temptablerow.get("classTree").split("."))
         FieldMapTableRow.__init__(self, db.get_field_map_tables(class_tree), gid)
-        debug("Gizmo", "Gizmo instance created (%s)" % gid)
+        self.__log = _log.child_node("Gizmo", gid)
 
     def __get_class_tree(self):
         return self.get("classTree")

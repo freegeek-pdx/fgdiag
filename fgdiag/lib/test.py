@@ -6,9 +6,10 @@ from userinteraction import notice, error
 from testdata import register_test_data
 from config import get_fgdb_login
 from errors import InvalidStatusError, DBConnectError
-from debug import start, debug
+from logging import create_node
 
-start("test")
+_log = create_node(__name__)
+
 
 # TODO: Collect these into a container of some kind.
 # Would it make more sense for Status_Unknown to be 0, and Status_Failed to be -1?
@@ -36,6 +37,7 @@ class TestableDevice:
         self.data = dict()
         self.description = str()
         self.status = Status_Unknown
+        self.__log = _log.child_node("TestableDevice", self.name)
 
     def _d_data(self):
         """Provide properties of this device.
@@ -60,8 +62,12 @@ class TestableDevice:
         self.data to the data, and self.description to a human
         readable description."""
 
+        self.__log("get_data", "Running _d_data()")
         self.data = self._d_data()
+        self.__log("get_data", "Returned %s." % self.data)
+        self.__log("description", "Running _d_description()")
         self.description = self._d_description(self.data)
+        self.__log("description", "Returned %s." % self.description)
         return self.data
 
     def _d_test(self):
@@ -75,7 +81,9 @@ class TestableDevice:
         """Test the Gizmo, and return the status. Sets self.status to
         the status of the Gizmo."""
 
+        self.__log("test", "Running _d_test()")
         self.status = self._d_test()
+        self.__log("get_data", "Returned %s." % self.status)
         return self.status
 
 class GizmoTester:
@@ -89,6 +97,9 @@ class GizmoTester:
 
     gizmotype = None
 
+    def __init__(self):
+        self.__log = _log.child_node("GizmoTester", self.gizmotype)
+
     def start_test(self):
         """Test a Gizmo.
 
@@ -101,7 +112,7 @@ class GizmoTester:
 
         """
 
-        debug("GizmoTester", "Starting test for %s" % self.gizmotype)
+        self.__log("Start", "Starting test.")
 
         # Run test first
         devices = self.run()
@@ -148,6 +159,7 @@ class GizmoTester:
             for device, gizmo in devicegizmos.iteritems():
                 register_test_data(gizmo, device.data)
             notice("Success!")
+            self.__log("Finish", "Successful finish of test.")
         else:
             #XXX Put some sort of option to restart here
             notice("FIXME: Put an option to restart here")

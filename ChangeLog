@@ -1,3 +1,13 @@
+2004-05-12    <chromakode@llama>
+
+	* fgdiag/lib/test.py (Module): Switched to use new logging system
+
+	* fgdiag/lib/fgdb.py (Module): Switched to use new logging system
+
+	* fgdiag/lib/debug.py (Module): Renamed to logging
+
+	* fgdiag/pogotest.py (Module): Added useless logging example
+
 2004-05-11    <chromakode@llama>
 
 	* fgdiag/lib/test.py (Module): Modified to use debug
