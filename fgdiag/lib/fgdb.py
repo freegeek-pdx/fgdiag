@@ -41,6 +41,10 @@ def connect(host, db, user, passwd):
 def _equals(field, value):
     return "%s = %s" % (field, psycopg.QuotedString(str(value)))
 
+def _id_equals(field, id_):
+    check_id(id_)
+    return _equals(field, id_)
+
 def _AND(*l):
     return " AND ".join(l)
 
@@ -85,7 +89,7 @@ def _values(valuedict):
 def _id_values(tables, id_, idname="id"):
     sets = tuple()
     for table in tables:
-        sets += (_equals(table + "." + idname, id_),)
+        sets += (_id_equals(table + "." + idname, id_),)
     return _AND(*sets)
     
 def _count():
@@ -93,6 +97,12 @@ def _count():
 
 def _no_where():
     return "1"
+
+def _check_id(id_):
+    try:
+        psycopg.INTEGER(id_)
+    except ValueError:
+        raise TypeError("ID value must be an integer")
 
 _select_sql_template = "SELECT %s FROM %s WHERE %s"
 _update_sql_template = "UPDATE %s SET %s WHERE %s"
@@ -228,13 +238,13 @@ class Table:
         return self.select_by_id(id_, _fields(fieldlist))
 
     def get_all(self, id_):
-        return self.select("*", _equals(self.__idname, id_))
+        return self.select("*", _id_equals(self.__idname, id_))
     
     def set_by_id(self, id_, valuedict):
         return self.update_by_id(id_, _values(valuedict))
     
     def select_by_id(self, id_, fields):
-        return self.select(fields, _equals(self.__idname, id_))
+        return self.select(fields, _id_equals(self.__idname, id_))
 
     def get_exists_by_id(self, id_):
         if self.select_by_id(id_, _count())==0:
@@ -243,7 +253,7 @@ class Table:
             return True
     
     def update_by_id(self, id_, values):
-        return self.update(values, _equals(self.__idname, id_))
+        return self.update(values, _id_equals(self.__idname, id_))
     
     def select(self, fields, where):
         sql = _select_sql(fields, self.table, where)
@@ -287,7 +297,7 @@ class MultipleTable:
                 tablevalues[table] = dict()
             tablevalues[table][field] = item[1]
         for table, fields in tablevalues.iteritems():
-            sql = _update_sql(_values(fields), table, _equals(self.__idname, id_))
+            sql = _update_sql(_values(fields), table, _id_equals(self.__idname, id_))
             self.__db.execute(sql)
         return True
     
