@@ -1,0 +1,37 @@
+modems
+
+ - get_serial_devices 
+   - takes no args
+   - returns /dev/ttyS device names
+ - find_speed
+   - takes /dev/ttyS device names
+   - returns speeds
+ - transfer_test 
+   
+
+Scan
+
+class ModemScan(GizmoScan):
+    def scan(self):
+        return modem.get_serial_devices()
+
+class ModemData(GizmoData):
+    def get_data(self, serialDevice):
+        speed = modem.find_speed(serialDevice)
+        return {"speed": speed }
+
+class ModemTest(GizmoTest):
+    def test(self, serialDevice):
+        if modem.transfer_test(serialDevice):
+            return test.Status_Passed
+        else:
+            return test.Status_Failed
+
+class ModemTester(GizmoTester):
+    def run(self, modemScan, modemData, modemTest):
+        results = []
+        for serialDevice in modemScan():
+            data = modemData()
+            passed = modemTest()
+            results.append((passed, data))
+        return results
