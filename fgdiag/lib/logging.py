@@ -6,7 +6,7 @@ def _format(timestamp, nodes, title, message):
    nodestr = "[%s]" % "|".join([node for node in nodes])
    return "[%s]: %s %s: %s" % (time.asctime(time.localtime(timestamp)), nodestr, title, message)
 
-class LogReceptor:
+class _LogReceptor:
    """Log Receptor Class
 
    Template for pluggable outputs for logs.
@@ -18,7 +18,7 @@ class LogReceptor:
    def exit(self, log):
       raise NotImplementedError
 
-class BaseReceptor(LogReceptor):
+class BaseReceptor(_LogReceptor):
    """Keeps track of log and receptors, and alerts their hooks."""
    def __init__(self):
       self.fulllog = list()
@@ -47,7 +47,7 @@ class BaseReceptor(LogReceptor):
             # Log something?
             raise
          
-class PrintReceptor(LogReceptor):
+class PrintReceptor(_LogReceptor):
    def log(self, data):
       print _format(*data)
 
