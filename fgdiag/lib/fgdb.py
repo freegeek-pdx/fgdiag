@@ -189,12 +189,23 @@ class MultipleTable:
 
     def get_by_id(self, id_, fields):
         sql = _multiple_select_sql(fields, self.__tables, _id_values(self.tables, id_, self.__idname))
-        return self.__db.query_one(sql)
+        return self.__db.query_one(sql)        
 
     def set_by_id(self, id_, valuedict):
-        sql = _multiple_update_sql(valuedict, self.__tables, _id_values(self.tables, id_, self.__idname))
-        return self.__db.execute(sql)
-
+        #sql = _multiple_update_sql(valuedict, self.__tables, _id_values(self.tables, id_, self.__idname))
+        #return self.__db.execute(sql)
+        # Quick fix for older mysql versions
+        tablevalues = dict()
+        for item in valuedict.iteritems():
+            table, field = item[0].split(".")
+            if not tablevalues.has_key(table):
+                tablevalues[table] = dict()
+            tablevalues[table][field] = item[1]
+        for table in tablevalues.iteritems():
+            sql = _single_update_sql(table[1], table[0], _equals(self.__idname, id_))
+            self.__db.execute(sql)
+        return True
+        
     def __get_tables(self):
         return self.__tables
 
