@@ -1,0 +1,30 @@
+Getting hardware testing to the next level:
+
+Non-FreekBox Projects
+=====================
+	Create a fax testing procedure using dial tone emulator
+
+Enhancements:
+=============
+	Video -- better support for AGP cards 
+	Sound -- support for non-SB modules
+	Sound -- checking MPU_IO and DMA resources
+	Monitor -- better display of resolution string 
+		(before and after and during? tests)
+	Monitor -- there should be a burn in test that leaves the
+		monitor running for a longer period of time, and an instant
+		test that can determine a bad monitor in seconds. The instant
+		test might be running on a couple machines at receiving.  The
+		burn in test could run on a couple machines in the store.
+	CD -- ?? 
+	NIC -- Test transfer of data over wires
+	Hard Drive -- report drive geometry?
+	Hard Drive -- install a file system
+        Hard Drive -- when finished, report summary of drive, size, pass/fail
+	Floppy Drive -- dd an image to a floppy (from HD) and 
+		boot from it (for in an existing FreekBox)
+	Modem -- dial in to another modem (on server) and 
+		check for speed and data corruption 
+	Modem -- make an EXTERNAL mode -- this shouldn't report the
+		serial port (irrelevant) and should allow user to plug in a
+		new modem without power cycling.
