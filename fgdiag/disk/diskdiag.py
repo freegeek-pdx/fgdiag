@@ -23,7 +23,7 @@ class DiskDevice(test.TestableDevice):
         return self.data
 
     def _d_description(self, data):
-        return "Hard Disk at " + self.dev
+        return self.dev + ": " + str(self.data["sizeMb"]) + "MB"
 
     def __str__(self):
         return self.dev
@@ -31,7 +31,7 @@ class DiskDevice(test.TestableDevice):
 class DiskDiag(test.GizmoTester):
     gizmotype = "Gizmo.Component.Drive.IDEHardDrive"
 
-    def run(self):
+    def scan(self):
         ui.notice("Scanning for devices to check")
         try:
             devs = disk.findBlockDevicesToScan()
@@ -45,16 +45,21 @@ class DiskDiag(test.GizmoTester):
                 ui.error_exit("Stopping.")
         if not devs:
             ui.error_exit("Found no disks to scan!")
-        devs = [ DiskDevice(i) for i in devs ]
-        for i in devs:
-            i.get_data()
-            print i
+        return devs
+
+    def run(self, devs):
         ui.prompt("About to commence scan.", "Press enter to begin. ")
         cursesdisk.run(devs)
         ui.notice("Done. Status report")
         for i in devs:
             print "%s: %s" % (i, i.status)
         return devs
+
+    def destination(self, dev):
+        if dev.status == test.Status["Passed"]:
+            return test.Destination["Stored"], "Good HD. Put it in the good bin."
+        else:
+            return test.Destination["Recycled"], "Dead. Recycle it."
 
 if __name__ == "__main__":
     DiskDiag().start_test()

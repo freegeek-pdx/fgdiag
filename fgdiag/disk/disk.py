@@ -64,6 +64,7 @@ __version__ = '$Revision$'[11:-2]
 
 import StringIO
 import operator, os, popen2, string, re, sys, time
+import diskdiag
 
 True = (1==1)
 False = not True
@@ -237,10 +238,10 @@ def findBlockDevicesToScan(forceClobber=False):
                 if not doWipe.has_key(p_id):
                     badParts.append((p[0], p_id))
 
-        devices_to_scan.append(drive)
+        devices_to_scan.append(diskdiag.DiskDevice(drive))
+        devices_to_scan[-1].get_data()
     if badParts and (not forceClobber):
         raise QuestionablePartitionException, (badParts,)
-
     return devices_to_scan
 
 

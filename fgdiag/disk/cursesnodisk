@@ -5,10 +5,11 @@ __version__ = '$Revision$'[11:-2]
 from os import path
 import sys
 
-from fgdiag.disk import badblocks, diskdiag, disk
+from fgdiag.disk import diskdiag
+from fgdiag.disk import badblocks, disk
 from fgdiag import disk as diskPackage
 
-SECTOR_COUNT = 200
+SECTOR_COUNT = 2 * (1024**2) # 2 GB
 
 thisdir = path.dirname(diskPackage.__file__)
 
