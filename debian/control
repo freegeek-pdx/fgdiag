@@ -1,0 +1,12 @@
+Source: fgdiag
+Section: unknown
+Priority: optional
+Maintainer: Kevin Turner <kevin@freegeek.org>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.1
+
+Package: fgdiag
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}
+Description: Free Geek Diagnostics
+ Software used to test hardware at Free Geek.

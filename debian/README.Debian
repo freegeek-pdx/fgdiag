@@ -1,0 +1,7 @@
+fgdiag for Debian
+-----------------
+
+This debian package installs the fgdiag python package, but does not set up
+the system as a testing station.
+
+ -- Kevin Turner <kevin@freegeek.org>, Tue, 19 Oct 2004 19:14:54 -0700
