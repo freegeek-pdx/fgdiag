@@ -42,6 +42,8 @@ class GizmoTest:
             #Test failed?
             print "Test failed"
             sys.exit()
+
+        print data
         
         # Is it safe to store the password for the user (write+read permissions in fgdb) in plaintext?
         db = connect(*get_fgdb_login())

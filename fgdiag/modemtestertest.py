@@ -1,9 +1,9 @@
-from modem.modem import *
+from modem import *
 from lib import test
 
 class TestingTest(test.GizmoTest):
 
-    gizmotype = "Gizmo.Component.Printer"
+    gizmotype = "Gizmo.Component.Modem"
     
     def run(self):
         for dev in live_ports:
@@ -47,14 +47,14 @@ class TestingTest(test.GizmoTest):
                     print "I'm pretty sure that"
                     print "device ttyS%s is speed %s" % (bold(str(dev)),
                                                          bold(results[0][0]))
-                    return {"speed",results[0][0]}
+                    return {"speed":results[0][0]}
                 else:
                     print "I found conflicting evidence for /dev/ttyS%s:" % (bold(str(dev)),)
                     for r in results:
                             print "(%s?) %s" % r
                     return None
 
-def main()
+def main():
     test.start_test(TestingTest)
 
 if __name__ == '__main__': main()
