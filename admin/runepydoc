@@ -1,0 +1,2 @@
+#!/bin/bash
+epydoc -o doc/html -n "Free Geek Gizmo Diagnostics" fgdiag
