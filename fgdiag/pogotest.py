@@ -5,7 +5,7 @@ Runs through some functions of the testing api.
 """
 
 from lib import test, userinteraction
-from logging import create_node
+from lib.logging import create_node
 
 # Create main log node
 _log = create_node(__name__)
