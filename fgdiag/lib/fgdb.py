@@ -18,7 +18,7 @@ True
 
 """
 
-from pyPgSQL import PgSQL
+import psycopg
 
 def connect(host, db, user, passwd):
     """Return a Database instance connected to dburl.
@@ -28,7 +28,7 @@ def connect(host, db, user, passwd):
     """
 
     try:
-        conn = PgSQL.connect(host=host, database=db, user=user, password=passwd)
+        conn = psycopg.connect("host=%s dbname=%s user=%s password=%s"%(host,db,user,passwd))
         mydb = Database(conn)
     except:
         # (Insert graceful failure here) ;)
@@ -37,7 +37,7 @@ def connect(host, db, user, passwd):
     return mydb
 
 def _equals(field, value):
-    return "%s = %s" % (field, PgSQL.PgQuoteString(str(value)))
+    return "%s = %s" % (field, psycopg.QuotedString(str(value)))
 
 def _AND(*l):
     return " AND ".join(l)
@@ -210,7 +210,7 @@ class Database:
         c = self.__conn.cursor()
         try:
             c.execute(sql)
-        except PgSQL.libpq.OperationalError:
+        except psycopg.libpq.OperationalError:
             print "SQL call failed: " + sql
             # FIXME: Fall back here?
             raise
