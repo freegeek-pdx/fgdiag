@@ -1,24 +1,59 @@
 #!/usr/bin/python
+"""CVS tagging script.
 
-import os
+Commands:
+
+    tag - increment the version number and tag the working copy with it.
+
+    checkout [version] - check out the specified version.  Defaults to the
+        most current tagged version.
+
+The version is stored in fgdiag/__init__.py in the form x.y.z.  Only the
+last part is incremented by this script.
+"""
+import os, sys
 
 versionFile = "fgdiag/__init__.py"
 
 def msg(*s):
-    print ' '.join(s) # + '\n'
+    print ' '.join(map(str, s)) # + '\n'
 
 class CommandFailed(Exception):
     pass
 
+def sh(command):
+    """I'll try to execute 'command' in a shell.
+    
+    If the command returns something other than 0, I'll raise
+    CommandFailed(command).
+    """
+    # print command
+    if os.system(command) != 0:
+        raise CommandFailed(command)
+
+def tagString(versionString):
+    versionString = versionString.replace('.', '_')
+    return 'Version_%s' % (versionString,)
+
 def replaceInFile(filename, old, new):
     """Replace all occurances one string with another in one file."""
-    os.system("perl -pi -e 's/%s/%s/g' %s" % (old, new, filename))
+    sh("perl -pi -e 's/%s/%s/g' '%s'" % (old, new, filename))
     # What are you looking at me like that for?
 
-def incrementVersion(inFile):
+def getVersion(inFile):
     g = {}
     execfile(inFile, g)
-    oldVersion = g["__version__"]
+    return g["__version__"]
+
+def incrementVersion(inFile):
+    """Increments the __version__ in a specified file.
+
+    @type inFile: string
+    @param inFile: Name of the file.
+
+    @returns: The new version string.
+    """
+    oldVersion = getVersion(inFile)
     v = oldVersion.split('.')
     try:
         patchlevel = int(v[-1])
@@ -30,14 +65,79 @@ def incrementVersion(inFile):
     msg("Updating %s from %s to %s" % (inFile, oldVersion, newVersion))
     replaceInFile(inFile, oldVersion, newVersion)
 
-def tag():
-    raise NotImplementedError
+    return newVersion
+
+
+def cvsUpdate(filename=None, version=None, quiet=True):
+    args = []
+    if version:
+        args.append("-r '%s'" % (tagString(version),))
+    else:
+        # Clear sticky tags.
+        args.append("-A")
+    if filename:
+        args.append("'%s'" % (filename,))
+    c = "cvs %s up %s" % (quiet and '-Q' or '', ' '.join(args))
+    msg("Running %r" % (c,))
+    sh(c)
+
+def cvsTag(version, quiet=True):
+    tag = tagString(version)
+    msg("Tagging %s as %s" % (version, tag))
+    sh("cvs %s tag -c '%s'" % (quiet and '-Q' or '', tag,))
+
+def cvsCommit(filename, message, quiet=True):
+    sh("cvs %s commit -m '%s' '%s'" % (quiet and '-Q' or '',
+                                       message, filename))
+
+def cvsUpToDateCheck():
+    # The -n flag means this won't really issue a tag, but
+    # the -c will make sure there are no locally modified files.
+    sh("cvs -Q -n tag -c JustChecking")
+
+def usage():
+    # Print the doc string at the top of this module.
+    msg(sys.modules[__name__].__doc__)
+
+def main(cmdline=None):
+    if cmdline is None:
+        cmdline = sys.argv[1:]
+
+    if not cmdline:
+        usage()
+        return 1
+
+    command, args = cmdline[0], cmdline[1:]
+
+    try:
+        if command == "tag":
+            cvsUpdate(versionFile)
+            # Do an up-to-date check *before* we change and commit a new
+            # version number.  This way, if it fails, we won't have needlessly
+            # incremented the version.
+            cvsUpToDateCheck()
+            version = incrementVersion(versionFile)
+            m = ("Version increment to %s\n"
+                 "by fgdiag/admin/tagversion script." % (version,))
+            cvsCommit(versionFile, m)
+            cvsTag(version)
+        elif command in ("checkout", "co"):
+            if args:
+                version = args[0]
+            else:
+                msg("Looking for newest version.")
+                cvsUpdate(versionFile)
+                version = getVersion(versionFile)
+            cvsUpdate(version=version, quiet=False)
+        else:
+            msg("Unknown command %r" % (command,))
+            usage()
+            return 1
+    except CommandFailed, c:
+        msg("Command failed:", c)
+        return 1
+
+    return 0
 
 if __name__ == '__main__':
-    incrementVersion(versionFile)
-    # check in versionFile
-    # tag the whole tree
-
-    # or:
-    # check out the latest tagged version
-    #  or a specified tagged version
+    sys.exit(main())

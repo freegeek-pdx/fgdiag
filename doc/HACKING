@@ -14,6 +14,22 @@ Coding standards:
 For Python, http://www.python.org/peps/pep-0008.html is a good guide.
 Don't use tabs.  Use four spaces.
 
+Tests:
+
+Always make sure the tests pass before you check in code!
+Execute 'admin/runtests' and make sure it says OK.
+(It requires twisted.trial to run.)
+
+Other useful tools to run over your Python code are pychecker, pylint
+and pyflakes.  The difference between these tools is in their verbosity;
+pychecker checks for many more things but often raises many false alarms,
+pyflakes is very conservative.
+
+Developer and maintainer tools are in the admin/ subdirectory:
+
+  runtests   - runs the test suite.
+  runepydoc  - makes HTML versions of the API documentation.
+  tagversion - tags or checks out a version for production use.
 
 Files of code:
 
