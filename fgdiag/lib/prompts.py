@@ -4,7 +4,8 @@ from errors import InvalidRowError, SQLError
 def prompt_for_gizmos(db, wantedtype, devices):
     devicegizmos = dict()
     for device in devices:
-        if userinteraction.yesno("Existing Gizmo?", "Does this Gizmo have an ID number?"):
+        #print "%s (%s)" % (device.name, device.description)
+        if userinteraction.yesno("Existing Gizmo?", "Does the %s (%s) have an ID number?" % (device.name, device.description)):
             gizmo = prompt_for_id(db, wantedtype, device.name, device.description)
         else:
             gizmo = None

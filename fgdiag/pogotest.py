@@ -48,19 +48,23 @@ class PogoTester(test.GizmoTester):
     #gizmotype = "Gizmo.Other"
     gizmotype = "Gizmo.Component.Printer"
 
-    def run(self):
-        # Define test logic for a Pogo Stick here. Usually this is pretty
-        # straightforward, like in this case.
+    def scan(self):
         pogos = pogo_scan()
         for pogo in pogos:
             pogo.get_data()
+        return pogos
+
+    def run(self, pogos):
+        # Define test logic for a Pogo Stick here. Usually this is pretty
+        # straightforward, like in this case.
+        for pogo in pogos:
             pogo.test()
         return pogos
 
     def destination(self, pogo):
         if pogo.data["notes"] == "Colored Purple":
             return test.Destination["Stored"], "This is a Purple Pogo. It is special!"
-        elif pogo.data["notes"] == "Colored Something":
+        elif pogo.data["notes"] == "Colored Something": 
             return test.Destination["Stored"], "Put this Gizmo in the \"Other\" bin."
         else:
             return test.Destination["Recycled"], "Please but the Pogo stick in the Recycling bin."
@@ -68,5 +72,5 @@ class PogoTester(test.GizmoTester):
 def main():
     from lib import testscript
     testscript.start(PogoTester)
-
+   
 if __name__ == '__main__': main()

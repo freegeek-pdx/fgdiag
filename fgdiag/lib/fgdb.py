@@ -328,6 +328,9 @@ class Database:
     def execute(self, sql):
 	c = self.__try_execute(sql)
 	return True
+    
+    def disconnect(self):
+        self.__conn.close()
 
     def __try_execute(self, sql):
         sql = str(sql)

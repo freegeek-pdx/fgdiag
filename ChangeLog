@@ -1,5 +1,19 @@
 2004-07-06    <chromakode@fgdefault>
 
+	* fgdiag/floppytester.py (Module): Ported to API changes
+
+	* fgdiag/pogotest.py (Module): Ported to API changes
+
+	* fgdiag/lib/fgdb.py (Module): Database.disconnect()
+
+	* fgdiag/lib/prompts.py (Module): Added device name/description to
+	existing prompt.
+
+	* fgdiag/lib/test.py (Module): Split API into run() and scan(),
+	ask for IDs before running test.
+
+	* fgdiag/nulltest.py (Module): Added Null Tester
+
 	* fgdiag/pogotest.py (Module): Added comments on statuses
 
 2004-06-08    <chromakode@llama>

@@ -134,13 +134,17 @@ class FloppyTester(test.GizmoTester):
 
     gizmotype = "Gizmo.Component.Drive.FloppyDrive"
 
+    def scan(self, floppies):
+        for floppy in floppies:
+            floppy.test()
+        return floppies
+
     def run(self):
         # Define test logic for a Pogo Stick here. Usually this is pretty
         # straightforward, like in this case.
         floppies = floppy_scan()
         for floppy in floppies:
             floppy.get_data()
-            floppy.test()
         return floppies
 
     def destination(self, floppy):

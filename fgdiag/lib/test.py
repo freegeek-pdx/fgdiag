@@ -154,10 +154,29 @@ class GizmoTester:
 
         """
 
+        def connect():
+             # Is it safe to store the password for the user (write+read permissions in fgdb) in plaintext?
+            from fgdb import connect
+
+            try:
+                notice("Connecting to the FreeGeek Database...")
+                return connect(*get_fgdb_login())
+            except DBConnectError, e:
+                # Do any recovery here
+                msg = \
+                "Unable to connect to the FreeGeek Database.\nError returned: %s" % str(e)
+                error(msg)
+                raise
+            
         self.__log("Start", "Starting test.")
 
-        # Run test first
-        devices = self.run()
+        # Run scan first
+        devices = self.scan()
+        db = connect()
+        devicegizmos = prompt_for_gizmos(db, self.gizmotype, devices)
+        db.disconnect()
+        
+        devices = self.run(devices)
 
         # Stick instructions in this dict for later
         deviceinstructions = dict()
@@ -186,22 +205,8 @@ class GizmoTester:
             else:
                 raise InvalidStatusError, device.status
 
-
-        # Is it safe to store the password for the user (write+read permissions in fgdb) in plaintext?
-        from fgdb import connect
-
-        try:
-            notice("Connecting to the FreeGeek Database...")
-            db = connect(*get_fgdb_login())
-        except DBConnectError, e:
-            # Do any recovery here
-            msg = \
-            "Unable to connect to the FreeGeek Database.\nError returned: %s" % str(e)
-            error(msg)
-            raise
+        db = connect()
         
-        devicegizmos = prompt_for_gizmos(db, self.gizmotype, devices)
-
         # Replace with something more efficient
         data = list()
         for device, gizmo in devicegizmos.iteritems():
@@ -224,6 +229,7 @@ class GizmoTester:
                 reportdata.append((device.name, device.description, gizmo.id, newgizmo, deviceinstructions[device]))
                 register_test_data(gizmo, device.data)
             # end transaction here
+            db.disconnect()
             notice("Success!")
             report_success(reportdata)
             self.__log("Finish", "Successful finish of test.")
@@ -232,6 +238,9 @@ class GizmoTester:
             notice("FIXME: Put an option to restart here")
 
     def run(self):
+        raise NotImplementedError
+
+    def scan(self):
         raise NotImplementedError
 
     def destination(self, device):
