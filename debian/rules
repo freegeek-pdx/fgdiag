@@ -15,8 +15,6 @@ build-stamp:
 	dh_testdir
 
 	# Add here commands to compile the package.
-	#	python setup.py 
-	#docbook-to-man debian/fgdiag.sgml > fgdiag.1
 
 	touch build-stamp
 
@@ -26,7 +24,7 @@ clean:
 	rm -f build-stamp
 
 	# Add here commands to clean up after the build process.
-	python2.3 setup.py clean
+	python2.2 setup.py clean
 
 	dh_clean -i
 
@@ -37,7 +35,7 @@ install: build
 	dh_installdirs -i
 
 	# Add here commands to install the package into debian/fgdiag.
-	python2.3 setup.py install --no-compile --root debian/tmp
+	python2.2 setup.py install --no-compile --root debian/tmp
 	dh_install -i --sourcedir debian/tmp
 
 
@@ -68,7 +66,7 @@ binary-arch: build install
 	dh_compress
 	dh_fixperms
 #	dh_perl
-	dh_python
+	dh_python -V 2.2 --verbose
 #	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
