@@ -23,7 +23,7 @@ import fcntl, termios, TERMIOS
 
 # sibling import
 from fgdiag.lib import pyutil
-from fgdiag.lib.pyutil import bold
+from fgdiag.lib.pyutil import bold, makeNonBlocking
 
 _DEBUG = False
 
@@ -194,7 +194,7 @@ def open_modem(dev):
     # VTIME - maximum time to wait
     # (unset both for non-blocking)
     termios.tcsetattr(fd, TERMIOS.TCSANOW, mode)
-    fcntl.fcntl(fd,fcntl.F_SETFL,os.O_NONBLOCK)
+    makeNonBlocking(fd)
 
     return f
 
