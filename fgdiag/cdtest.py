@@ -181,6 +181,7 @@ class CDDevice(test.TestableDevice):
  	self.data["speed"] = speed 
 
         userinteraction.notice('  Tested at ' + str(int(speed)) + 'x\n') 
+        return test.Status["Passed"]
 
     def _d_data(self):
         # Define code to get data on the cd drive here...
