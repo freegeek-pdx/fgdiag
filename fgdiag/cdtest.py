@@ -4,7 +4,7 @@
 
     - determines mount point
     - mounts cd
-    - tests speed
+    - tests speed 
 
 """
 
@@ -14,12 +14,12 @@ from lib.logging import create_node
 import string 
 import commands 
 
-#import test, userinteraction
-#from logging import create_node
-
 # Create main log node
 _log = create_node(__name__)
 
+
+# Parse the output of the unix 'time' command, 
+# returning results in seconds.
 
 def parse_shell_elapsed_time(s_time_output):
 
@@ -35,6 +35,9 @@ def parse_shell_elapsed_time(s_time_output):
   if minutes > 0:
     seconds = seconds + minutes * 60
   return(seconds)
+
+# Parse the output of the Gnu 'time' command,
+# returning results in seconds.
 
 def parse_GNU_elapsed_time(s_time_output):
 
@@ -56,7 +59,7 @@ def parse_GNU_elapsed_time(s_time_output):
   return(seconds)
 
 
-# ------  Constants (derived from cdpseed.sh) --------
+# ------  Constants (lifted from cdpseed.sh) --------
 
 #  TransferAmount =  how many bytes to transfer each pass
 
@@ -139,7 +142,8 @@ class CDDevice(test.TestableDevice):
            return test.Status["Failed"]
 
 
-        # Test drive speed.... 
+        # Test drive speed. 
+	# Read blocks from cdrom and time it.
 
         userinteraction.notice("Testing drive speed....")
 
@@ -159,17 +163,20 @@ class CDDevice(test.TestableDevice):
            status, output = self.run_command(cmd)
            return test.Status["Failed"]
 
+        # Determine if the 'time' command is unix or Gnu,
+	# then parse the output to get the elapsed time.
+
         if (string.find(output,'real') > 0):
            elapsed_time = parse_shell_elapsed_time(output)
         else:
            elapsed_time = parse_GNU_elapsed_time(output)
 
-        # Determine speed.... 
+        # Determine speed. 
         # Single speed is 150kbs/sec. 
         # speed = (bytes read / seconds ) / (150 * 1024)
 
-        speed= round(((Blocksize * Count) / elapsed_time) / (150 * 1024)) 
-        msg = string.join(['speed: ',str(speed),'x'])  
+        speed = round(((Blocksize * Count) / elapsed_time) / (150 * 1024)) 
+        msg   = string.join(['speed: ',str(speed),'x'])  
         userinteraction.notice(msg)
 
         cmd=string.join(["umount",device])
@@ -194,8 +201,6 @@ class CDTester(test.GizmoTester):
     gizmotype = "Gizmo.Component.CDDrive"
 
     def run(self):
-        # Define test logic for a Pogo Stick here. Usually this is pretty
-        # straightforward, like in this case.
         CDs = CD_scan()
         for CD in CDs:
             CD.get_data()
