@@ -207,11 +207,12 @@ class GizmoTester:
 
         db = connect()
         
-        if confirm_data(devicegizmos):
+        if confirm_data(devices, devicegizmos):
             # Kind of dumb to be creating essentially the same list again...
             reportdata = list()
             # start transaction here
-            for device, gizmo in devicegizmos.iteritems():
+            for device in devices:
+                gizmo = devicegizmos[device]
                 newgizmo = False
                 if gizmo is None:
                     # Create Gizmo

@@ -16,6 +16,7 @@ thisdir = path.dirname(diskPackage.__file__)
 badblocks.BADBLOCKS = path.join(thisdir, "fauxblocks")
 badblocks.Badblocks.path = badblocks.BADBLOCKS
 disk.list_mounted_devices = lambda : []
+disk.findDrivesToScan = lambda : [ '/dev/hda', '/dev/hdb' ]
 disk.identification = lambda a: {'serialNo': 'FAUX-%s' % (a,),
                                  'model': 'Imaginary Hardware'}
 disk.getDeviceSize = lambda a: SECTOR_COUNT * 1024

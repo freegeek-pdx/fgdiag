@@ -57,11 +57,12 @@ What class is this Gizmo?"""
     choice = userinteraction.prompt(body % "\n".join(abbrclasstree.keys()))
     return abbrclasstree[choice]
     
-def confirm_data(devicegizmos):
+def confirm_data(devices, gizmos):
     datastringlist = list()
     template = """%s %s:
     %s"""
-    for device, gizmo in devicegizmos.iteritems():
+    for device in devices:
+        gizmo = gizmos[device]
         if gizmo is None:
             idstring = "Will generate a Gizmo ID."
         else:
