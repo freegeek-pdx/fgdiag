@@ -1,5 +1,8 @@
 2004-05-07    <chromakode@llama>
 
+	* fgdiag/lib/prompts.py (prompt_for_id): Added catchall SQLError
+	trap and ValueError (id is not integer) trap
+
 	* fgdiag/lib/fgdb.py (_check_id, _id_equals): Added type checking
 	for ids
 

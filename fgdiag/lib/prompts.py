@@ -1,5 +1,5 @@
 import userinteraction
-from errors import InvalidRowError
+from errors import InvalidRowError, SQLError
 
 def prompt_for_ids(db, wantedtype, devices):
     devicegizmos = dict()
@@ -18,8 +18,14 @@ def prompt_for_id(db, wantedtype, name, description=""):
         # Existence Check
         try:
             gizmo = db.get_gizmo_by_id(gid)
+        except ValueError:
+            userinteraction.warning("The ID you entered does not seem to be a number. Please check and re-enter your Gizmo id.")
+            continue
         except InvalidRowError:
             userinteraction.warning("The Gizmo you entered does not exist. Please check and re-enter your Gizmo id.")
+            continue
+        except SQLError:
+            userinteraction.warning("The Database had a problem when the Gizmo you entered was requested. Please check and re-enter your Gizmo id.")
             continue
             
         # Type Check
