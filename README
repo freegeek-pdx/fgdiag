@@ -1,0 +1,36 @@
+This is a place for all hardware testing
+scripts used by FREE GEEK.
+
+There's some documentation:
+
+testing-purpose.txt -- describes the Purpose of a Testing Station and
+        establishes standards for software and procedure.  It also contains a
+        list of currently operational testing stations, and those which are
+        desired.
+
+HACKING -- for those working on the code.
+
+Here are the scripts developed so far:
+
+common.sh -- common script that decides which custom
+             script to run, based on a parameter passed
+             in from the kernel (change parameter in
+             lilo.conf if necessary)
+
+cursesdisk.py -- script for testing hard drives.  It scans
+             for plugged-in but unmounted hard drives, checks
+             for a Compaq partition, and then serves as a front-end
+             to badblocks while watching the kernel log.
+
+modem.py --  script for testing modems. talks to each 
+             serial port and tries to find a modem.
+             when found, queries the modem for all
+             available information and interprets
+             returned strings looking for likely signs
+             of the modems speeds. does not actually 
+             connect to another modem.
+
+nicky.sh --  script for detecting ISA ethernet cards
+             and their resource settings (i/o, irq)
+
+isapnp.py -- script for detecting ISA PnP devices

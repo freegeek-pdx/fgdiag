@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+
+__version__ = '$Revision$'[11:-2]
+
+from os import path
+import sys
+
+from fgdiag.disk import badblocks, cursesdisk, disk
+from fgdiag import disk as diskPackage
+
+SECTOR_COUNT = 200
+
+thisdir = path.dirname(diskPackage.__file__)
+
+badblocks.BADBLOCKS = path.join(thisdir, "fauxblocks")
+badblocks.Badblocks.path = badblocks.BADBLOCKS
+disk.list_mounted_devices = lambda : []
+disk.identification = lambda a: {'serialNo': 'FAUX-%s' % (a,),
+                                 'model': 'Imaginary Hardware'}
+disk.getDeviceSize = lambda a: SECTOR_COUNT * 1024
+
+if __name__ == "__main__":
+    cursesdisk.run()

@@ -1,0 +1,90 @@
+                                                            -*- Text -*-
+Files to know and love:
+
+  ChangeLog - Did you change something?  Log it!
+
+  Makefile - currently used mostly to set the execute bits which CVS loses.
+
+  README - Have you read it?
+
+  HACKING - This file, for people working the code.
+
+  todo - Things to do.
+
+Coding standards:
+
+For Python, http://www.python.org/peps/pep-0008.html is a good guide.
+Don't use tabs.  Use four spaces.
+
+
+Files of code:
+
+Python stuff:
+
+__init__.py - defines this directory as a Python package
+
+Disk tester:
+  cursesdisk.py - front-end
+  badblocks.py - badblocks wrapper
+  disk.py - wrapper for various and sundry linux disk things
+  selftest/cursesnodisk - lets you run cursesdisk without really writing
+    over any drives.
+  selftest/fauxblocks - shim for badblocks, used by cursesnodisk
+  selftest/test_syslog.py - unit tests for syslog parsing
+
+Modem tester:
+  modem.py - tries to get modems to tell their speed
+  pcimodem.py - looks for PCI modems
+  isapnp.py - looks for PNP cards (also used by NIC tester)
+  selftest/test_modem.py - unit tests for modem.py
+
+Keyboard tester:
+  keyboard.py - keyboard tester
+  keyboard_data.py - constants used by keyboard tester
+
+Misc:
+  meminfo.py - interface to /proc/meminfo, sometimes used by disk tester
+  pyutil.py - miscellanious, used by modem tester, but not modem-specific
+
+
+XXX - DOCUMENT ME:
+
+common.sh
+menu.sh
+grub.pl
+installed.packages
+gensql.pm
+
+config/
+debian/
+kernel-configs/
+sqltemplates/
+
+cdspeedtest
+testcd
+
+floppy.sh
+floppy/
+
+nicky.sh
+nic-db
+nicky.todo
+niclog.pl
+dmesg
+
+sample.au
+sb-permutations
+sb.db
+sbinfo.txt
+sbtest.sh
+sound-db
+soundtest.sh
+
+videocard.sh
+vidreport
+xvidcheck
+freex.testing
+
+
+--
+$Id$
