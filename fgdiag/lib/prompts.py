@@ -1,10 +1,15 @@
 import userinteraction
 from errors import InvalidRowError, SQLError
 
-def prompt_for_ids(db, wantedtype, devices):
+def prompt_for_gizmos(db, wantedtype, devices):
     devicegizmos = dict()
     for device in devices:
-        devicegizmos[device] = prompt_for_id(db, wantedtype, device.name, device.description)
+        if userinteraction.yesno("Existing Gizmo?", "Does this Gizmo have an ID number?"):
+            gizmo = prompt_for_id(db, wantedtype, device.name, device.description)
+        else:
+            gizmo = None
+
+        devicegizmos[device] = gizmo
     return devicegizmos
 
 def prompt_for_id(db, wantedtype, name, description=""):
@@ -39,21 +44,54 @@ def prompt_for_id(db, wantedtype, name, description=""):
               
     return gizmo
 
-def confirm_data(iddata):
+def prompt_for_classtree(classtree):
+    abbrclasstree = dict()
+    for gizmoclass in classtree:
+        abbrclasstree[gizmoclass[gizmoclass.rfind("."):]] = gizmoclass
+    body = """Avaliable Gizmo Classes:
+---
+%s
+---
+What class is this Gizmo?"""
+    choice = userinteraction.prompt(body % "\n".join(abbrclasstree.keys()))
+    return abbrclasstree[choice]
+    
+def confirm_data(data):
     alldatastring = ""
     template = """%s %s:
-    Gizmo ID: %s"""
-    for id_, data in iddata.iteritems():
-        name, description = data
-        alldatastring = "\n".join((alldatastring,template%(name, description, id_)))
-
+    %s"""
+    for name, description, id_ in data:
+        if id_ is None:
+            idstring = "Will generate a Gizmo ID."
+        else:
+            idstring = "Gizmo ID: %s." % id_
+        alldatastring = "\n".join((alldatastring,template%(name, description, idstring)))
+       
     body = """Data about the following Gizmos will be sent to the FreeGeek Database:
 ---
 %s
 ---
-Are the Gizmo IDs correct?""" % (alldatastring)
-    return userinteraction.yesno("Confirmation", body)
-    
+Please double-check any Gizmo IDs you have entered before continuing.
+Is there anything you'd like to correct?""" % (alldatastring)
+    return not userinteraction.yesno("Confirmation", body)
+
+def report_success(data):
+    alldatastring = ""
+    template = """%s %s:
+    %s"""
+    for name, description, id_, new in data:
+        if new:
+            idstring = "Generated a Gizmo ID. Please write %s onto a label and attach it to this Gizmo." % id_
+        else:
+            idstring = "Gizmo ID: %s" % id_
+        alldatastring = "\n".join((alldatastring,template%(name, description, idstring)))
+       
+    body = """Report:
+%s
+---
+This test run is now finished. Press enter to reboot!""" % (alldatastring)
+    userinteraction.prompt("Finished", body)
+
 def db_fallback_notice(filename):
     """Alert about fallback if database fails."""
     userinteraction.notice("Unable to establish a connection with the FreeGeek Database. Outputting test results to a file named %s. " % (filename))

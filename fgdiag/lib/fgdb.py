@@ -561,11 +561,11 @@ class FieldMapTableRow(TableRow):
     	    self.data[key] = value
     	else:
     	    raise KeyError, key
-    
+        
     def get(self, *fieldlist):
         # Crazy mess to get multiple fields from a dictionary
         return _simplify_list(tuple(map(self.data.get, fieldlist)))
-    
+
     def set(self, valuedict=None, **keywordvaluedict):
     	if valuedict!=None:
             vd = valuedict
@@ -576,10 +576,10 @@ class FieldMapTableRow(TableRow):
     
     def commit(self):
     	TableRow.set(self, self.data)
-    	return True
+        return True
 
 class Gizmo(FieldMapTableRow):
-    def __init__(self, db, gid):
+    def __init__(self, db, gid=None):
         # This is where I was planning to use Cache; is it bad to be passing each Gizmo a different Table instance? I think it is (bad)...
         # Chicken and the Egg: Needs class_tree to initialize TableRow, TableRow needs to be initialized to get class_tree. I'll make it create a temporary tablerow and then use that to initialize TableRow.
         temptablerow = db.get_table("Gizmo").get_row(gid)

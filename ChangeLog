@@ -1,7 +1,14 @@
+2004-05-21    <chromakode@llama>
+
+	* fgdiag/lib/prompts.py (Module): Added various prompts.
+	
+	* fgdiag/lib/test.py (Module): Allow user to create gizmos in test
+	process, added final status report.
+
 2004-05-20    <chromakode@llama>
 
 	* fgdiag/lib/fgdb.py (Database.add_gizmo): Create Gizmos!
-
+	
 	* fgdiag/lib/logging.py (_LogReceptor): Made private
 
 2004-05-18    <chromakode@llama>

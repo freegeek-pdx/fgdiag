@@ -1,7 +1,7 @@
 """Python Module for FreeGeek testing."""
 import sys
 
-from prompts import prompt_for_ids, confirm_data
+from prompts import prompt_for_gizmos, confirm_data, report_success
 from userinteraction import notice, error
 from testdata import register_test_data
 from config import get_fgdb_login
@@ -147,17 +147,32 @@ class GizmoTester:
             error(msg)
             raise
         
-        devicegizmos = prompt_for_ids(db, self.gizmotype, devices)
+        devicegizmos = prompt_for_gizmos(db, self.gizmotype, devices)
 
         # Replace with something more efficient
-        iddata = dict()
+        data = list()
         for device, gizmo in devicegizmos.iteritems():
-            iddata[gizmo.id] = (device.name, device.description)
+            if gizmo is not None:
+                id_ = gizmo.id
+            else:
+                id_ = None
+            data.append((device.name, device.description, id_))
 
-        if confirm_data(iddata):
+        if confirm_data(data):
+            # Kind of dumb to be creating essentially the same list again...
+            reportdata = list()
+            # start transaction here
             for device, gizmo in devicegizmos.iteritems():
+                newgizmo = False
+                if gizmo is None:
+                    # Create Gizmo
+                    gizmo = db.get_gizmo_by_id(db.add_gizmo(self.gizmotype))
+                    newgizmo = True
+                reportdata.append((device.name, device.description, gizmo.id, newgizmo))
                 register_test_data(gizmo, device.data)
+            # end transaction here
             notice("Success!")
+            report_success(reportdata)
             self.__log("Finish", "Successful finish of test.")
         else:
             #XXX Put some sort of option to restart here
