@@ -48,7 +48,6 @@ class TestableDevice:
         
     def _d_description(self, data):
         raise NotImplementedError
-        
     def get_data(self):
         """Fetch data about the Gizmo, and return the results. Sets self.data to the data, and self.description to a human readable description."""
         self.data = self._d_data()
@@ -118,8 +117,9 @@ class GizmoTester:
     
         if confirm_data(iddata):
             for device, gizmo in devicegizmos.iteritems():
+		print gizmo, device.data
                 register_test_data(gizmo, device.data)
-                notice("Success!")
+            notice("Success!")
         else:
             #XXX Put some sort of option to restart here
             notice("FIXME: Put an option to restart here")

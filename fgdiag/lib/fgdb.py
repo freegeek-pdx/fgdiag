@@ -170,7 +170,7 @@ class Queue:
             call(*args, **kwds)     
         
 class Database:
-    def __init__(self, conn, debug = 0):
+    def __init__(self, conn, debug = 1):
         self.__conn = conn
         self.__field_map = FieldMap(self)
         self.__class_tree = ClassTree(self)
@@ -201,8 +201,10 @@ class Database:
         return _simplify_list(c.fetchall())
 
     def execute(self, sql):
-        self.__try_execute(sql)
-        return True
+	c = self.__try_execute(sql)
+	# psycopg hates me :P
+	c.close()
+	return True
 
     def __try_execute(self, sql):
         if self.__debug:
