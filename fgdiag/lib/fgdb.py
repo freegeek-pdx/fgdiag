@@ -45,6 +45,12 @@ def _AND(*l):
 def _IN(*l):
     return " IN ".join(l)
 
+def _single_tuple_list(l):
+    newl = ()
+    for item in l:
+        newl += item
+    return newl
+
 def _tables(l):
     return ", ".join(l)
 
@@ -349,6 +355,11 @@ class TableRow:
     id = property(__get_id, doc="ID of the TableRow.")
     table = property(__get_table, doc="Name of Table containing the TableRow.")
 
+class FieldMapTableRow(TableRow):
+    def __init__(self, tb, id_, idname = "id"):
+        TableRow.__init__(self,tb,id_,idname)
+        
+    
 class Gizmo(TableRow):
     def __init__(self, db, gid):
         # This is where I was planning to use Cache; is it bad to be passing each Gizmo a different Table instance? I think it is (bad)...
@@ -384,6 +395,11 @@ class FieldMap(Table):
     def get_location(self, classes, fieldname):
         return self.__get_location_cache(self, classes, fieldname)
     #---
+
+    def get_fields(self, classes):
+        sql = _select_sql(_fields("fieldName", "fieldMap", _IN("tableName", classesstr)))
+        fields = self.database.query_all(sql)
+        return _single_tuple_list(fields)
 
     def process_field_list(self, classes, fieldlist):
         """Convert a list like ("id","speed") to ("Gizmo.id","CDDrive.speed")"""
@@ -421,9 +437,6 @@ class ClassTree(Table):
     def get_list(self):
         sql = _select_sql("classTree", "classTree", _no_where())
         result = self.database.query_all(sql) 
-        newresult = ()
-        for item in result:
-            newresult += item
-        return newresult
+        return _single_tuple_list(result)
         
 __all__ = ["connect", "Database", "Table", "TableRow", "MultipleTableRow", "Gizmo", "FieldMap", "ClassTree"]
