@@ -5,10 +5,7 @@ def prompt_for_gizmos(db, wantedtype, devices):
     devicegizmos = dict()
     for device in devices:
         #print "%s (%s)" % (device.name, device.description)
-        if userinteraction.yesno("Existing Gizmo?", "Does the %s (%s) have an ID number?" % (device.name, device.description)):
-            gizmo = prompt_for_id(db, wantedtype, device.name, device.description)
-        else:
-            gizmo = None
+        gizmo = prompt_for_id(db, wantedtype, device.name, device.description)
 
         devicegizmos[device] = gizmo
     return devicegizmos
@@ -19,7 +16,10 @@ def prompt_for_id(db, wantedtype, name, description=""):
     gizmo = None
     
     while not goodgizmo:
-        gid = userinteraction.prompt("Gizmo ID?", "What is the id for the %s (%s) being tested?"%(name, description))
+        gid = userinteraction.prompt("Gizmo ID?", "What is the id for the %s (%s) being tested? (blank if none)"%(name, description))
+        if (gid == ""):
+            goodgizmo = True
+            continue
         
         # Existence Check
         try:
