@@ -2,6 +2,7 @@
 
 	* fgdiag/modem/modem.py (find_speed, get_serial_devices): 1.3 document
 	return values.
+	(main): 1.4 isapnp moved to fgdiag.lib.
 
 2004-04-08  Kevin Turner  <kevin@freegeek.org>
 

@@ -52,8 +52,6 @@ def get_serial_devices():
 
     return results
 
-# TODO: Provide the option of using regex's, so we can
-# get around the "256K looks like 56K" issue.
 speeds = [
     ('003', ("V.21",)),
     ('012', ("V.22","V.23")),
@@ -262,7 +260,7 @@ def main():
         pcimodem.main()
 
     try:
-        import isapnp
+        from fgdiag.lib import isapnp
     except ImportError:
         pass
     else:
@@ -305,6 +303,7 @@ def main():
             same = False
             r = results[:]
             sameas = r.pop(0)[0]
+            # Check to see if speeds of all results are the same.
             while r:
                 if sameas == r.pop(0)[0]:
                     same = True
