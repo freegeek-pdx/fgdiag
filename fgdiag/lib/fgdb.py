@@ -18,7 +18,7 @@ True
 
 """
 import psycopg
-from exceptions import InvalidRowError, InvalidFieldError
+from errors import InvalidRowError, InvalidFieldError
 
 def connect(host, db, user, passwd):
     """Return a Database instance connected to dburl.

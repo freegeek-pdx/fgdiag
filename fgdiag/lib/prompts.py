@@ -1,5 +1,5 @@
 import userinteraction
-from exceptions import InvalidRowError
+from errors import InvalidRowError
 
 def prompt_for_ids(db, wantedtype, devices):
     devicegizmos = dict()

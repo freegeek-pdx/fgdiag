@@ -5,7 +5,7 @@ from prompts import prompt_for_ids, confirm_data
 from userinteraction import notice
 from testdata import register_test_data
 from config import get_fgdb_login
-from exceptions import InvalidStatusError
+from errors import InvalidStatusError
 
 # TODO: Collect these into a container of some kind.
 Status_Unknown = -1
