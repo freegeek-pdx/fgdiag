@@ -101,7 +101,10 @@ class BadblocksWidget(badblocks.BadblocksObserver):
     def setBlockDevice(self, bb, description=None):
         """Called to set the label identifying the device being processed.
 
-        blockDevice is a String such as \"hda\".
+        @param bb: the Badblocks I am to display the progress of.
+        @type bb: L{badblocks.Badblocks}
+
+        @returns: None
         """
         self.dev = bb.device
         # XXX: sloppy
