@@ -6,6 +6,9 @@ from userinteraction import notice, error
 from testdata import register_test_data
 from config import get_fgdb_login
 from errors import InvalidStatusError, DBConnectError
+from debug import start, debug
+
+start("test")
 
 # TODO: Collect these into a container of some kind.
 # Would it make more sense for Status_Unknown to be 0, and Status_Failed to be -1?
@@ -97,6 +100,8 @@ class GizmoTester:
         4.  Put the data into FGDB under the selected Gizmo.
 
         """
+
+        debug("GizmoTester", "Starting test for %s" % self.gizmotype)
 
         # Run test first
         devices = self.run()

@@ -19,10 +19,9 @@ True
 """
 import psycopg
 from errors import InvalidRowError, InvalidFieldError, SQLError, DBConnectError
+from debug import start, debug
 
-# Set to True to enable terminal sql dumping
-DEBUG = False
-#DEBUG = True
+start("fgdb")
 
 def connect(host, db, user, passwd):
     """Return a Database instance connected to dburl.
@@ -32,10 +31,12 @@ def connect(host, db, user, passwd):
     """
 
     try:
-        conn = psycopg.connect("host=%s dbname=%s user=%s password=%s"
-                               %(host,db,user,passwd))
+        dbstr = "host=%s dbname=%s user=%s password=%s" % (host,db,user,passwd)
+        conn = psycopg.connect(dbstr)
         conn.autocommit(True)
-        mydb = Database(conn, DEBUG)
+        debug("Connect", dbstr)
+        
+        mydb = Database(conn)
         # Make it autocommit - Without this changes will not save
     except Exception, e:
         # (Insert graceful failure here) ;)
@@ -171,11 +172,11 @@ class Queue:
             call(*args, **kwds)     
         
 class Database:
-    def __init__(self, conn, debug = 0):
+    def __init__(self, conn):
         self.__conn = conn
         self.__field_map = FieldMap(self)
         self.__class_tree = ClassTree(self)
-        self.__debug = debug
+        debug("Database", "Instance created")
 
     def get_table(self, name, idname = "id"):
         """Get Table object by name."""
@@ -206,8 +207,7 @@ class Database:
 	return True
 
     def __try_execute(self, sql):
-        if self.__debug:
-            print sql
+        debug("Database", "SQL call: %s" % sql)
         c = self.__conn.cursor()
         try:
             c.execute(sql)
@@ -423,6 +423,7 @@ class Gizmo(FieldMapTableRow):
         temptablerow = db.get_table("Gizmo").get_row(gid)
         class_tree = tuple(temptablerow.get("classTree").split("."))
         FieldMapTableRow.__init__(self, db.get_field_map_tables(class_tree), gid)
+        debug("Gizmo", "Gizmo instance created (%s)" % gid)
 
     def __get_class_tree(self):
         return self.get("classTree")
