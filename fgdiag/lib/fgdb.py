@@ -1,3 +1,4 @@
+
 """FreeGeek Database access.
 
 Example:
@@ -277,7 +278,7 @@ class FieldMap(Table):
         return newfieldlist
 
     def process_value_dict(self, classes, valuedict):
-        """Convert a dictionary like {"id":12345,"speed":4) to ("Gizmo.id":12345,"CDDrive.speed":4)"""
+        """Convert a dictionary like {"id":12345,"speed":4} to {"Gizmo.id":12345,"CDDrive.speed":4}"""
         newvaluedict = dict()
         for item in valuedict.iteritems():
             newvaluedict[self.get_field_location(classes, item[0]) + "." + item[0]] = item[1]
