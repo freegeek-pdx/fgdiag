@@ -1,12 +1,13 @@
 Source: fgdiag
-Section: unknown
+Section: utils
 Priority: optional
 Maintainer: Kevin Turner <kevin@freegeek.org>
-Build-Depends: debhelper (>= 4.0.0)
+Build-Depends: debhelper (>= 4.0.0), python2.2-dev
 Standards-Version: 3.6.1
 
 Package: fgdiag
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}
+Depends: ${python:Depends}, mtools, console-tools, time, python2.2-psycopg
+Suggests: python2.2-twisted, python-epydoc
 Description: Free Geek Diagnostics
  Software used to test hardware at Free Geek.
