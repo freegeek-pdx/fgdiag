@@ -37,7 +37,7 @@ def connect(host, db, user, passwd):
     return mydb
 
 def _equals(field, value):
-    return "%s = %s" % (field, PgSQL.PgQuoteString(value))
+    return "%s = %s" % (field, PgSQL.PgQuoteString(str(value)))
 
 def _AND(*l):
     return " AND ".join(l)
@@ -64,7 +64,7 @@ def _simplify_list(l):
         if len(l)==1:
     	     return l[0]
     	else:
-             return l
+                return l
     except:
         return l
 
@@ -170,10 +170,11 @@ class Queue:
             call(*args, **kwds)     
         
 class Database:
-    def __init__(self, conn):
+    def __init__(self, conn, debug = 0):
         self.__conn = conn
         self.__field_map = FieldMap(self)
         self.__class_tree = ClassTree(self)
+        self.__debug = debug
 
     def get_table(self, name, idname = "id"):
         """Get Table object by name."""
@@ -204,6 +205,8 @@ class Database:
         return True
 
     def __try_execute(self, sql):
+        if self.__debug:
+            print sql
         c = self.__conn.cursor()
         try:
             c.execute(sql)
@@ -282,17 +285,19 @@ class MultipleTable:
 
     def get_by_id(self, id_, fieldlist):
         return self.select_by_id(id_, _fields(fieldlist))    
-     
+        
     def set_by_id(self, id_, valuedict):
-        # Quick fix for older mysql versions
+        #self.update_by_id(id_, _values(valuedict))
+        #self.__db.execute(sql)
+        # Split up by table, and UPDATE tables one at a time
         tablevalues = dict()
         for item in valuedict.iteritems():
             table, field = item[0].split(".")
             if not tablevalues.has_key(table):
                 tablevalues[table] = dict()
             tablevalues[table][field] = item[1]
-        for table in tablevalues.iteritems():
-            sql = _update_sql(_values(table[1]), table[0], _equals(self.__idname, id_))
+        for table, fields in tablevalues.iteritems():
+            sql = _update_sql(_values(fields), table, _equals(self.__idname, id_))
             self.__db.execute(sql)
         return True
     
@@ -333,7 +338,7 @@ class FieldMapMultipleTable(MultipleTable):
     def set_by_id(self, id_, valuedict):
         return MultipleTable.set_by_id(self, id_, self.database.field_map.process_value_dict(self.tables, valuedict))
 
-class TableRow(object):
+class TableRow:
     def __init__(self, tb, id_, idname = "id"):
         self.__tb = tb
         self.__id = id_
@@ -367,34 +372,40 @@ class TableRow(object):
 class FieldMapTableRow(TableRow):
     def __init__(self, tb, id_, idname = "id"):
         TableRow.__init__(self,tb,id_,idname)
-	fields = self.table.database.field_map.get_fields(self.table.tables)
-	values = TableRow.get(self, *fields)
-	self.data = dict()
-	for i in range(len(fields)):
-	    self.data[fields[i]] = values[i]
-
-    def __getattr__(self, name):
-	if name in self.data.keys():
-	    return self.data[name]
-	else:
-	    raise AttributeError, key
-
+        fields = self.table.database.field_map.get_fields(self.table.tables)
+    	values = TableRow.get(self, *fields)
+    	self.data = dict()
+    	for i in range(len(fields)):
+    	    self.data[fields[i]] = values[i]
+    	    
+    def __getitem__(self, key):
+        if key in self.data.keys():
+    	    return self.data[key]
+    	else:
+    	    raise KeyError, key
+        
+    def __setitem__(self, key, value):
+    	if key in self.data.keys():
+    	    self.data[key] = value
+    	else:
+    	    raise KeyError, key
+    
     def get(self, *fieldlist):
+        # Crazy mess to get multiple fields from a dictionary
         return _simplify_list(tuple(map(self.data.get, fieldlist)))
-
+    
     def set(self, valuedict=None, **keywordvaluedict):
-	if valuedict!=None:
+    	if valuedict!=None:
             vd = valuedict
         else:
             vd = keywordvaluedict
-	self.data.update(vd)
-	return True
-
-    def commit(self):
-	TableRow.set(self, self.data)
-	return True
-
+    	self.data.update(vd)
+    	return True
     
+    def commit(self):
+    	TableRow.set(self, self.data)
+    	return True
+
 class Gizmo(FieldMapTableRow):
     def __init__(self, db, gid):
         # This is where I was planning to use Cache; is it bad to be passing each Gizmo a different Table instance? I think it is (bad)...
@@ -424,8 +435,7 @@ class FieldMap(Table):
     __get_location_cache = Cache(__get_location)
 
     def get_location(self, classes, fieldname):
-        return self.__get_location_cache(self, classes, fieldname)
-    #---
+         return self.__get_location_cache(self, classes, fieldname)
 
     def get_fields(self, classes):
         sql = _select_sql("fieldName", "fieldMap", _IN("tableName", _string_list(classes)))
@@ -450,7 +460,7 @@ class FieldMap(Table):
                 newvaluedict[self.get_location(classes, field) + "." + field] = value
             else:
                 newvaluedict[field] = value
-      	return newvaluedict
+        	return newvaluedict
 
 class ClassTree(Table):
     def __init__(self, db):
@@ -459,8 +469,6 @@ class ClassTree(Table):
     def __get_location(self, classtree):
         sql = _select_sql("tableName", "classTree", _equals("classTree",classtree))
         return self.database.query_one(sql)
-    
-    __get_location_cache = Cache(__get_location)
 
     def get_location(self, classtree):
         return self.__get_location_cache(self, classtree)
