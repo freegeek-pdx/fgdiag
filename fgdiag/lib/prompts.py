@@ -57,7 +57,7 @@ What class is this Gizmo?"""
     return abbrclasstree[choice]
     
 def confirm_data(data):
-    alldatastring = ""
+    datastringlist = list()
     template = """%s %s:
     %s"""
     for name, description, id_ in data:
@@ -65,18 +65,18 @@ def confirm_data(data):
             idstring = "Will generate a Gizmo ID."
         else:
             idstring = "Gizmo ID: %s." % id_
-        alldatastring = "\n".join((alldatastring,template%(name, description, idstring)))
+        datastringlist.append(template%(name, description, idstring))
        
     body = """Data about the following Gizmos will be sent to the FreeGeek Database:
 ---
 %s
 ---
 Please double-check any Gizmo IDs you have entered before continuing.
-Is there anything you'd like to correct?""" % (alldatastring)
+Is there anything you'd like to correct?""" % ("\n".join(datastringlist))
     return not userinteraction.yesno("Confirmation", body)
 
 def report_success(data):
-    alldatastring = ""
+    datastringlist = list()
     template = """%s %s:
     %s"""
     for name, description, id_, new in data:
@@ -84,12 +84,12 @@ def report_success(data):
             idstring = "Generated a Gizmo ID. Please write %s onto a label and attach it to this Gizmo." % id_
         else:
             idstring = "Gizmo ID: %s" % id_
-        alldatastring = "\n".join((alldatastring,template%(name, description, idstring)))
-       
+        datastringlist.append(template%(name, description, idstring))
     body = """Report:
+---
 %s
 ---
-This test run is now finished. Press enter to reboot!""" % (alldatastring)
+This test run is now finished. Press enter to reboot!""" % ("\n".join(datastringlist))
     userinteraction.prompt("Finished", body)
 
 def db_fallback_notice(filename):
