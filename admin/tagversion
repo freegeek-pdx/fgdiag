@@ -11,9 +11,11 @@ Commands:
 The version is stored in fgdiag/__init__.py in the form x.y.z.  Only the
 last part is incremented by this script.
 """
+
 import os, sys
 
 versionFile = "fgdiag/__init__.py"
+DEBCHANGE = "dch"
 
 def msg(*s):
     print ' '.join(map(str, s)) # + '\n'
@@ -23,11 +25,10 @@ class CommandFailed(Exception):
 
 def sh(command):
     """I'll try to execute 'command' in a shell.
-    
+
     If the command returns something other than 0, I'll raise
     CommandFailed(command).
     """
-    # print command
     if os.system(command) != 0:
         raise CommandFailed(command)
 
@@ -67,6 +68,10 @@ def incrementVersion(inFile):
 
     return newVersion
 
+def debChange(version):
+    sh('%(dch)s -v %(ver)s "CVS tag %(tag)s"' % {'dch': DEBCHANGE,
+                                                 'ver': version,
+                                                 'tag': tagString(version)})
 
 def cvsUpdate(filename=None, version=None, quiet=True):
     args = []
@@ -86,9 +91,11 @@ def cvsTag(version, quiet=True):
     msg("Tagging %s as %s" % (version, tag))
     sh("cvs %s tag -c '%s'" % (quiet and '-Q' or '', tag,))
 
-def cvsCommit(filename, message, quiet=True):
-    sh("cvs %s commit -m '%s' '%s'" % (quiet and '-Q' or '',
-                                       message, filename))
+def cvsCommit(filenames, message, quiet=True):
+    filenames = ["'%s'" % (i,) for i in filenames]
+    filenames = ' '.join(filenames)
+    sh("cvs %s commit -m '%s' %s" % (quiet and '-Q' or '',
+                                     message, filenames))
 
 def cvsUpToDateCheck():
     # The -n flag means this won't really issue a tag, but
@@ -117,9 +124,10 @@ def main(cmdline=None):
             # incremented the version.
             cvsUpToDateCheck()
             version = incrementVersion(versionFile)
+            debChange(version)
             m = ("Version increment to %s\n"
                  "by fgdiag/admin/tagversion script." % (version,))
-            cvsCommit(versionFile, m)
+            cvsCommit([versionFile, "debian/changelog"], m)
             cvsTag(version)
         elif command in ("checkout", "co"):
             if args:

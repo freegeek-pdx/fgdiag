@@ -1,3 +1,9 @@
+2004-10-24  Kevin Turner  <acapnotic@twistedmatrix.com>
+
+	* admin/tagversion (debChange): 1.2 new function to update debian
+	changelog.
+	(cvsCommit): 1.2 interface change, now takes a list of files to commit.
+
 2004-08-25  Kevin Turner  <kevin@freegeek.org>
 
 	* fgdiag/disk/cursesdisk.py (BadblocksWidget.finished): 1.4 fix thinko
