@@ -6,7 +6,7 @@ from twisted.internet import serialport
 from twisted.protocols import basic
 from twisted.python import log
 
-class ModemProtocol(basic.LineReceiver):
+class _ModemProtocol(basic.LineReceiver):
     response = None
 
     def lineReceived(self, data):
@@ -17,7 +17,7 @@ class ModemProtocol(basic.LineReceiver):
         self.response = response
 
 
-class Response:
+class _Response:
     timer = None
     timeoutSecs = 5.0
 
@@ -31,8 +31,8 @@ class Response:
         self.lines.append(line)
 
     def read(self):
-        return (ModemProtocol.delimiter.join(self.lines)
-                + ModemProtocol.delimiter)
+        return (_ModemProtocol.delimiter.join(self.lines)
+                + _ModemProtocol.delimiter)
 
     def timedout(self):
         self.deferred.callback(self.read())
@@ -40,7 +40,7 @@ class Response:
 class Modem:
     device = None
     def __init__(self, device, reactor=None):
-        self.proto = ModemProtocol()
+        self.proto = _ModemProtocol()
         if reactor is None:
             from twisted.internet import reactor as theReactor
             self.reactor = theReactor
@@ -49,7 +49,7 @@ class Modem:
         self.device = serialport.SerialPort(self.proto, device, self.reactor)
 
     def getResponse(self, command):
-        r = Response(self.reactor)
+        r = _Response(self.reactor)
         self.proto.setResponseTo(r)
         self.proto.sendLine(command)
         return r.deferred
