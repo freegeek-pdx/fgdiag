@@ -1,13 +1,19 @@
 import userinteraction
 from fgdb import InvalidRowError
 
-def prompt_for_gizmo(db, wantedtype):
+def prompt_for_ids(db, wantedtype, devices):
+    devicegizmos = dict()
+    for device in devices:
+        devicegizmos[device] = prompt_for_id(db, wantedtype, device.name, device.description)
+    return devicegizmos
+
+def prompt_for_id(db, wantedtype, name, description=""):
     """Ask for the ID of a Gizmo and get it."""
     goodgizmo = False
     gizmo = None
     
     while not goodgizmo:
-        gid = userinteraction.prompt("Gizmo ID?", "What is the id for the Gizmo being tested?")
+        gid = userinteraction.prompt("Gizmo ID?", "What is the id for the %s (%s) being tested?"%(name, description))
         
         # Existence Check
         try:
@@ -27,17 +33,22 @@ def prompt_for_gizmo(db, wantedtype):
               
     return gizmo
 
-def confirm_data(data, id_):
-    datalist = tuple()
-    for field, value in data.iteritems():
-        datalist += ("  %s: %s" % (field, value),)
-    datastring = "\n".join(datalist)
+def confirm_data(iddata):
+    alldatastring = ""
+    for id_, data in iddata.iteritems():
+        datalist = tuple()
+        for field, value in data.iteritems():
+            datalist += ("  %s: %s" % (field, value),)
+        datastring = "\n".join(datalist)
+        template = """Gizmo %s:
+%s"""
+        alldatastring = "\n".join((alldatastring,template%(id_, datastring)))
+
     body = """The following data will be sent to the FreeGeek Database:
 ---
-Gizmo %s:
 %s
 ---
-Is this information correct?""" % (id_, datastring)
+Is this information correct?""" % (alldatastring)
     return userinteraction.yesno("Confirmation", body)
     
 def db_fallback_notice(filename):

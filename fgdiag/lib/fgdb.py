@@ -210,7 +210,7 @@ class Database:
         c = self.__conn.cursor()
         try:
             c.execute(sql)
-        except psycopg.libpq.OperationalError:
+        except psycopg.ProgrammingError:
             print "SQL call failed: " + sql
             # FIXME: Fall back here?
             raise
@@ -463,7 +463,7 @@ class FieldMap(Table):
                 newvaluedict[self.get_location(classes, field) + "." + field] = value
             else:
                 newvaluedict[field] = value
-        	return newvaluedict
+        return newvaluedict
 
 class ClassTree(Table):
     def __init__(self, db):
