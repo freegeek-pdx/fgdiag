@@ -288,7 +288,23 @@ class Alnum_group(Keygroup):
 	key = self.keys.get(126, None)
 	if key:
 	    del self.keys[126]
-	# move over left alt key, space key, right ctrl key
+	key = self.keys.get(263, None)
+	if key:
+	    del self.keys[263]
+	# move over left alt key and make it bigger,
+	key = self.keys.get(100, None)
+	if key:
+	    cpos = SIDE_MARGIN + 11*KEY_WIDTH
+	    key.set_col_pos(cpos)
+	    width = 1.5*KEY_WIDTH
+	    key.set_width(width)
+	    key.recreate_window()
+	# make space key longer
+	key = self.keys.get(57, None)
+	if key:
+	    width = 7.5*KEY_WIDTH
+	    key.set_width(width)
+	    key.recreate_window()
 	    
 		      
 class Keyboard(Window):

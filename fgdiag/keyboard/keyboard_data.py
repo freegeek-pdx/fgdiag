@@ -23,6 +23,16 @@ SIDE_MARGIN = 7
 KEY_WIDTH = 5
 KEY_HEIGHT = 3
 
+# type of keyboard constants
+
+KB_TYPE_101 = 0
+KB_TYPE_104A = 1  # rectangular enter key
+KB_TYPE_104B = 2  # J-shaped enter key
+
+# this is a global variable for type of keyboard to draw.
+ 
+Keyboard_type = KB_TYPE_104B
+
 # The sets of dictionaries of all the keys on at least a 104/105 
 # keyboard.  The dict entry has the following structure:
 #     scan code: [label string,[row,col],[height, width]]
