@@ -1,8 +1,5 @@
 """Python Module for FreeGeek testing."""
 
-from FGDB import connect
-from Prompts import prompt_for_gizmo
-
 FGDBURL = 'mysql://chromakode@localhost/chromakode'
 
 def start_test(runfunc):
@@ -10,19 +7,26 @@ def start_test(runfunc):
 	
 	Steps Taken:
 	1.  Connect to FGDB.
-	2a. Prompt for a Gizmo ID and make sure it is in FGDB.
-	2b. Get the Gizmo from the established FGDB connection.
-	3.  Run a test in the form of a given function runfunc.
-	4.  Put the data returned by the test into FGDB under the selected Gizmo.
+	2.  Prompt for a Gizmo ID.
+	3.  Get the Gizmo from the established FGDB connection.
+	4.  Run a test in the form of a given function runfunc.
+	5.  Process returned test data and translate parameters into Table locations.
+	6.  Put the data into FGDB under the selected Gizmo.
 	
 	Keyword arguments:
 	runfunc -- function that implements a test
 	
 	"""
 	
+	from FGDB import connect
+	from Prompts import prompt_for_gizmo
+	from TestData import process
+	
 	db = connect(FGDBURL)
 	gid = prompt_for_gizmo()
 	gizmo = db.get_gizmo_by_id(gid)
 	
 	data = runfunc(gizmo)
+	data = process(data, db.field_map)
+	
 	gizmo.register_test_data(data)
