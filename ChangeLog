@@ -1,3 +1,8 @@
+2004-05-04    <chromakode@llama>
+
+	* fgdiag/lib/prompts.py (prompt_for_id):  No longer needs fgdb for
+	non-db stuff
+
 2004-04-27  Kevin Turner  <kevin@freegeek.org>
 
 	* fgdiag/modem/modem.py (find_speed, get_serial_devices): 1.3 document
