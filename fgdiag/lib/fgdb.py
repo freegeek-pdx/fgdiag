@@ -42,7 +42,7 @@ def _equals(field, value):
     return "%s = %s" % (field, psycopg.QuotedString(str(value)))
 
 def _id_equals(field, id_):
-    check_id(id_)
+    _check_id(id_)
     return _equals(field, id_)
 
 def _AND(*l):
@@ -102,7 +102,7 @@ def _check_id(id_):
     try:
         psycopg.INTEGER(id_)
     except ValueError:
-        raise TypeError("ID value must be an integer")
+        raise ValueError("ID value must be an integer")
 
 _select_sql_template = "SELECT %s FROM %s WHERE %s"
 _update_sql_template = "UPDATE %s SET %s WHERE %s"
