@@ -22,3 +22,11 @@ class InvalidStatusError(Error):
         self.status = status
     def __str__(self):
         return repr(self.status)
+
+class SQLError(Error):
+    """Exception raised when invalid SQL is sent to the Database"""
+    def __init__(self, sql, error):
+        self.sql = sql
+        self.error = error
+    def __str__(self):
+        return "%s\n%s" % (repr(sql), str(self.error))

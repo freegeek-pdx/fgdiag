@@ -18,8 +18,7 @@ True
 
 """
 import psycopg
-from errors import InvalidRowError, InvalidFieldError
-
+from errors import InvalidRowError, InvalidFieldError, SQLError
 def connect(host, db, user, passwd):
     """Return a Database instance connected to dburl.
 
@@ -195,10 +194,10 @@ class Database:
         c = self.__conn.cursor()
         try:
             c.execute(sql)
-        except psycopg.ProgrammingError:
-            print "SQL call failed: " + sql
+        except psycopg.ProgrammingError, e:
+            # print "SQL call failed: " + sql
             # FIXME: Fall back here?
-            raise
+            raise SQLError(e)
         return c
 
     def __get_conn(self):
