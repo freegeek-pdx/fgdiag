@@ -1,7 +1,7 @@
 This package was debianized by Kevin Turner <kevin@freegeek.org> on
 Tue, 19 Oct 2004 19:14:54 -0700.
 
-It was built from CVS at cvs.freegeek.org.
+It was built from CVS at :pserver:anoncvs@cvs.freegeek.org:/var/lib/cvs.
 
 Copyright:
 
@@ -9,4 +9,11 @@ Upstream Author: Free Geek <coders@lists.freegeek.org>
 
 License:
 
-GPL
+Copyright:
+
+   This package is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation.
+
+On Debian GNU/Linux systems, the complete text of the GNU General
+Public License can be found in `/usr/share/common-licenses/GPL'.
