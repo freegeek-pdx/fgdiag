@@ -47,7 +47,7 @@ Misc:
   pyutil.py - miscellanious, used by modem tester, but not modem-specific
 
 
-XXX - DOCUMENT ME:
+These things are in Free Geek's "testing" module in CVS, but not yet ported to fgdiag:
 
 common.sh
 menu.sh
