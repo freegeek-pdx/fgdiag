@@ -12,8 +12,6 @@ def start_test(test):
     testinstance = test()
     testinstance.start_test()
 
-cl
-
 class GizmoTest:
     """Represents a complete gizmo Test. Inherit and implement run, then instantiate and call start_test to use."""
     #def __init__(self, gid=None):
