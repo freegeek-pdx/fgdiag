@@ -290,7 +290,7 @@ class TableRow:
         if self.__tb.select_by_id(self.__id, _count())==0:
             return False
         else:
-            return True
+#             return True
         
     def get(self, *fieldlist):
         return self.__tb.get_by_id(self.__id, fieldlist)
@@ -354,7 +354,7 @@ class FieldMap(Table):
             if not f.count(".")==1:
                 newfieldlist += (self.get_field_location(classes, f) + "." + f,)
             else:
-                newfieldlist += f
+                newfieldlist += (f,)
         return newfieldlist
 
     def process_value_dict(self, classes, valuedict):
