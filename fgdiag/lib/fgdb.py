@@ -197,7 +197,7 @@ class Database:
         except psycopg.ProgrammingError, e:
             # print "SQL call failed: " + sql
             # FIXME: Fall back here?
-            raise SQLError(e)
+            raise SQLError(sql, e)
         return c
 
     def __get_conn(self):
