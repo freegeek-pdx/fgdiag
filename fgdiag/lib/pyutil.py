@@ -39,9 +39,9 @@ def makeNonBlocking(fd):
     # from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52296/
     fl = fcntl.fcntl(fd, FCNTL.F_GETFL)
     try:
-	fcntl.fcntl(fd, FCNTL.F_SETFL, fl | FCNTL.O_NDELAY)
+        fcntl.fcntl(fd, FCNTL.F_SETFL, fl | FCNTL.O_NDELAY)
     except AttributeError:
-	fcntl.fcntl(fd, FCNTL.F_SETFL, fl | FCNTL.FNDELAY)
+        fcntl.fcntl(fd, FCNTL.F_SETFL, fl | FCNTL.FNDELAY)
 
 def withPager(callable, *args, **keywords):
     global PAGER
