@@ -5,6 +5,10 @@ Runs through some functions of the testing api.
 """
 
 from lib import test, userinteraction
+from logging import create_node
+
+# Create main log node
+_log = create_node(__name__)
 
 def pogo_scan():
     # Define code to find avaliable Pogo Sticks here. Since there is no feasible
@@ -16,6 +20,14 @@ class PogoDevice(test.TestableDevice):
 
     # English name of the device tested
     name = "Pogo Stick"
+
+    def __init__(self):
+        # Create log node for this object
+        self.__log = _log.child_node("PogoDevice")
+        # Log something
+        self.__log("test", "this is a test")
+        # Run inherited __init__
+        test.TestableDevice.__init__(self)
 
     def _d_test(self):
         # Define code to Test a Pogo Stick here
