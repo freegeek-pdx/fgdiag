@@ -1,7 +1,7 @@
 This is a place for all hardware testing
 scripts used by FREE GEEK.
 
-There's some documentation:
+There's some documentation in the "doc" subdirectory:
 
 testing-purpose.txt -- describes the Purpose of a Testing Station and
         establishes standards for software and procedure.  It also contains a
