@@ -58,10 +58,12 @@ class PogoTester(test.GizmoTester):
         return pogos
 
     def destination(self, pogo):
-        if pogo.data["notes"] = "Colored Purple":
-            return test.Destination["Stored"], "Purple Pogo"
+        if pogo.data["notes"] == "Colored Purple":
+            return test.Destination["Stored"], "This is a Purple Pogo. It is special!"
+        elif pogo.data["notes"] == "Colored Something":
+            return test.Destination["Stored"], "Put this Gizmo in the \"Other\" bin."
         else:
-            return test.Destination["Recycled"], "Recycling"
+            return test.Destination["Recycled"], "Please but the Pogo stick in the Recycling bin."
 
 def main():
     from lib import testscript

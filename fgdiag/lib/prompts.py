@@ -78,13 +78,14 @@ Is there anything you'd like to correct?""" % ("\n".join(datastringlist))
 def report_success(data):
     datastringlist = list()
     template = """%s %s:
+    %s
     %s"""
-    for name, description, id_, new in data:
+    for name, description, id_, new, instructions in data:
         if new:
             idstring = "Generated a Gizmo ID. Please write %s onto a label and attach it to this Gizmo." % id_
         else:
             idstring = "Gizmo ID: %s" % id_
-        datastringlist.append(template%(name, description, idstring))
+        datastringlist.append(template%(name, description, idstring, instructions))
     body = """Report:
 ---
 %s

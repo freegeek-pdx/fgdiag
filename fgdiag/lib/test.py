@@ -148,16 +148,38 @@ class GizmoTester:
         # Run test first
         devices = self.run()
 
+        # Stick instructions in this dict for later
+        deviceinstructions = dict()
+        
         for device in devices:
             # Set working and needsExpert based on preset constant
             if Status.valid_status(device.status):
                 statusdata = device.status.data
 
                 # Update statusdata, so anything in device.data overrides statusdata.
+<<<<<<< test.py
                 statusdata.update(device.data)
+                
                 device.data = statusdata
             else:
                 raise InvalidStatusError, device.status
+
+            destination, instructions = self.destination(device)
+            if Destination.valid_status(destination):
+                destinationdata = destination.data
+
+                # Same
+                destinationdata.update(device.data)
+                device.data = destinationdata
+
+                deviceinstructions[device] = instructions
+=======
+                statusdata.update(device.data)
+                device.data = statusdata
+>>>>>>> 1.29
+            else:
+                raise InvalidStatusError, device.status
+
 
         # Is it safe to store the password for the user (write+read permissions in fgdb) in plaintext?
         from fgdb import connect
@@ -193,7 +215,7 @@ class GizmoTester:
                     # Create Gizmo
                     gizmo = db.get_gizmo_by_id(db.add_gizmo(self.gizmotype))
                     newgizmo = True
-                reportdata.append((device.name, device.description, gizmo.id, newgizmo))
+                reportdata.append((device.name, device.description, gizmo.id, newgizmo, deviceinstructions[device]))
                 register_test_data(gizmo, device.data)
             # end transaction here
             notice("Success!")
@@ -206,5 +228,5 @@ class GizmoTester:
     def run(self):
         raise NotImplementedError
 
-    def destination(self, device):
+    def destination(self):
         raise NotImplementedError
