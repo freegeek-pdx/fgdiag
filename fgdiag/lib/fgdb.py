@@ -370,6 +370,9 @@ class TableRow:
     table = property(__get_table, doc="Table containing the TableRow.")
 
 class FieldMapTableRow(TableRow):
+
+    #XXX: needs autocommit somewhere
+
     def __init__(self, tb, id_, idname = "id"):
         TableRow.__init__(self,tb,id_,idname)
         fields = self.table.database.field_map.get_fields(self.table.tables)

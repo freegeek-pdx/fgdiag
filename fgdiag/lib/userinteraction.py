@@ -1,6 +1,6 @@
 """Handles and standardizes user output."""
 
-import sys
+import sys, curses
 
 # Spice these up once the module is working
 
@@ -9,26 +9,25 @@ def error_exit(reason):
     print reason
     sys.exit()
 
-def notice(text):
+def notice(body):
     """Print a noncritical notice."""
-    print text
+    print "Notice"
+    print body
 
-def warning(text):
+def warning(body):
     """Print a warning."""
-    print text
+    print "Warning!"
+    print body
     
-def prompt(title):
+def prompt(title, body):
     """Prompt for something."""
-    return raw_input(title)
+    print title
+    return raw_input(body + " ")
 
-def yesno(title):
+def yesno(title, body):
     while 1:
-        answer = prompt(title + " (yes/no): ")
+        answer = prompt(title, body + " (yes/no):")
         if answer == "yes":
             return True
         if answer == "no":
             return False
-
-def db_fallback_notice(filename):
-    """Alert about fallback if database fails."""
-    notice("Unable to establish a connection with the FreeGeek Database. Outputting test results to a file named %s. " % (filename))

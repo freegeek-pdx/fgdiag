@@ -7,7 +7,7 @@ def prompt_for_gizmo(db, wantedtype):
     gizmo = None
     
     while not goodgizmo:
-        gid = userinteraction.prompt("Gizmo ID? ")
+        gid = userinteraction.prompt("Gizmo ID?", "What is the id for the Gizmo being tested?")
         
         # Existence Check
         try:
@@ -26,3 +26,20 @@ def prompt_for_gizmo(db, wantedtype):
         goodgizmo = True
               
     return gizmo
+
+def confirm_data(data, id_):
+    datalist = tuple()
+    for field, value in data.iteritems():
+        datalist += ("  %s: %s" % (field, value),)
+    datastring = "\n".join(datalist)
+    body = """The following data will be sent to the FreeGeek Database:
+---
+Gizmo %s:
+%s
+---
+Is this information correct?""" % (id_, datastring)
+    return userinteraction.yesno("Confirmation", body)
+    
+def db_fallback_notice(filename):
+    """Alert about fallback if database fails."""
+    userinteraction.notice("Unable to establish a connection with the FreeGeek Database. Outputting test results to a file named %s. " % (filename))
