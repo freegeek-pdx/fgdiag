@@ -4,4 +4,4 @@
 
 # Version in major.minor.patch scheme; the third component is updated
 # automagically by admin/tagversion.
-__version__ = "0.1.2"
+__version__ = "0.1.3"
