@@ -4,6 +4,7 @@ FGDBHOST = 'localhost'
 FGDBDB = 'fgdbtest'
 FGDBUSER = 'fgdbtester'
 # Is it wise to have password coded in? Plaintext?
+# FIXME: Make read data from config
 FGDBPASSWD = 'freegeek'
 
 def start_test(runfunc):
