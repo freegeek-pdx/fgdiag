@@ -7,7 +7,6 @@ KEY_NORMAL = 3
 KEY_HILITE = 4
 MENU_UNSELECT = 5
 MENU_SELECT = 6
-KEYGROUP = 8
 
 # ratio of menu / keyboard widths
 
@@ -15,7 +14,7 @@ RATIO = 0.8
 
 # margins on the edges of the keyboard 
 
-TOP_MARGIN = 0
+TOP_MARGIN = 3
 SIDE_MARGIN = 7
 
 # smallest key sizes possible, any smaller and the
@@ -134,19 +133,19 @@ funct3_data = {
 	 
 # the lock keys and print screen group
 lock_data = { 
-              99:  ["PRINT", [0, 0], [1,1]],
-	      70:  ["SCROLL", [0,1],[1,1]],
-	      247:  ["PAUSE", [0,2],[1,1]]
+              99:  ["PRI", [0, 0], [1,1]],
+	      70:  ["SCR", [0,1],[1,1]],
+	      247:  ["PAU", [0,2],[1,1]]
 	    }
 	    
 # the navigation key group
 navig_data = {
 	      110:   ["INS",[0,0],[1,1]],
-	      102:   ["HOME",[0,1],[1,1]],
+	      102:   ["HOM",[0,1],[1,1]],
 	      104:   ["UP",[0,2],[1,1]],
 	      111:  ["DEL",[1,0],[1,1]],
 	      107:  ["END",[1,1],[1,1]],
-	      109:  ["DOWN",[1,2],[1,1]]
+	      109:  ["DOW",[1,2],[1,1]]
 	    }
 	    
 # this is the arrow key group
