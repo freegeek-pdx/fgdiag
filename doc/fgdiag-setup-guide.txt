@@ -1,0 +1,77 @@
+fgdiag setup guide:
+
+Dependencies:
+
+PostGresSQL server
+python >= 2.2
+python-psycopg
+
+---
+
+Initial Setup:
+
+# Set up postgres
+apt-get install postgresql
+
+# Modify authentication settings
+echo "
+local	all					ident sameuser
+host	all	127.0.0.1	255.0.0.0	password
+host 	all	0.0.0.0		0.0.0.0		reject
+" > /etc/postgresql/pg_hba.conf
+
+su postgres
+createuser -P chromakode
+^
+| Password?			freegeek
+| Again?			freegeek
+| Allow to create databases?	Y
+| Allow to create users?	N
+----------------------------------------
+
+# Set up python
+apt-get install python2.2
+apt-get install python2.2-psycopg
+
+# Log out and become chromakode
+# Check out fgdiag
+cvs co fgdiag
+cvs co fgdb
+
+# Set up fgdb test implementation for chromakode
+createdb chromakod
+cd fgdb/sql/
+
+# Import some SQL
+psql chromakode < ddlpg.sql
+psql chromakode < seq.ddl.sql
+psql chromakode < fgdb.pg.sampledata.sql
+# NOTE: Takes a long time
+
+# Modify to make suitable for fgdiag
+psql chromakode < "
+INSERT INTO fieldmap (tablename, fieldname) VALUES ('Gizmo', 'needsexpert');
+DELETE FROM fieldmap WHERE fieldname='newStatus'
+INSERT INTO fieldmap (tablename, fieldname) VALUES ('Gizmo',
+'newstatus');
+"
+
+# Create FGRC database access config file
+touch .fgrc
+echo "
+[fgdb]
+host = localhost
+db = chromakode
+user = chromakode
+passwd = freegeek
+" > .fgrc
+
+# Test things out
+cd fgdiag/fgdiag/
+python2.2 pogotest.py
+^
+| Color? 		Purple
+| Does it work?		yes
+| Has ID Number?	no
+| Anything to correct?	no
+------------------------------
