@@ -223,5 +223,5 @@ class GizmoTester:
     def run(self):
         raise NotImplementedError
 
-    def destination(self):
+    def destination(self, device):
         raise NotImplementedError

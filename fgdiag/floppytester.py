@@ -143,6 +143,12 @@ class FloppyTester(test.GizmoTester):
             floppy.test()
         return floppies
 
+    def destination(self, floppy):
+        if floppy.status == test.Status["Passed"]:
+            return test.Destination["Stored"], "Please put this floppy drive in the \"Good Floppy Drive\" bin."
+        else:
+            return test.Destination["Recycled"], "Please put this floppy drive in the Recycling bin."
+
 def main():
     from lib import testscript
     testscript.start(FloppyTester)

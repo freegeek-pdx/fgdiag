@@ -25,6 +25,6 @@ def get_fgdb_login():
     db = config.get("fgdb","db")
     user = config.get("fgdb","user")
     passwd = config.get("fgdb","passwd")
-    
+
     return host, db, user, passwd
     
