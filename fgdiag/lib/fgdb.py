@@ -102,7 +102,7 @@ def _check_id(id_):
     try:
         psycopg.INTEGER(id_)
     except ValueError:
-        raise ValueError("ID value must be an integer")
+        raise ValueError("ID value must be a valid integer.")
 
 _select_sql_template = "SELECT %s FROM %s WHERE %s"
 _update_sql_template = "UPDATE %s SET %s WHERE %s"
