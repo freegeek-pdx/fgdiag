@@ -379,11 +379,12 @@ class FieldMap(Table):
 
     def __get_location(self, classes, fieldname):
         """Return the Table fieldname belongs to."""
-        if len(classes)==1:
-            classesstr = str(classes)
-        else:
-            classesstr = repr(tuple(classes))
-        sql = _select_sql("tableName", "fieldMap", _AND(_IN("tableName", classesstr), _equals("fieldName",fieldname)))
+        #What does this do again?
+        #if len(classes)==1:
+        #    classesstr = str(classes)
+        #else:
+        #    classesstr = repr(tuple(classes))
+        sql = _select_sql("tableName", "fieldMap", _AND(_IN("tableName", _tables(classes)), _equals("fieldName",fieldname)))
         tablename = self.database.query_one(sql)
         if not tablename:
             raise InvalidFieldError(fieldname)
@@ -397,7 +398,7 @@ class FieldMap(Table):
     #---
 
     def get_fields(self, classes):
-        sql = _select_sql(_fields("fieldName", "fieldMap", _IN("tableName", classesstr)))
+        sql = _select_sql(_fields("fieldName", "fieldMap", _IN("tableName", _tables(classes)))
         fields = self.database.query_all(sql)
         return _single_tuple_list(fields)
 
