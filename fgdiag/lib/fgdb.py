@@ -124,7 +124,7 @@ class Table:
         return self.__db    
     
     name = property(__get_name, doc="Name of Table in the Database.")
-    database = property(__get_database, doc="Database this Table.")
+    database = property(__get_database, doc="Database containing the Table.")
 
 class TableRow:
     def __init__(self, tb, id_, idname = "id"):
@@ -140,7 +140,11 @@ class TableRow:
     def __get_table(self):
         return self.__tb
     
-    table = property(__get_table, doc="Name of Table containing this TableRow.")
+    def __get_table(self):
+        return self.__id
+    
+    id = property(__get_id, doc="ID of the TableRow.")
+    table = property(__get_table, doc="Name of Table containing the TableRow.")
     
 class Gizmo(TableRow):	
     def __init__(self, db, gid):
