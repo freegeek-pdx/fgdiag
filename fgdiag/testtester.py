@@ -12,7 +12,7 @@ except:
 print "Attempting to run scan function %s..."%scanname
 
 try:
-    scan = m.__dict__[scanname]
+    scan = getattr(m, scanname)
 except:
     print "Unable to load scan function %s"%scanname
     raise
@@ -44,7 +44,7 @@ for device in scanresults:
     except:
 	print "get_data failed."
 	raise
-    
+
     print "get_data Succeeded!"
     print "Description:"
     print device.description
@@ -57,7 +57,7 @@ for device in scanresults:
     except:
 	print "test failed."
 	raise
-    
+
     print "test Succeeded!"
     print "Status:"
     print device.status

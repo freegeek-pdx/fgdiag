@@ -1,3 +1,7 @@
+2004-05-04  Kevin Turner  <kevin@freegeek.org>
+
+	* fgdiag/testtester.py: 1.1 use getattr() instead of __dict__
+
 2004-05-04    <chromakode@llama>
 
 	* fgdiag/lib/prompts.py (prompt_for_id):  No longer needs fgdb for
