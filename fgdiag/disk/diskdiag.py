@@ -38,12 +38,10 @@ class DiskDiag(test.GizmoTester):
         except disk.QuestionablePartitionException, qpe:
             drivestr = ""
             for i in qpe.args[0]:
-                drivestr += "\n%s: %#4x" % (i[0], i[1])
-            prompt = """There are some weird partitions on one or
-more of the drives:%s
-Do you want to continue and clobber these
-partitions (no to abort and put it on the
-"weird" pile)?""" % (drivestr,)
+                drivestr += "\n%s: %#04x" % (i[0], i[1])
+            prompt = """There are some weird partitions on one or more of the drives:%s
+Do you want to continue and clobber these partitions (no to abort and put
+it on the "weird" pile)?""" % (drivestr,)
             if ui.yesno("Questionable Partitions", prompt):
                 devs = disk.findBlockDevicesToScan(forceClobber=True)
             else:
