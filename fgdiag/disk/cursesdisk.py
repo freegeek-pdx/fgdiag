@@ -59,7 +59,10 @@ pairdefs = [
 _color_pair = {}
 
 class BadblocksWidget(badblocks.BadblocksObserver):
-    """I am the visual representation of the running BadBlocks.
+    """I am the visual representation of the running Badblocks.
+
+    @ivar dev: The device I am showing.
+    @type dev: L{diskdiag.DiskDevice}
     """
     PHASE_ROW = 5
     TOP = 1
@@ -68,7 +71,7 @@ class BadblocksWidget(badblocks.BadblocksObserver):
     PROGRESS2_ROW = TOP
     SUMMARY_ROW = 0
     pattern = ""
-    blockDevice = None
+    dev = None
 
     def __init__(self, bbObject, row=0, column=0, width=20, height=14):
         """Construct a widget from a badblocks object.
@@ -213,8 +216,7 @@ class BadblocksWidget(badblocks.BadblocksObserver):
             self.msgwin.addstr("%s of %s complete:\n" % (self._observed.modeLabel,
                                                          self.dev.dev))
             seconds_elapsed = time.time() - self._observed.startTimes[0]
-            megabytes = (disk.getDeviceSize(self.dev.data["sizeMb"]) /
-                         (2.0 ** (10+10)))
+            megabytes = self.dev.data["sizeMb"]
             self.msgwin.addstr("%s elapsed, %s per hundred megabytes.\n" % (
                 str(DateTime.TimeDelta(seconds = seconds_elapsed)),
                 str(DateTime.TimeDelta(seconds = seconds_elapsed /

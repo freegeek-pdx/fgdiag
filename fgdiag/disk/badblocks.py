@@ -47,6 +47,13 @@ class _Accessor:
 unbackspace_re = re.compile("\x08+")
 
 class Badblocks(popen2.Popen3, _Accessor):
+    """A badblocks process.
+
+    Runs the unix badblocks(8) utility.
+
+    @param device: The device I am checking.
+    @type device: diskdiag.DiskDevice
+    """
     KMSG_COUNT_TOLERANCE = 1
     BAD_SECTOR_COUNT_TOLERANCE = 1
     kmsg_count = 0
@@ -67,6 +74,16 @@ class Badblocks(popen2.Popen3, _Accessor):
     #  -w : write-mode testing; destroys data!
 
     def __init__(self, device, num_blocks=None):
+        """Start a new badblocks process.
+
+        @param device: The device to check.
+        @type device: diskdiag.DiskDevice
+
+        @param num_blocks: the -c paramater to badblocks, \"the number of
+            blocks which are tested at a time.\"
+            Defaults to L{Badblocks.num_blocks}.
+        @type num_blocks: int
+        """
         self.observers = []
         self.sectorCount = disk.getDeviceSize(device) / 1024
         self.totalSumCount = self.sectorCount * self.passes

@@ -15,7 +15,7 @@ class DiskDevice(test.TestableDevice):
 
     def _d_test(self):
         pass
-    
+
     def _d_data(self):
         self.data["sizeMb"] = disk.getDeviceSize(self.dev) / (1024**2)
         id = disk.identification(self.dev)
@@ -27,7 +27,7 @@ class DiskDevice(test.TestableDevice):
 
     def __str__(self):
         return self.dev
-    
+
 class DiskDiag(test.GizmoTester):
     gizmotype = "Gizmo.Component.Drive.IDEHardDrive"
 
