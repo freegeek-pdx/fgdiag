@@ -30,3 +30,10 @@ class SQLError(Error):
         self.error = error
     def __str__(self):
         return "%s\n%s" % (repr(sql), str(self.error))
+
+class DBConnectError(Error):
+    """Exception raised when invalid SQL is sent to the Database"""
+    def __init__(self, error):
+        self.error = error
+    def __str__(self):
+        return str(self.error)

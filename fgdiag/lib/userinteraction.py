@@ -6,7 +6,7 @@ import sys, curses
 
 def error_exit(reason):
     """Print the reason for an unrecoverable error and exit."""
-    print reason
+    error(reason)
     sys.exit()
 
 def notice(body):
@@ -17,6 +17,11 @@ def notice(body):
 def warning(body):
     """Print a warning."""
     print "Warning!"
+    print body
+
+def error(body):
+    """Print an error."""
+    print "Error!"
     print body
     
 def prompt(title, body):

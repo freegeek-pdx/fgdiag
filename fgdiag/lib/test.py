@@ -2,10 +2,10 @@
 import sys
 
 from prompts import prompt_for_ids, confirm_data
-from userinteraction import notice
+from userinteraction import notice, error
 from testdata import register_test_data
 from config import get_fgdb_login
-from errors import InvalidStatusError
+from errors import InvalidStatusError, DBConnectError
 
 # TODO: Collect these into a container of some kind.
 # Would it make more sense for Status_Unknown to be 0, and Status_Failed to be -1?
@@ -120,10 +120,18 @@ class GizmoTester:
                 raise InvalidStatusError, status
 
         # Is it safe to store the password for the user (write+read permissions in fgdb) in plaintext?
-        from fgdb import connect, InvalidRowError
-        
-        db = connect(*get_fgdb_login())
+        from fgdb import connect
 
+        try:
+            notice("Connecting to the Free Geek Database...")
+            db = connect(*get_fgdb_login())
+        except DBConnectError, e:
+            # Do any recovery here
+            msg = \
+            "Unable to connect to the Free Geek Database.\nError returned: %s" % str(e)
+            error(msg)
+            raise
+        
         devicegizmos = prompt_for_ids(db, self.gizmotype, devices)
 
         # Replace with something more efficient

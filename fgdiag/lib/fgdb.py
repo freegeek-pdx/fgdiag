@@ -18,7 +18,7 @@ True
 
 """
 import psycopg
-from errors import InvalidRowError, InvalidFieldError, SQLError
+from errors import InvalidRowError, InvalidFieldError, SQLError, DBConnectError
 
 def connect(host, db, user, passwd):
     """Return a Database instance connected to dburl.
@@ -33,9 +33,9 @@ def connect(host, db, user, passwd):
         conn.autocommit(True)
         mydb = Database(conn)
         # Make it autocommit - Without this changes will not save
-    except:
+    except Exception, e:
         # (Insert graceful failure here) ;)
-        raise
+        raise DBConnectError(e)
 
     return mydb
 
@@ -104,6 +104,8 @@ def _check_id(id_):
         psycopg.INTEGER(id_)
     except ValueError:
         raise ValueError("ID value must be a valid integer.")
+
+# These could be done with lambdas
 
 _select_sql_template = "SELECT %s FROM %s WHERE %s"
 _update_sql_template = "UPDATE %s SET %s WHERE %s"

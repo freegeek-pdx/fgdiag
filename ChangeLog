@@ -1,5 +1,15 @@
 2004-05-11    <chromakode@llama>
 
+	* fgdiag/lib/userinteraction.py (error): Added error() command
+
+	* fgdiag/lib/test.py (GizmoTester.start_test): Trap DBConnectError and display
+	useful data
+
+	* fgdiag/lib/errors.py (DBConnectError): Added DBConnectError
+
+	* fgdiag/lib/fgdb.py (connect): Raise exception when unable to
+	connect to a database
+
 	* fgdiag/lib/unittests/test_test.py (Module): Added preliminary
 	unit test
 
