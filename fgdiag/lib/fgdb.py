@@ -22,6 +22,7 @@ from errors import InvalidRowError, InvalidFieldError, SQLError, DBConnectError
 
 # Set to True to enable terminal sql dumping
 DEBUG = False
+#DEBUG = True
 
 def connect(host, db, user, passwd):
     """Return a Database instance connected to dburl.
