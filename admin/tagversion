@@ -1,0 +1,43 @@
+#!/usr/bin/python
+
+import os
+
+versionFile = "fgdiag/__init__.py"
+
+def msg(*s):
+    print ' '.join(s) # + '\n'
+
+class CommandFailed(Exception):
+    pass
+
+def replaceInFile(filename, old, new):
+    """Replace all occurances one string with another in one file."""
+    os.system("perl -pi -e 's/%s/%s/g' %s" % (old, new, filename))
+    # What are you looking at me like that for?
+
+def incrementVersion(inFile):
+    g = {}
+    execfile(inFile, g)
+    oldVersion = g["__version__"]
+    v = oldVersion.split('.')
+    try:
+        patchlevel = int(v[-1])
+    except ValueError:
+        raise CommandFailed("Patchlevel wasn't an int: %s %s" %
+                            (oldVersion, v))
+    patchlevel += 1
+    newVersion = '.'.join(v[:-1] + [str(patchlevel)])
+    msg("Updating %s from %s to %s" % (inFile, oldVersion, newVersion))
+    replaceInFile(inFile, oldVersion, newVersion)
+
+def tag():
+    raise NotImplementedError
+
+if __name__ == '__main__':
+    incrementVersion(versionFile)
+    # check in versionFile
+    # tag the whole tree
+
+    # or:
+    # check out the latest tagged version
+    #  or a specified tagged version
