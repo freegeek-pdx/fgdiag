@@ -37,7 +37,7 @@ def connect(host, db, user, passwd):
     return mydb
 
 def _equals(field, value):
-    return "%s = '%s'" % (field, value)
+    return "%s = %s" % (field, MySQLdb.string_literal(value))
 
 def _AND(*l):
     return " AND ".join(l)
@@ -65,6 +65,9 @@ def _id_values(tables, id_, idname="id"):
     
 def _count():
     return "COUNT(*)"
+
+def _no_where():
+    return "1"
 
 _select_sql_template = "SELECT %s FROM %s WHERE %s"
 _update_sql_template = "UPDATE %s SET %s WHERE %s"
@@ -120,10 +123,34 @@ class Cache:
             self.__results[totalargs] = self.__call(*args, **kwds)
         return self.__results[totalargs]
 
+class Queue:
+    
+    """
+    Generic queue
+
+    FIFO queue for calls with args. Call add with functions and arguments, and 
+    then use it's methods to run the queued up functions.
+    """
+            
+    def __init__(self):
+        self.__tasks = list()
+    
+    def add(self, call, *args, **kwds):
+        self.__tasks.append((call,args,kwds))
+        
+    def pop(self):
+        call, args, kwds = self.__tasks.pop(0)
+        call(*args, **kwds)
+        
+    def flush(self):
+        for call, args, kwds in self.__tasks:
+            call(*args, **kwds)     
+        
 class Database:
     def __init__(self, conn):
         self.__conn = conn
         self.__field_map = FieldMap(self)
+        self.__class_tree = ClassTree(self)
 
     def get_table(self, name, idname = "id"):
         """Get Table object by name."""
@@ -144,6 +171,10 @@ class Database:
     def query_one(self, sql):
         c = self.__try_execute(sql)
         return self.__process_result(c.fetchone())
+    
+    def query_all(self, sql):
+        c = self.__try_execute(sql)
+        return self.__process_result(c.fetchall())
 
     def execute(self, sql):
         self.__try_execute(sql)
@@ -173,9 +204,13 @@ class Database:
 
     def __get_field_map(self):
         return self.__field_map
+    
+    def __get_class_tree(self):
+        return self.__class_tree
 
     connection = property(__get_conn, doc="Connection object for the Database.")
     field_map = property(__get_field_map, doc="FieldMap of the Database.")
+    class_tree = property(__get_class_tree, doc="FieldMap of the Database.")
 
 class Table:
     """Generates queries for a table."""
@@ -190,6 +225,9 @@ class Table:
     def get_by_id(self, id_, fieldlist):
         return self.select_by_id(id_, _fields(fieldlist))
 
+    def get_all(self, id_):
+        return self.select("*", _equals(self.__idname, id_))
+    
     def set_by_id(self, id_, valuedict):
         return self.update_by_id(id_, _values(valuedict))
     
@@ -228,8 +266,8 @@ class MultipleTable:
         return TableRow(self, id_, self.__idname)
 
     def get_by_id(self, id_, fieldlist):
-        return self.select_by_id(id_, _fields(fieldlist))     
-
+        return self.select_by_id(id_, _fields(fieldlist))    
+     
     def set_by_id(self, id_, valuedict):
         # Quick fix for older mysql versions
         tablevalues = dict()
@@ -290,7 +328,7 @@ class TableRow:
         if self.__tb.select_by_id(self.__id, _count())==0:
             return False
         else:
-#             return True
+            return True
         
     def get(self, *fieldlist):
         return self.__tb.get_by_id(self.__id, fieldlist)
@@ -328,7 +366,7 @@ class FieldMap(Table):
     def __init__(self, db):
         Table.__init__(self, db, "FieldMap")
 
-    def __get_field_location(self, classes, fieldname):
+    def __get_location(self, classes, fieldname):
         """Return the Table fieldname belongs to."""
         if len(classes)==1:
             classesstr = str(classes)
@@ -341,10 +379,10 @@ class FieldMap(Table):
         return tablename
 
     # Cache stuff
-    __get_field_location_cache = Cache(__get_field_location)
+    __get_location_cache = Cache(__get_location)
 
-    def get_field_location(self, classes, fieldname):
-        return self.__get_field_location_cache(self, classes, fieldname)
+    def get_location(self, classes, fieldname):
+        return self.__get_location_cache(self, classes, fieldname)
     #---
 
     def process_field_list(self, classes, fieldlist):
@@ -352,7 +390,7 @@ class FieldMap(Table):
         newfieldlist = tuple()
         for f in fieldlist:
             if not f.count(".")==1:
-                newfieldlist += (self.get_field_location(classes, f) + "." + f,)
+                newfieldlist += (self.get_location(classes, f) + "." + f,)
             else:
                 newfieldlist += (f,)
         return newfieldlist
@@ -360,11 +398,32 @@ class FieldMap(Table):
     def process_value_dict(self, classes, valuedict):
         """Convert a dictionary like {"id":12345,"speed":4} to {"Gizmo.id":12345,"CDDrive.speed":4}"""
         newvaluedict = dict()
-        for item in valuedict.iteritems():
-            if not item[0].count(".")==1:
-                newvaluedict[self.get_field_location(classes, item[0]) + "." + item[0]] = item[1]
+        for field, value in valuedict.iteritems():
+            if not field.count(".")==1:
+                newvaluedict[self.get_location(classes, field) + "." + field] = value
             else:
-                newvaluedict[item[0]] = item[1]
+                newvaluedict[field] = value
         return newvaluedict
 
-__all__ = ["connect", "Database", "Table", "TableRow", "MultipleTableRow", "Gizmo", "FieldMap"]
+class ClassTree(Table):
+    def __init__(self, db):
+        Table.__init__(self, db, "classTree")
+    
+    def __get_location(self, classtree):
+        sql = _select_sql("tableName", "classTree", _equals("classTree",classtree))
+        return self.database.query_one(sql)
+    
+    __get_location_cache = Cache(__get_location)
+
+    def get_location(self, classtree):
+        return self.__get_location_cache(self, classtree)
+    
+    def get_list(self):
+        sql = _select_sql("classTree", "classTree", _no_where())
+        result = self.database.query_all(sql) 
+        newresult = ()
+        for item in result:
+            newresult += item
+        return newresult
+        
+__all__ = ["connect", "Database", "Table", "TableRow", "MultipleTableRow", "Gizmo", "FieldMap", "ClassTree"]
