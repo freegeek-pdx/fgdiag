@@ -77,7 +77,7 @@ def find_speed(modem, outputFunc=None):
     """Treat a file-like object as a modem, and try to determine its speed.
 
     @param outputFunc: Where to send the modem's responses.  Defaults to
-        L{sys.stdout}.write.
+        C{sys.stdout.write}.
     @type outputFunc: callable
     """
 
