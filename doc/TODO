@@ -1,6 +1,6 @@
 fgdiag release management
 =========================
- - make setup.py
+ - make Debian package
 
 Non-FreekBox Projects
 =====================
