@@ -398,7 +398,7 @@ class FieldMap(Table):
     #---
 
     def get_fields(self, classes):
-        sql = _select_sql(_fields("fieldName", "fieldMap", _IN("tableName", _tables(classes)))
+        sql = _select_sql(_fields("fieldName", "fieldMap", _IN("tableName", _tables(classes))))
         fields = self.database.query_all(sql)
         return _single_tuple_list(fields)
 
