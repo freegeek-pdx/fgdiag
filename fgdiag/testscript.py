@@ -7,7 +7,9 @@ Runs through some functions of the testing api.
 from lib import test
 
 class TestingTest(test.GizmoTest):
-        
+
+    gizmotype = "Gizmo.Component.Printer"
+    
     def run(self):
         return {"Gizmo.notes":"Everything is working!"}
 

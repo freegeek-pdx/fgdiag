@@ -17,17 +17,18 @@ class GizmoTest:
     #        self.gid = self.prompt()
     #    else:
     #        self.gid = gid
-      
+    
+    gizmotype = None
+    
     def start_test(self):
         """Test a Gizmo.
         
         Steps Taken:
-        1.  Connect to FGDB.
-        2.  Prompt for a Gizmo ID.
-        3.  Get the Gizmo from the established FGDB connection.
-        4.  Run the test given as self.run().
-        5.  Process returned test data
-        6.  Put the data into FGDB under the selected Gizmo.
+        1.  Run the test given as self.run().
+        2.  Connect to FGDB.
+        3a. Prompt for a Gizmo ID.
+        3b. Check and get the Gizmo from the established FGDB connection.
+        4.  Put the data into FGDB under the selected Gizmo.
         
         """
         
@@ -37,8 +38,7 @@ class GizmoTest:
         # Is it safe to store the password for the user (write+read permissions in fgdb) in plaintext?
         db = connect(*get_fgdb_login())
         
-        gid = prompt_for_gizmo()
-        gizmo = db.get_gizmo_by_id(gid)
+        gizmo = prompt_for_gizmo(db, self.gizmotype)
         
         register_test_data(gizmo, data)
         notice("Successfully set %s for gizmo %s" % (", ".join(data.keys()), gizmo.id))
