@@ -2,7 +2,7 @@
 
 """Install script for Free Geek Diagnostics
 
-FIXME: Docs are included in the tarball, but not installed anywhere.
+FIXME: docs are included in the tarball, but not installed anywhere.
  (Maybe this is okay, package maintainers can install the docs?)
 """
 
