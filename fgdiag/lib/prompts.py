@@ -74,8 +74,8 @@ def confirm_data(devices, gizmos):
 %s
 ---
 Please double-check any Gizmo IDs you have entered before continuing.
-Is there anything you'd like to correct?""" % ("\n".join(datastringlist))
-    return not userinteraction.yesno("Confirmation", body)
+Is this correct?""" % ("\n".join(datastringlist))
+    return userinteraction.yesno("Confirmation", body)
 
 def confirm_devices(devices):
     datastringlist = list()

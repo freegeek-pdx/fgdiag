@@ -212,29 +212,27 @@ class GizmoTester:
 
         db = connect()
         
-        if confirm_data(devices, devicegizmos):
-            # Kind of dumb to be creating essentially the same list again...
-            reportdata = list()
-            # start transaction here
-            for device in devices:
-                gizmo = devicegizmos[device]
-                newgizmo = False
-                if gizmo is None:
-                    # Create Gizmo
-                    gizmo = db.get_gizmo_by_id(db.add_gizmo(self.gizmotype))
-                    newgizmo = True
-                else:
-                    gizmo = db.get_gizmo_by_id(gizmo.id)
-                reportdata.append((device.name, device.description, gizmo.id, newgizmo, deviceinstructions[device]))
-                register_test_data(gizmo, device.data)
-            # end transaction here
-            db.disconnect()
-            notice("Success!")
-            report_success(reportdata)
-            self.__log("Finish", "Successful finish of test.")
-        else:
-            #XXX Put some sort of option to restart here
-            notice("FIXME: Put an option to restart here")
+        while not confirm_data(devices, devicegizmos):
+            devicegizmos = prompt_for_gizmos(db, self.gizmotype, devices)
+        # Kind of dumb to be creating essentially the same list again...
+        reportdata = list()
+        # start transaction here
+        for device in devices:
+            gizmo = devicegizmos[device]
+            newgizmo = False
+            if gizmo is None:
+                # Create Gizmo
+                gizmo = db.get_gizmo_by_id(db.add_gizmo(self.gizmotype))
+                newgizmo = True
+            else:
+                gizmo = db.get_gizmo_by_id(gizmo.id)
+            reportdata.append((device.name, device.description, gizmo.id, newgizmo, deviceinstructions[device]))
+            register_test_data(gizmo, device.data)
+        # end transaction here
+        db.disconnect()
+        notice("Success!")
+        report_success(reportdata)
+        self.__log("Finish", "Successful finish of test.")
 
     def run(self):
         raise NotImplementedError
