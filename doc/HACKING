@@ -3,8 +3,6 @@ Files to know and love:
 
   ChangeLog - Did you change something?  Log it!
 
-  Makefile - currently used mostly to set the execute bits which CVS loses.
-
   README - Have you read it?
 
   HACKING - This file, for people working the code.
