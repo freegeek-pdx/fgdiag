@@ -28,8 +28,11 @@ def connect(host, db, user, passwd):
     """
 
     try:
-        conn = psycopg.connect("host=%s dbname=%s user=%s password=%s"%(host,db,user,passwd))
+        conn = psycopg.connect("host=%s dbname=%s user=%s password=%s"
+                               %(host,db,user,passwd))
+        conn.autocommit(True)
         mydb = Database(conn)
+        # Make it autocommit - Without this changes will not save
     except:
         # (Insert graceful failure here) ;)
         raise
@@ -202,8 +205,6 @@ class Database:
 
     def execute(self, sql):
 	c = self.__try_execute(sql)
-	# psycopg hates me :P
-	c.close()
 	return True
 
     def __try_execute(self, sql):
@@ -217,7 +218,6 @@ class Database:
             # FIXME: Fall back here?
             raise
         return c
-
 
     def __get_conn(self):
         return self.__conn
