@@ -29,6 +29,9 @@ _DEBUG = False
 
 def get_serial_devices():
     """Checks devices /dev/ttyS0 - ttyS3 for a UART, which indicates a live device.
+
+    @returns: Available serial device numbers, e.g. C{['0', '1']}
+    @returntype: list of strings
     """
     setserial = os.popen("%s -g /dev/ttyS[0123]" % (SETSERIAL,), 'r')
     output = setserial.readlines()
@@ -79,6 +82,11 @@ def find_speed(modem, outputFunc=None):
     @param outputFunc: Where to send the modem's responses.  Defaults to
         C{sys.stdout.write}.
     @type outputFunc: callable
+
+    @returns: a list of C{(speed, text)} tuples, where C{speed} is
+        a key in L{speeds} and C{text} is the text from which the speed was
+        inferred.
+    @returntype: list of tuples
     """
 
     if outputFunc is None:
