@@ -52,7 +52,7 @@ def withPager(callable, *args, **keywords):
     oldout = sys.stdout
     sys.stdout = os.popen(PAGER, "w", 0)
     try:
-        retval = apply(callable, args, keywords)
+        retval = callable(*args, **keywords)
     finally:
         sys.stdout = oldout
 
