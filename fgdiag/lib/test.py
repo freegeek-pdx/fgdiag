@@ -38,20 +38,17 @@ class GizmoTest:
         
         # Run test first
         data = self.run()
-        if data is None:
-            #Test failed?
-            print "Test failed"
-            sys.exit()
 
-        print data
-        
-        # Is it safe to store the password for the user (write+read permissions in fgdb) in plaintext?
-        db = connect(*get_fgdb_login())
-        
-        gizmo = prompt_for_gizmo(db, self.gizmotype)
-        
-        register_test_data(gizmo, data)
-        notice("Successfully set %s for gizmo %s" % (", ".join(data.keys()), gizmo.id))
+        if data:
+            # Is it safe to store the password for the user (write+read permissions in fgdb) in plaintext?
+            db = connect(*get_fgdb_login())
+
+            gizmo = prompt_for_gizmo(db, self.gizmotype)
+
+            register_test_data(gizmo, data)
+            notice("Successfully set %s for gizmo %s" % (", ".join(data.keys()), gizmo.id))
+        else:
+            notice("Test returned no data.")
 
     def run(self):
         raise NotImplementedError

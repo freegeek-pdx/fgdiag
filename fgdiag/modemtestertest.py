@@ -1,4 +1,4 @@
-from modem import *
+from modem.modem import *
 from lib import test
 
 class TestingTest(test.GizmoTest):
@@ -6,6 +6,7 @@ class TestingTest(test.GizmoTest):
     gizmotype = "Gizmo.Component.Modem"
     
     def run(self):
+        live_ports = get_serial_devices()
         for dev in live_ports:
             print "Testing device %s" % (dev,)
             try:
