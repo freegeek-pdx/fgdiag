@@ -1,3 +1,9 @@
+fgdiag (0.1.1) unstable; urgency=low
+
+  * CVS tag Version_0_1_1
+
+ -- Kevin Turner <kevin@freegeek.org>  Sat, 23 Oct 2004 18:39:27 -0700
+
 fgdiag (0.1.0) unstable; urgency=low
 
   * Initial Release.
