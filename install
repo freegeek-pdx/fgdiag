@@ -1,9 +1,0 @@
-#!/bin/sh
-mkdir -p ${D}/etc/
-cp config/fgrc ${D}/etc/
-mkdir -p ${D}/usr/lib/python2.2/site-packages/
-cp -r fgdiag ${D}/usr/lib/python2.2/site-packages/
-mkdir -p ${D}/usr/bin
-cp bin/* ${D}/usr/bin
-mkdir -p ${D}/usr/share/doc/fgdiag/
-cp -r doc/* ${D}/usr/share/doc/fgdiag/
