@@ -20,6 +20,9 @@ True
 import psycopg
 from errors import InvalidRowError, InvalidFieldError, SQLError, DBConnectError
 
+# Set to True to enable terminal sql dumping
+DEBUG = False
+
 def connect(host, db, user, passwd):
     """Return a Database instance connected to dburl.
 
@@ -31,7 +34,7 @@ def connect(host, db, user, passwd):
         conn = psycopg.connect("host=%s dbname=%s user=%s password=%s"
                                %(host,db,user,passwd))
         conn.autocommit(True)
-        mydb = Database(conn)
+        mydb = Database(conn, DEBUG)
         # Make it autocommit - Without this changes will not save
     except Exception, e:
         # (Insert graceful failure here) ;)
