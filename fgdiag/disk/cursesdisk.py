@@ -58,6 +58,8 @@ pairdefs = [
 
 _color_pair = {}
 
+allDrives = {}
+
 class BadblocksWidget(badblocks.BadblocksObserver):
     """I am the visual representation of the running BadBlocks.
     """
@@ -102,6 +104,7 @@ class BadblocksWidget(badblocks.BadblocksObserver):
 
         blockDevice is a String such as \"hda\".
         """
+        self.dev = blockDevice
         # XXX: sloppy
         if string.find(blockDevice, 'hdb') != -1:
             channel = "secondary"
@@ -225,6 +228,8 @@ class BadblocksWidget(badblocks.BadblocksObserver):
         if isGood:
             self.msgwin.addstr("PASSED", _color_pair['success'])
             self.progress(self._observed.sectorCount, self._observed.sectorCount)
+
+        allDrives[self.dev]["isGood"] = isGood
 
         self.msgwin.refresh()
 
@@ -398,13 +403,27 @@ def main(stdscr):
         msg("Got argv", str(sys.argv[1:])+"\n")
         badblockses = badblocks.parallelTest([(sys.argv[1], 'over-write')])
     else:
-        drives_to_scan = disk.findDrivesToScan()
-        if not drives_to_scan:
+
+        msg("I will perform the following scans:\n")
+        devs = None
+        try:
+            devs = disk.findBlockDevicesToScan()
+        except disk.QuestionablePartitionException, qps:
+            msg("I found partition(s) with which I do not know what to do:\n")
+            for part in qps.args[0]:
+                # part is (dev, type)
+                msg("%s: type 0x%02x\n" % part)
+            if not statusWin.ask_yesno("Should I clobber them anyway? [y/N] "):
+                msg("Not clobbering. Put this on the weird drives pile.")
+                return 0
+            msg("I will perform the following scans:\n")
+            devs = disk.findBlockDevicesToScan(forceClobber=True)
+
+        if not devs:
             msg("I did not find any drives to scan.")
             return 0
 
-        msg("I will be operating on the following drives:\n")
-        for d in disk.findDrivesToScan():
+        for d, mode in devs:
             idstuff = disk.identification(d)
             if VERBOSE:
                 model = "%s SN#%s" % (idstuff['model'],
@@ -420,22 +439,14 @@ def main(stdscr):
                                        model,
                                        size_str))
 
+            global allDrives
+            allDrives[d] = {}
+            allDrives[d].update(idstuff)
+            allDrives[d]["size"] = size_str
+            
             if VERBOSE:
                 for kind, modes in disk.supported_modes(d).items():
                     msg("%s: %s\n" % (kind, string.join(modes)))
-
-        if not statusWin.ask_yesno("Does that look right? [y/N] "):
-            msg("\nGo fix it.\n")
-            return 0
-        else:
-            msg("\n")
-
-        msg("I will perform the following scans:\n")
-        devs = disk.findBlockDevicesToScan()
-
-        for d, mode in devs:
-            d = string.split(d, '/')[-1]
-            msg("    %s:%s\t" % (d, mode))
         msg("\n")
 
         if not statusWin.ask_yesno("Okay? [y/N] "):
@@ -444,7 +455,7 @@ def main(stdscr):
         else:
             msg("\n")
 
-        badblockses = badblocks.parallelTest(disk.prepDrivesForScan())
+        badblockses = badblocks.parallelTest(devs)
 
     # XXX: Find the terminal width instead of assuming it's 80 column.
     width = 80 / len(badblockses)
@@ -455,7 +466,17 @@ def main(stdscr):
     if VERBOSE:
         statusWin.msg("num_blocks set to %d\n" % (badblocks.Badblocks.num_blocks,))
     statusWin.msg("Commencing scan.\n")
-    return badblocks.mainloop(badblockses, klog)
+    badblocks.mainloop(badblockses, klog)
+    for drv, attrs in allDrives.items():
+        stat = "FAILED"
+        if attrs["isGood"]:
+            stat = "PASSED"
+        msg("%(drive)s %(stat)s %(size)s" % {
+            "drive": drv,
+            "stat": stat,
+            "size": attrs["size"],
+            })
+    return 0
 
 def wrapper():
     curses.wrapper(main)
@@ -469,9 +490,11 @@ def run():
     for key, value in l:
         envopts[key[len(envprefix):]] = value
 
+    global VERBOSE
     if envopts.has_key("VERBOSE"):
         VERBOSE = True
 
+    global MEMINFO_SPAM
     if envopts.has_key("MEMSPAM"):
         MEMINFO_SPAM = True
 

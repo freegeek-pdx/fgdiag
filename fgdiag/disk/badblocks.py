@@ -250,19 +250,6 @@ class Badblocks(popen2.Popen3, _Accessor):
         s = "<%s at %x scanning %s>" % (self.__class__, id(self), self.device)
         return s
 
-
-class BadblocksRead(Badblocks):
-    modeLabel = "read-only"
-    modeFlag = ""
-
-    def progress(self, numerator, denominator):
-        Badblocks.progress(self, numerator, denominator)
-
-    def read_stage(self, output):
-        self.operation = "Reading"
-        Badblocks.read_stage(self, output)
-
-
 ### Write patterns:
 #       0xaaaaaaaa
 #       0x55555555
@@ -345,30 +332,8 @@ class BadblocksWrite(Badblocks):
 
 writing_re = re.compile(r"^Writing pattern (?P<pattern>0x\S{8})")
 
-
-class BadblocksWriteSafely(Badblocks):
-    modeLabel = "safe write & read"
-    stage = None
-    pattern = None
-    modeFlag = "-n"
-
-    def __init__(self, device):
-        Badblocks.__init__(self, device)
-        self.totalSumCount = self.sectorCount
-
-    def read_stage(self, output):
-        self.operation = "WriteSafely"
-        Badblocks.read_stage(self, output)
-
-    def progress(self, numerator, denominator):
-        if not self.totalSumCount:
-            self.totalSumCount = self.sectorCount = denominator
-        Badblocks.progress(self, numerator, denominator)
-
 bb_classes = {
-    'read-only': BadblocksRead,
     'over-write': BadblocksWrite,
-    'safe-write': BadblocksWriteSafely,
     }
 
 
@@ -440,8 +405,8 @@ def parallelTest(deviceList):
     @param deviceList: Devices to scan.
     @type deviceList: A list of (I{device}, I{scanmode}) pairs, where
         I{device} is a string containing the absolute pathname of the
-        device, and I{scanmode} is one of C{'read-only'}, C{'over-write'},
-        or C{'safe-write'}.
+        device, and I{scanmode} is C{'over-write'} (others may be
+        supported in the future).
 
         An element of this list may also be a list of (I{device},
         I{scanmode}) pairs itself, in which case that element is taken

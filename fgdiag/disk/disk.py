@@ -123,6 +123,13 @@ def set_msg_function(f):
     msg = f
 
 
+class QuestionablePartitionException(Exception):
+    """Gets raised when we find a partition we don't know what to with.
+
+    args should be a list of (partition, type) tuples.
+    """
+    pass
+
 def list_mounted_devices():
     """List devices which are mounted or being used as swap.
 
@@ -210,113 +217,32 @@ def findDrivesToScan():
     return drives
 
 
-def findBlockDevicesToScan():
+def findBlockDevicesToScan(forceClobber=False):
     """Find, but do not modify, block devices (disks and/or partitions) to scan.
+
+    Also test for questionable partitions.
     """
     drives = findDrivesToScan()
 
     devices_to_scan = []
+    badParts = []
     for drive in drives:
-        dont_wipe = False
         partitions = list_partitions(drive)
         # Make sure they're sorted in disk order.
         partitions.sort(lambda a,b: cmp(a[1], b[1]))
-        if not partitions:
-            devices_to_scan.append((drive, "over-write"))
-        else:
-            partitions_to_scan = []
-            for p in partitions:
-                p_id = p[-1]
-                if noWipe.has_key(p_id):
-                    dont_wipe = True
-                    # XXX: Has badblocks.SerialTest code been sufficiently
-                    # debugged for us to feel confident in adding read-only
-                    # scans?
-                    partitions_to_scan.append((p[0], "read-only"))
-                elif doWipe.has_key(p_id):
-                    partitions_to_scan.append((p[0], "over-write"))
-                else:
-                    if not "When in doubt, kill":
-                        # ???
-                        # Not a fatal error here, since this function is
-                        # for informational purposes only.
-                        dont_wipe = True
-                        partitions_to_scan.append((p[0],
-                                                   "??? type 0x%x?" % (p_id,)))
-                    else:
-                        partitions_to_scan.append((p[0], "over-write"))
-
-            if dont_wipe:
-                # If any partition says not to wipe it, then scan on a
-                # per-partition basis.
-                devices_to_scan.extend(partitions_to_scan)
-            else:
-                # Otherwise, do the entire drive at once.
-                devices_to_scan.append((drive, "over-write"))
-    # next drive
-
-    return devices_to_scan
-
-
-def prepDrivesForScan():
-    """Prepare all IDE disks for (likely destructive) scanning.
-
-    WARNING: rewrites partition table!
-
-    @returns: a list of (I{device}, I{scanmode}) tuples, suitable for
-        applying to L{badblocks.parallelTest}.
-    """
-    # XXX: There's a lot of duplicated code
-    #      between this and findBlockDevicesToScan()
-
-    drives = findDrivesToScan()
-
-    devices_to_scan = []
-    for drive in drives:
-        dont_wipe = False
-        partitions = list_partitions(drive)
-        # Make sure they're sorted in disk order.
-        partitions.sort(lambda a,b: cmp(a[1],b[1]))
         if partitions:
-            partitions_to_scan = []
             for p in partitions:
                 p_id = p[-1]
-                if noWipe.has_key(p_id):
-                    dont_wipe = True
-                elif doWipe.has_key(p_id) or "When in doubt, kill":
-                    pass
-                else:
-                    raise NotImplementedError, (
-                        "partition %s is of type %s and I don't know if I "
-                        "am allowed to write over it or not." % (p, p_id))
+                if not doWipe.has_key(p_id):
+                    badParts.append((p[0], p_id))
 
-            if dont_wipe:
-                # If any partition says not to wipe it, then we must decide
-                # how to scan on a per-partition basis.
-                for p in partitions:
-                    if noWipe.has_key(p[-1]):
-                        partitions_to_scan.append((p[0], "read-only"))
-                    else:
-                        delete_partition(p[0])
-
-                # re-partition unused space.
-                repartition(drive)
-                partitions = list_partitions(drive)
-
-                for p in partitions:
-                    if doWipe.has_key(p[-1]):
-                        partitions_to_scan.append((p[0], "over-write"))
-
-                # As a single element of the devices_to_scan list, these
-                # will be scanned in serial.
-                devices_to_scan.append(partitions_to_scan)
-            else:
-                # Otherwise, do the entire drive at once.
-                devices_to_scan.append((drive, "over-write"))
-        else:
-            devices_to_scan.append((drive, "over-write"))
+        devices_to_scan.append((drive, "over-write"))
+    if badParts and (not forceClobber):
+        raise QuestionablePartitionException, (badParts,)
 
     return devices_to_scan
+
+
 
 _sfdisk_re = re.compile("^(?P<device>/dev/\S*?)\s*: start=\s*(?P<start>\d*), "
                         "size=\s*(?P<size>\d*), "
@@ -356,55 +282,6 @@ def list_partitions(drive, doIncludeEmpty=True):
         # msg("\nsfdisk list partition out:", outmsg, ":out")
 
     return partitions
-
-
-def delete_partition(partition):
-    msg("Removing partition %s..." % (partition,))
-    mo = re.match("(\D*)(\d*)",partition)
-    if not mo:
-        raise ValueError, ("Can\'t determine what partition '%s' refers to." %
-                           (partition,))
-    drive, pnum = mo.groups()
-
-    cmd = "%(sfdisk)s %(drive)s --Linux -N%(n)s" % {'sfdisk': SFDISK,
-                                                    'drive': drive,
-                                                    'n': pnum}
-
-    sfdisk_out, sfdisk_in, sfdisk_err = popen2.popen3(cmd)
-    sfdisk_in.write("0,0,0,-\n")
-    ecode = sfdisk_in.close()
-    errmsg = sfdisk_err.read()
-    outmsg = sfdisk_out.read()
-    # XXX: This code gets duplicated several times.
-    if ecode:
-        msg("sfdisk deletion exit code: %s\n" % (ecode,))
-        msg("sfdisk deletion error: %s :error\n" % (errmsg,))
-        msg("sfdisk deletion out: %s :out\n" % (outmsg,))
-    msg("done\n")
-
-
-def repartition(drive):
-    msg("Repartitioning %s..." % (drive,))
-    partitions = list_partitions(drive, True)
-    cmd = "%(sfdisk)s --Linux -uS %(drive)s" % {'sfdisk':SFDISK,
-                                                'drive':drive}
-    # print "X: repartitioning %s of %s with _%s_" % (partitions, drive, repr(cmd))
-    sfdisk_out, sfdisk_in, sfdisk_err = popen2.popen3(cmd)
-    for p in partitions:
-        p_type = p[-1]
-        if p_type != 0:
-            sfdisk_in.write("%s,%s,%x\n" % (p[1], p[2], p[3]))
-        else:
-            sfdisk_in.write(",,0\n")
-    ecode = sfdisk_in.close()
-    errmsg = sfdisk_err.read()
-    outmsg = sfdisk_out.read()
-    if ecode:
-        msg("sfdisk repartition exit code: %s\n" % (ecode,))
-        msg("sfdisk repartition error: %s :error\n" % (errmsg,))
-        msg("sfdisk repartition out: %s :out\n" % (outmsg,))
-    msg("done\n")
-
 
 def getDeviceSize(blockDevice):
     """Given a device name, return the size of the device in bytes.
