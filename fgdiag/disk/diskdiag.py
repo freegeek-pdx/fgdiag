@@ -37,7 +37,7 @@ class DiskDiag(test.GizmoTester):
             devs = disk.findBlockDevicesToScan()
         except disk.QuestionablePartitionException, qpe:
             drivestr = ""
-            for i in qpe.args:
+            for i in qpe.args[0]:
                 drivestr += "\n%s: %#2x" % (i[0], i[1])
             prompt = """There are some weird partitions on one or
 more of the drives:%s
