@@ -10,18 +10,50 @@ from logging import create_node
 
 _log = create_node(__name__)
 
-# TODO: Collect these into a container of some kind.
-# Would it make more sense for Status_Unknown to be 0, and Status_Failed to be -1?
-Status_Unknown = -1
-Status_Failed = 0
-Status_Passed = 1
-Status_Expert = 2
+class _StatusConstant:
+
+    def __init__(self, name, data):
+        self.name = name
+        self.data = data
+
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
+    def __get_data(self):
+        return dict(self.data)
+
+    data = property(__get_data, doc="Data for status constant.")
+
+class _StatusConstantCollection(dict):
+
+    def create_status(self, name, data):
+        self[name] = _StatusConstant(name, data)
+
+    def remove_status(self, name):
+        del self[name]
+
+    def valid_status(self, constant):
+        return constant.name in self.keys()
+
+Status = _StatusConstantCollection()
+Status.create_status("Unknown", {"working":"M", "needsexpert":"M"})
+Status.create_status("Failed", {"working":"N", "needsexpert":"N"})
+Status.create_status("Passed", {"working":"Y", "needsexpert":"N"})
+Status.create_status("NeedsExpert", {"working":"M", "needsexpert":"Y"})
+
+Destination = _StatusConstantCollection()
+Destination.create_status("Unknown", {})
+Destination.create_status("Recycled", {"newstatus":"Recycled"})
+Destination.create_status("Stored", {"newstatus":"Stored"})
 
 def status_from_boolean(bool):
     if bool:
-        return Status_Passed
+        return Status["Passed"]
     else:
-        return Status_Failed
+        return Status["Failed"]
 
 def start_test(test):
     """Helper function. Initializes test and runs its test."""
@@ -35,7 +67,7 @@ class TestableDevice:
     def __init__(self):
         self.data = dict()
         self.description = str()
-        self.status = Status_Unknown
+        self.status = Status["Unknown"]
         self.__log = _log.child_node("TestableDevice", self.name)
 
     def _d_data(self):
@@ -118,21 +150,13 @@ class GizmoTester:
 
         for device in devices:
             # Set working and needsExpert based on preset constant
-            if device.status == Status_Failed:
-                device.data["working"] = "N"
-                device.data["needsExpert"] = "N"
-            elif device.status == Status_Passed:
-                device.data["working"] = "Y"
-                device.data["needsExpert"] = "N"
-            elif device.status == Status_Expert:
-                device.data["working"] = "M"
-                device.data["needsExpert"] = "Y"
-            elif device.status == Status_Unknown:
-                # Do something special?
-                device.data["working"] = "M"
-                device.data["needsExpert"] = "M"
+            if Status.valid_status(device.status):
+                statusdata = device.status.data
+
+                # Update statusdata, so anything in device.data overrides statusdata.
+                device.data = statusdata.update(device.data)
             else:
-                raise InvalidStatusError, status
+                raise InvalidStatusError, device.status
 
         # Is it safe to store the password for the user (write+read permissions in fgdb) in plaintext?
         from fgdb import connect

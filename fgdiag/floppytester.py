@@ -50,21 +50,21 @@ class FloppyDevice(test.TestableDevice):
         status, output = self.run_command("badblocks /dev/fd0 1440")
         if not status==0:
             userinteraction.error("Scan Failed.")
-            return test.Status_Failed
+            return test.Status["Failed"]
 
         # mformat
         userinteraction.notice("Formating Floppy...")
         status, output = self.run_command("mformat a:")
         if not status==0:
             userinteraction.error("Format Failed.")
-            return test.Status_Failed
+            return test.Status["Failed"]
 
         # mount
         userinteraction.notice("Mounting Floppy...")
         status, output = self.run_command("mount -rw /dev/fd0 /floppy/")
         if not status==0:
             userinteraction.error("Mount Failed.")
-            return test.Status_Failed
+            return test.Status["Failed"]
 
         try:
             # copy
@@ -75,7 +75,7 @@ class FloppyDevice(test.TestableDevice):
                 f.close()
             except:
                 userinteraction.error("Failed to write Tux.")
-                return test.Status_Failed
+                return test.Status["Failed"]
             userinteraction.notice("No errors.")
         finally:
             # unmount
@@ -83,7 +83,7 @@ class FloppyDevice(test.TestableDevice):
             status, output = self.run_command("umount /floppy/")
             if not status==0:
                 userinteraction.error("Unmount Failed.")
-                return test.Status_Failed        
+                return test.Status["Failed"]        
 
         # mount in second drive
         userinteraction.prompt("Switch Drive", "Please put the floppy into the internal floppy drive and press enter.")
@@ -92,7 +92,7 @@ class FloppyDevice(test.TestableDevice):
         status, output = self.run_command("mount /dev/fd1 /floppy/")
         if not status==0:
             userinteraction.error("Mount Failed.")
-            return test.Status_Failed
+            return test.Status["Failed"]
 
         try:
             # read
@@ -103,13 +103,13 @@ class FloppyDevice(test.TestableDevice):
                 f.close()
             except:
                 userinteraction.error("Failed to read Tux.")
-                return test.Status_Failed
+                return test.Status["Failed"]
 
             if data==tux:
                 userinteraction.notice("Data is identical; No errors!")
             else:
                 userinteraction.error("Data Differs! Test Failed.")
-                return test.Status_Failed
+                return test.Status["Failed"]
             userinteraction.notice("Data: %s" % data)
 
         finally:
@@ -118,10 +118,10 @@ class FloppyDevice(test.TestableDevice):
             status, output = self.run_command("umount /floppy/")
             if not status==0:
                 userinteraction.error("Unmount Failed.")
-                return test.Status_Failed
+                return test.Status["Failed"]
 
         # Since nothing failed, pass the test.
-        return test.Status_Passed
+        return test.Status["Passed"]
 
     def _d_data(self):
         return {}

@@ -26,8 +26,8 @@ class TestDevice(test.TestableDevice):
 class TestTester(unittest.TestCase):
     def test_statusfrombool(self):
         """Check that status constants are sane"""
-        self.assertEqual(test.status_from_boolean(True), test.Status_Passed)
-        self.assertEqual(test.status_from_boolean(False), test.Status_Failed)
+        self.assertEqual(test.status_from_boolean(True), test.Status["Passed"])
+        self.assertEqual(test.status_from_boolean(False), test.["Status"])
 
     def test_testdevice(self):
         """Make sure testabledevice is working completely"""
