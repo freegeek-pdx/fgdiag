@@ -1,0 +1,88 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module FGDB</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>FGDB</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/mageling/Coding/fg/fgdiag/fgdiag/lib/testing/FGDB.py">/home/mageling/Coding/fg/fgdiag/fgdiag/lib/testing/FGDB.py</a></font></td></tr></table>
+    <p><tt>FreeGeek&nbsp;<a href="#Database">Database</a>&nbsp;access.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="MySQLdb.html">MySQLdb</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="FGDB.html#Database">Database</a>
+</font></dt><dt><font face="helvetica, arial"><a href="FGDB.html#FieldMap">FieldMap</a>
+</font></dt><dt><font face="helvetica, arial"><a href="FGDB.html#Gizmo">Gizmo</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Database">class <strong>Database</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Database-__init__"><strong>__init__</strong></a>(self, conn)</dt></dl>
+
+<dl><dt><a name="Database-get_gizmo_by_id"><strong>get_gizmo_by_id</strong></a>(gid)</dt><dd><tt>Get&nbsp;a&nbsp;<a href="#Gizmo">Gizmo</a>&nbsp;and&nbsp;return&nbsp;an&nbsp;object.</tt></dd></dl>
+
+<hr>
+Properties defined here:<br>
+<dl><dt><strong>connection</strong></dt>
+<dd><tt>Connection&nbsp;object&nbsp;for&nbsp;the&nbsp;<a href="#Database">Database</a>.</tt></dd>
+<dd><dl><dt><a name="Database-<em>get</em>"><strong><em>get</em></strong></a> = __get_conn()</dt></dl>
+</dd>
+</dl>
+<dl><dt><strong>field_map</strong></dt>
+<dd><tt><a href="#FieldMap">FieldMap</a>&nbsp;of&nbsp;the&nbsp;<a href="#Database">Database</a>.</tt></dd>
+<dd><dl><dt><a name="Database-<em>get</em>"><strong><em>get</em></strong></a> = __get_field_map()</dt></dl>
+</dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="FieldMap">class <strong>FieldMap</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="FieldMap-get_field_location"><strong>get_field_location</strong></a>(fieldname)</dt><dd><tt>Return&nbsp;the&nbsp;Table&nbsp;fieldname&nbsp;belongs&nbsp;to.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Gizmo">class <strong>Gizmo</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Gizmo-register_test_data"><strong>register_test_data</strong></a>(data)</dt><dd><tt>Put&nbsp;data&nbsp;into&nbsp;appropriate&nbsp;fields&nbsp;in&nbsp;database.</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-connect"><strong>connect</strong></a>(dburl)</dt><dd><tt>Return&nbsp;a&nbsp;<a href="#Database">Database</a>&nbsp;instance&nbsp;connected&nbsp;to&nbsp;dburl.<br>
+&nbsp;<br>
+Attempt&nbsp;to&nbsp;connect&nbsp;to&nbsp;dburl,&nbsp;and&nbsp;fail&nbsp;gracefully&nbsp;by&nbsp;falling&nbsp;back&nbsp;to&nbsp;a&nbsp;temporary&nbsp;file&nbsp;cache.</tt></dd></dl>
+</td></tr></table>
+</body></html>
