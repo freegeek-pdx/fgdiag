@@ -1,3 +1,8 @@
+2004-11-16  Kevin Turner  <kevin@freegeek.org>
+
+	* fgdiag/modem/modem.py (main): 1.8 fix minor errors in IO error
+	handler.
+
 2004-10-27  Kevin Turner  <kevin@freegeek.org>
 
 	* debian/fgdiag.install: 1.2 

@@ -279,7 +279,8 @@ def main():
         except termios.error, e:
             if e[0] == errno.EIO:
                 print ("ttyS%s won't speak to me."
-                       "  (%s opening device)" % (e[1], dev,))
+                       "  (%s opening device)" % (dev, e[1]))
+                continue
             else:
                 raise
         results = None
