@@ -14,4 +14,4 @@ class TestCallResponse(unittest.TestCase):
     def test_echo(self):
         d = self.modem.getResponse("AT\n")
         result = deferredResult(d, TEST_TIMEOUT)
-        self.failUnlessEqual(result[:3], "AT\n")
+        self.failUnlessEqual(result[:4], "AT\n\r")
