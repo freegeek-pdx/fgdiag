@@ -56,9 +56,9 @@ Destination = _StatusConstantCollection()
 # We don't know where to put it
 Destination.create_status("Unknown", {})
 # Recycle it
-Destination.create_status("Recycled", {"newstatus":"Recycled"})
+Destination.create_status("Recycled", {"newStatus":"Recycled"})
 # Store it
-Destination.create_status("Stored", {"newstatus":"Stored"})
+Destination.create_status("Stored", {"newStatus":"Stored"})
 
 def status_from_boolean(bool):
     if bool:
@@ -226,6 +226,8 @@ class GizmoTester:
                     # Create Gizmo
                     gizmo = db.get_gizmo_by_id(db.add_gizmo(self.gizmotype))
                     newgizmo = True
+                else:
+                    gizmo = db.get_gizmo_by_id(gizmo.id)
                 reportdata.append((device.name, device.description, gizmo.id, newgizmo, deviceinstructions[device]))
                 register_test_data(gizmo, device.data)
             # end transaction here
