@@ -125,8 +125,13 @@ class CDDevice(test.TestableDevice):
         cmd = 'mount -tiso9660 /dev/' + self.device + ' /mnt 2>&1' 
         status, output = commands.getstatusoutput(cmd)
         if not status==0:
-          userinteraction.error("\n--> Mount failed. \n    Insert another CD and try again. \n    If this continues, the drive may be bad.")
-          return test.Status["Failed"]
+          userinteraction.error("\n--> Mount failed. \n    If this continues, the drive may be bad. \n    Insert another CD and try again.") 
+        #  return test.Status["Failed"]
+          working = userinteraction.yesno("    Continue?", " ") 
+          if working==0:
+            return test.Status["Failed"]
+          else:
+            return test.Status["Unknown"]
 
         cmd = 'cat /proc/ide/' + self.device + '/capacity' 
         status, output = commands.getstatusoutput(cmd)
@@ -136,18 +141,18 @@ class CDDevice(test.TestableDevice):
         status, output = commands.getstatusoutput(cmd)
 
         MbOnDisc = (int(blocks) / (1024 *2))
-        
-        if (MbOnDisc < MinimumMbOnDisc):
-          userinteraction.error("This CD disc has less than  " + str(MinimumMbOnDisc) + " MB of data.\nNo test will be performed.\n\n")
-          return test.Status["Failed"]
 
-        if (MbOnDisc < OptimalMbOnDisc):
-          userinteraction.error("\nThis CD disc that you are using to test has insufficient data\nfor properly testing the CD drive's speed.\n->It is recommended that you use a disc with more than " + str(OptimalMbOnDisc) + " MB of data.\n\n")
-          return test.Status["Failed"]
+        notice_string = ''
+        
+#        if (MbOnDisc < MinimumMbOnDisc):
+#          userinteraction.error("This CD disc has less than  " + str(MinimumMbOnDisc) + " MB of data.\nNo test will be performed.\n\n")
+#          return test.Status["Failed"]
 
         if (MbOnDisc < WarningMbOnDisc):
-          userinteraction.error("\nThis CD disc has less than  " + str(WarningMbOnDisc) + " MB of data.\nBy testing it you will almost surely understate the true\nspeed of the CD drive that you are testing.\n")
-          return test.Status["Failed"]
+          notice_string = ("This CD disc has less than  " + str(WarningMbOnDisc) + " MB of data. By testing it you will almost surely understate the true\nspeed of the CD drive that you are testing.\n")
+        else:
+          if (MbOnDisc < OptimalMbOnDisc):
+            notice_string = ("  This CD disc that you are using to test has insufficient data for properly testing the CD drive's speed.\n  It is recommended that you use a disc with more than " + str(OptimalMbOnDisc) + " MB of data.\n")
 
 	if ( (MbOnDisc * 1024 * 1024) < LastByteToRead ):
           # adjust skip value to allow read to fall within
@@ -155,13 +160,15 @@ class CDDevice(test.TestableDevice):
           global Skip
           Skip = ( (MbOnDisc - 1.5 * megstoread ) * 1024 * 1024) / BlockSize
 
-        userinteraction.notice('\nCDROMS:'                        \
-        + '\n' + self.device + ": " + self.data["manufacturer"]   \
-        + 'MB to Read    : ' + str(megstoread)                  \
-        + '\nBlock Size    : ' + str(BlockSize)                   \
-        + '\nBlocks to Skip: ' + str(Skip)                        \
-        + '\nBlocks to Read: ' + str(BlockCount)                  \
-        + '\nMB on CD disc : ' + str(MbOnDisc) + '\n' )
+        notice_string = notice_string + 'Testing '                     \
+        +           self.device + ': ' + self.data["manufacturer"]     \
+        + '\n        MB to Read    : ' + str(megstoread)               \
+        + '\n        Block Size    : ' + str(BlockSize)                \
+        + '\n        Blocks to Skip: ' + str(Skip)                     \
+        + '\n        Blocks to Read: ' + str(BlockCount)               \
+        + '\n        MB on CD disc : ' + str(MbOnDisc)
+
+        userinteraction.notice(notice_string)
 
         cmd = '/usr/bin/time dd if=/dev/' + self.device \
         + ' of=/dev/null bs=' + str(BlockSize)          \
@@ -180,11 +187,12 @@ class CDDevice(test.TestableDevice):
         speed = round(((BlockSize * BlockCount) / elapsed_time) / (150 * 1024))
  	self.data["speed"] = speed 
 
-        userinteraction.notice('  Tested at ' + str(int(speed)) + 'x\n') 
+        userinteraction.notice('Tested at ' + str(int(speed)) + 'x') 
         return test.Status["Passed"]
 
     def _d_data(self):
-        # Define code to get data on the cd drive here...
+
+        # Look in /proc/ide/(device)/media for any cdrom info... 
 
         found=False
         for device in ('hda','hdb','hdc','hdd'):
@@ -200,7 +208,7 @@ class CDDevice(test.TestableDevice):
               self.device = device 
 
               f = open(path + '/model',"r")
-              self.data["manufacturer"] = f.read()
+              self.data["manufacturer"] = string.strip(f.read())
               f.close()
 
               f = open(path + '/capacity',"r")
@@ -229,8 +237,12 @@ class CDTester(test.GizmoTester):
             CD.get_data()
         return CDs
 
+    # Keep testing until a 'Passed' or 'Failed' is returned...
     def run(self, CDs):
         for CD in CDs:
+          check='Unknown'
+          while (repr(CD.status) <> 'Failed'  
+             and repr(CD.status) <> 'Passed'):
             CD.test()
         return CDs
 
