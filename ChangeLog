@@ -1,3 +1,7 @@
+2004-07-13    <chromakode@fgdefault>
+
+	* doc/HACKING, doc/TODO (Module): Added lib related stuff
+
 2004-07-06    <chromakode@fgdefault>
 
 	* fgdiag/floppytester.py (Module): Ported to API changes

@@ -72,3 +72,10 @@ Enhancements:
 	Modem -- make an EXTERNAL mode -- this shouldn't report the
 		serial port (irrelevant) and should allow user to plug in a
 		new modem without power cycling.
+
+FGDiag Lib
+===========
+ - Simplify FieldMap lookups of many fields by turning into single query e.g. SELECT foo FROM fieldMap WHERE tablename IN ('class', 'class', 'class') AND fieldname IN ("foofield", "barfield")
+ - Curses Gui
+ - Any other possible optimizations
+ - Way for testing scripts to override test order?

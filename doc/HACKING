@@ -60,7 +60,7 @@ kernel-configs/
 cdspeedtest
 testcd
 
-floppy.sh
+floppy.sh -- Port in progress by Chromakode
 floppy/
 
 nicky.sh
