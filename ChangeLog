@@ -1,3 +1,22 @@
+2004-05-18    <chromakode@llama>
+
+	* fgdiag/lib/fgdb.py (Module): Major rewrite of SQL Generation code
+
+2004-05-14    <chromakode@llama>
+
+	* fgdiag/floppytest.py (Module): Created floppy drive tester, a
+	port of the original shell script in testing/floppy.sh
+
+2004-05-13    <chromakode@llama>
+	
+	* fgdiag/pogotest.py (Module): Modified to use testscript
+
+	* fgdiag/lib/testscript.py: Added module for testing scripts to
+	use, implements standalone features like command line argument parsing.
+
+	* fgdiag/lib/logging.py (Module): Added TimeStamps to log
+	(LogReceptor): Pluggable log output system
+
 2004-05-12    <chromakode@llama>
 
 	* fgdiag/lib/test.py (Module): Switched to use new logging system
@@ -18,8 +37,8 @@
 
 	* fgdiag/lib/userinteraction.py (error): Added error() command
 
-	* fgdiag/lib/test.py (GizmoTester.start_test): Trap DBConnectError and display
-	useful data
+	* fgdiag/lib/test.py (GizmoTester.start_test): Trap DBConnectError
+	and display useful data
 
 	* fgdiag/lib/errors.py (DBConnectError): Added DBConnectError
 

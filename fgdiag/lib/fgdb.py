@@ -46,18 +46,7 @@ def connect(host, db, user, passwd):
 
     return mydb
 
-def _equals(field, value):
-    return "%s = %s" % (field, psycopg.QuotedString(str(value)))
-
-def _id_equals(field, id_):
-    _check_id(id_)
-    return _equals(field, id_)
-
-def _AND(*l):
-    return " AND ".join(l)
-
-def _IN(*l):
-    return " IN ".join(l)
+# Utils
 
 def _single_tuple_list(l):
     l = tuple(l)
@@ -82,46 +71,154 @@ def _simplify_list(l):
     except:
         return l
 
-def _tables(l):
-    return ", ".join(l)
+# SQL Generation
 
-def _fields(l):
-    return ", ".join(l)
+class _SQLList(list):
 
-def _values(valuedict):
-    sets = tuple()
-    for item in valuedict.iteritems():
-        sets += (_equals(item[0],item[1]),)
-    return _fields(sets)
-    
+    def __init__(self, data):
+        list.__init__(self, data)
+
+    def __str__(self):
+        return ", ".join([str(value) for value in self])
+
+    def __repr__(self):
+        return "SQL"+list.__repr__(self)
+
+class _SQLEquals:
+
+    def __init__(self, field, value):
+        self.field = field
+        self.value = value
+
+    def __str__(self):
+        return "%s = %s" % (self.field, _SQLValue(self.value))
+
+class _SQLFields(_SQLList):
+
+    def __init__(self, data):
+        _SQLList.__init__(self, data)
+
+class _SQLValues(_SQLList):
+
+    def __init__(self, data):
+        _SQLList.__init__(self, data)
+
+    def __str__(self):
+        return "(%s)" % ", ".join([str(_SQLValue(value)) for value in self])
+
+class _SQLTables(_SQLList):
+
+    def __init__(self, data):
+        _SQLList.__init__(self, data) 
+
+class _SQLValueDict(dict):
+
+    def __init__(self, data):
+        dict.__init__(self, data)
+
+    def __str__(self):
+        return str(_SQLList([_SQLEquals(field, value) for field, value in self.iteritems()]))
+        
+    def to_fields_values(self):
+        return _SQLFields(self.keys()), _SQLValues(self.values())
+
+class _SQLAnd(_SQLList):
+
+    def __init__(self, *data):
+        _SQLList.__init__(self, data)
+
+    def __str__(self):
+        return " AND ".join([str(value) for value in self])
+
+class _SQLOr(_SQLList):
+
+    def __init__(self, *data):
+        _SQLList.__init__(self, data)
+
+    def __str__(self):
+        return " OR ".join([str(value) for value in self])
+
+class _SQLIn:
+
+    def __init__(self, thing, container):
+        self.thing = thing
+        self.container = container
+
+    def __str__(self):
+        return "%s IN %s" % (self.thing, self.container)
+
+class _SQLWhere(_SQLList):
+
+    def __init__(self, data=[1]):
+        _SQLList.__init__(self, data)
+
+class _SQLId:
+
+    def __init__(self, id_):
+        try:
+            psycopg.INTEGER(str(id_))
+        except ValueError:
+            raise ValueError("ID value must be a valid integer.")
+
+        self.id = id_
+
+    def __str__(self):
+        return str(self.id)
+
+class _SQLValue:
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return str(psycopg.QuotedString(str(self.value)))
+
+    def __repr__(self):
+        return str(self.value)
+
+class _SQLCount:
+
+    def __str__(self):
+        return "COUNT(*)"
+
+class _SQLSelect:
+
+    def __init__(self, table, fields, where):
+        self.table = table
+        self.fields = fields
+        self.where = where
+
+    def __str__(self):
+        return "SELECT %s FROM %s WHERE %s" % (self.fields, self.table, self.where)
+
+class _SQLUpdate:
+
+    def __init__(self, table, fieldvalues, where):
+        self.table = table
+        self.fieldvalues = fieldvalues
+        self.where = where
+
+    def __str__(self):
+        return "UPDATE %s SET %s WHERE %s" % (self.table, self.fieldvalues, self.where)
+
+class _SQLInsert:
+
+    def __init__(self, table, fields, values):
+        self.table = table
+        self.fields = fields
+        self.values = values
+
+    def __str__(self):
+        return "INSERT INTO %s %s VALUES %s" % (self.table, self.fields, self.values)
+
+# Shortcuts
+
+def _id_equals(idname, id_):
+    return _SQLEquals(idname, _SQLId(id_))
+
 def _id_values(tables, id_, idname="id"):
-    sets = tuple()
-    for table in tables:
-        sets += (_id_equals(table + "." + idname, id_),)
-    return _AND(*sets)
-    
-def _count():
-    return "COUNT(*)"
+    return _SQLAnd(*[_id_equals("%s.%s" % (table, idname), id_) for table in tables])
 
-def _no_where():
-    return "1"
-
-def _check_id(id_):
-    try:
-        psycopg.INTEGER(str(id_))
-    except ValueError:
-        raise ValueError("ID value must be a valid integer.")
-
-# These could be done with lambdas
-
-_select_sql_template = "SELECT %s FROM %s WHERE %s"
-_update_sql_template = "UPDATE %s SET %s WHERE %s"
-
-def _select_sql(fields, table, where):
-    return _select_sql_template % (fields, table, where)
-
-def _update_sql(fieldvalues, table, where):
-    return _update_sql_template % (table, fieldvalues, where)
 #---
 
 class Cache:
@@ -212,6 +309,7 @@ class Database:
 	return True
 
     def __try_execute(self, sql):
+        sql = str(sql)
         self.__log("SQL Call", sql)
         c = self.__conn.cursor()
         try:
@@ -219,6 +317,7 @@ class Database:
         except psycopg.ProgrammingError, e:
             # print "SQL call failed: " + sql
             # FIXME: Fall back here?
+            self.__log("SQL Call", "SQL Call Failed: \"%s\"" % str(e).replace("\n",", "))
             raise SQLError(sql, e)
         return c
 
@@ -260,19 +359,19 @@ class Table:
         return TableRow(self, id_, self.__idname)
 
     def get_by_id(self, id_, fieldlist):
-        return self.select_by_id(id_, _fields(fieldlist))
+        return self.select_by_id(id_, _SQLFields(fieldlist))
 
     def get_all(self, id_):
-        return self.select("*", _id_equals(self.__idname, id_))
+        return self.select_by_id("*")
     
     def set_by_id(self, id_, valuedict):
-        return self.update_by_id(id_, _values(valuedict))
+        return self.update_by_id(id_, _SQLValueDict(valuedict))
     
     def select_by_id(self, id_, fields):
         return self.select(fields, _id_equals(self.__idname, id_))
 
     def get_exists_by_id(self, id_):
-        if self.select_by_id(id_, _count())==0:
+        if self.select_by_id(id_, _SQLCount())==0:
             return False
         else:
             return True
@@ -281,12 +380,18 @@ class Table:
         return self.update(values, _id_equals(self.__idname, id_))
     
     def select(self, fields, where):
-        sql = _select_sql(fields, self.table, where)
+        sql = self.select_sql(fields, where)
         return self.__db.query_one(sql)
     
-    def update(self, values, where):
-        sql = _update_sql(values, self.__table, where)
+    def update(self, fieldvalues, where):
+        sql = self.update_sql(fieldvalues, where) 
         return self.__db.execute(sql)
+
+    def select_sql(self, fields, where):
+        return _SQLSelect(self.table, fields, where)
+
+    def update_sql(self, fieldvalues, where):
+        return _SQLUpdate(self.__table, fieldvalues, where)
         
     def __get_table(self):
         return self.__table
@@ -309,7 +414,7 @@ class MultipleTable:
         return TableRow(self, id_, self.__idname)
 
     def get_by_id(self, id_, fieldlist):
-        return self.select_by_id(id_, _fields(fieldlist))    
+        return self.select_by_id(id_, _SQLFields(fieldlist))    
         
     def set_by_id(self, id_, valuedict):
         #self.update_by_id(id_, _values(valuedict))
@@ -321,8 +426,8 @@ class MultipleTable:
             if not tablevalues.has_key(table):
                 tablevalues[table] = dict()
             tablevalues[table][field] = item[1]
-        for table, fields in tablevalues.iteritems():
-            sql = _update_sql(_values(fields), table, _id_equals(self.__idname, id_))
+        for table, tablevaluedict in tablevalues.iteritems():
+            sql = _SQLUpdate(table, _SQLValueDict(tablevaluedict),  _id_equals(self.__idname, id_))
             self.__db.execute(sql)
         return True
     
@@ -330,7 +435,7 @@ class MultipleTable:
         return self.select(fields, _id_values(self.__tables, id_, self.__idname))
 
     def get_exists_by_id(self, id_):
-        if self.select_by_id(id_, _count())==0:
+        if self.select_by_id(id_, _SQLCount())==0:
             return False
         else:
             return True
@@ -339,14 +444,20 @@ class MultipleTable:
         return self.update(values, _id_values(self.__tables, id_, self.__idname))
     
     def select(self, fields, where):
-        sql = _select_sql(fields, _tables(self.__tables), where)
+        sql = self.select_sql(fields, where)
         return self.__db.query_one(sql)
         
-    def update(self, values, where):
+    def update(self, fieldvalues, where):
         #sql = _multiple_update_sql(valuedict, self.__tables, _id_values(self.tables, id_, self.__idname))
         #return self.__db.execute(sql)
-        sql = _update_sql(values, _tables(self.__tables), where)
+        sql = self.update_sql(fields, where)
         self.__db.execute(sql)
+
+    def select_sql(self, fields, where):
+        return _SQLSelect(_SQLTables(self.__tables), fields, where)
+
+    def update_sql(self, fieldvalues, where):
+        return _SQLUpdate(_SQLTables(self.__tables), fieldvalues, where)
         
     def __get_tables(self):
         return self.__tables
@@ -401,6 +512,7 @@ class FieldMapTableRow(TableRow):
     def __init__(self, tb, id_, idname = "id"):
         TableRow.__init__(self,tb,id_,idname)
         fields = self.table.database.field_map.get_fields(self.table.tables)
+        print fields
     	values = TableRow.get(self, *fields)
     	self.data = dict()
     	for i in range(len(fields)):
@@ -450,12 +562,11 @@ class Gizmo(FieldMapTableRow):
 
 class FieldMap(Table):
     def __init__(self, db):
-        Table.__init__(self, db, "FieldMap")
+        Table.__init__(self, db, "fieldMap")
 
     def __get_location(self, classes, fieldname):
         """Return Table fieldname belongs to."""
-        sql = _select_sql("tableName", "fieldMap", _AND(_IN("tableName", _string_list(classes)), _equals("fieldName",fieldname)))
-	tablename = self.database.query_one(sql)
+        tablename = self.select("tableName", _SQLAnd(_SQLIn("tableName", _SQLValues(classes)), _SQLEquals("fieldName",fieldname)))
         if not tablename:
             raise InvalidFieldError(fieldname)
         return tablename
@@ -467,7 +578,7 @@ class FieldMap(Table):
          return self.__get_location_cache(self, classes, fieldname)
 
     def get_fields(self, classes):
-        sql = _select_sql("fieldName", "fieldMap", _IN("tableName", _string_list(classes)))
+        sql = self.select_sql("fieldName", _SQLIn("tableName", _SQLValues(classes)))
         fields = self.database.query_all(sql)
         return _single_tuple_list(fields)
 
@@ -496,14 +607,13 @@ class ClassTree(Table):
         Table.__init__(self, db, "classTree")
     
     def __get_location(self, classtree):
-        sql = _select_sql("tableName", "classTree", _equals("classTree",classtree))
-        return self.database.query_one(sql)
+        return self.select("tableName", _SQLEquals("classTree",classtree))
 
     def get_location(self, classtree):
         return self.__get_location_cache(self, classtree)
     
     def get_list(self):
-        sql = _select_sql("classTree", "classTree", _no_where())
+        sql = _SQLSelect("classTree", "classTree", _Where())
         result = self.database.query_all(sql) 
         return _single_tuple_list(result)
         
