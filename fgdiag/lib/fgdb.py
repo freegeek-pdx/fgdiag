@@ -458,7 +458,8 @@ class MultipleTable:
             table, field = item[0].split(".")
             if not tablevalues.has_key(table):
                 tablevalues[table] = dict()
-            tablevalues[table][field] = item[1]
+            if not item[1] is None:
+                tablevalues[table][field] = item[1]
         for table, tablevaluedict in tablevalues.iteritems():
             sql = _SQLUpdate(table, _SQLValueDict(tablevaluedict),  _id_equals(self.__idname, id_))
             self.__db.execute(sql)
