@@ -18,7 +18,7 @@ def status_from_boolean(bool):
         return Status_Passed
     else:
 #        return Status_Failed
-        return Status_Passed
+         return Status_Passed
 
 def start_test(test):
     """Helper function. Initializes test and runs its test."""
