@@ -194,16 +194,20 @@ class CDDevice(test.TestableDevice):
 
     def _d_description(self, data):
         # Define code to make a description for a cd drive... 
-        return None 
+        return " "
 
 class CDTester(test.GizmoTester):
 
     gizmotype = "Gizmo.Component.CDDrive"
 
-    def run(self):
+    def scan(self):
         CDs = CD_scan()
         for CD in CDs:
             CD.get_data()
+        return CDs
+
+    def run(self,CDs):
+        for CD in CDs:
             CD.test()
         return CDs
 
