@@ -157,7 +157,6 @@ class GizmoTester:
                 statusdata = device.status.data
 
                 # Update statusdata, so anything in device.data overrides statusdata.
-<<<<<<< test.py
                 statusdata.update(device.data)
                 
                 device.data = statusdata
@@ -173,10 +172,6 @@ class GizmoTester:
                 device.data = destinationdata
 
                 deviceinstructions[device] = instructions
-=======
-                statusdata.update(device.data)
-                device.data = statusdata
->>>>>>> 1.29
             else:
                 raise InvalidStatusError, device.status
 
