@@ -12,7 +12,7 @@ class TestDevice(test.TestableDevice):
 
     def __init__(self, working):
         self.working = working
-        TestableDevice.__init__(self)
+        test.TestableDevice.__init__(self)
 
     def _d_test(self):
         return test.status_from_boolean(self.working)
@@ -29,7 +29,7 @@ class TestTester(unittest.TestCase):
         self.assertEqual(test.status_from_boolean(False), test.Status_Failed)
 
     def test_testdevice(self):
-        """Make sure tesstabledevice is working completely"""
+        """Make sure testabledevice is working completely"""
         scanresults = test_scan()
         self.failUnless(scanresults)
         for device in scanresults():
