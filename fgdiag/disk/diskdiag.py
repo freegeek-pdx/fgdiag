@@ -53,7 +53,6 @@ class DiskDiag(test.GizmoTester):
         ui.notice("Done. Status report")
         for i in devs:
             print "%s: %s" % (i, i.status)
-        return devs
 
     def destination(self, dev):
         if dev.status == test.Status["Passed"]:

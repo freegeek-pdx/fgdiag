@@ -176,7 +176,7 @@ class GizmoTester:
         devicegizmos = prompt_for_gizmos(db, self.gizmotype, devices)
         db.disconnect()
         
-        devices = self.run(devices)
+        self.run(devices)
 
         # Stick instructions in this dict for later
         deviceinstructions = dict()
@@ -207,16 +207,7 @@ class GizmoTester:
 
         db = connect()
         
-        # Replace with something more efficient
-        data = list()
-        for device, gizmo in devicegizmos.iteritems():
-            if gizmo is not None:
-                id_ = gizmo.id
-            else:
-                id_ = None
-            data.append((device.name, device.description, id_))
-
-        if confirm_data(data):
+        if confirm_data(devicegizmos):
             # Kind of dumb to be creating essentially the same list again...
             reportdata = list()
             # start transaction here
