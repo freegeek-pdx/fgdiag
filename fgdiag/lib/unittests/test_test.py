@@ -24,11 +24,11 @@ class TestDevice(test.TestableDevice):
         return "Special Gizmo Thingy"
 
 class TestTester(unittest.TestCase):
-    def test_statusfrombool():
+    def test_statusfrombool(self):
         self.assertEqual(test.status_from_boolean(True), test.Status_Passed)
         self.assertEqual(test.status_from_boolean(False), test.Status_Failed)
 
-    def test_testdevice():
+    def test_testdevice(self):
         """Make sure tesstabledevice is working completely"""
         scanresults = test_scan()
         self.failUnless(scanresults)
