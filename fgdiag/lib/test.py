@@ -189,18 +189,18 @@ class GizmoTester:
         for device in devices:
             # Set working and needsExpert based on preset constant
             if Status.valid_status(device.status):
-                statusdata = device.status.data
+                statusdata = device.status.data.copy()
 
                 # Update statusdata, so anything in device.data overrides statusdata.
                 statusdata.update(device.data)
-                
+
                 device.data = statusdata
             else:
                 raise InvalidStatusError, device.status
 
             destination, instructions = self.destination(device)
             if Destination.valid_status(destination):
-                destinationdata = destination.data
+                destinationdata = destination.data.copy()
 
                 # Same
                 destinationdata.update(device.data)
