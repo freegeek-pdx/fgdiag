@@ -56,9 +56,7 @@ installed.packages
 gensql.pm
 
 config/
-debian/
 kernel-configs/
-sqltemplates/
 
 cdspeedtest
 testcd
