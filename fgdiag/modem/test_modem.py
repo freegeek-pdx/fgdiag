@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# -*- test-case-name: fgdiag.modem.test_modem -*-
 # $Id$
 
 """Unit tests for modem diagnostics."""

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# -*- test-case-name: fgdiag.modem.test_modem -*-
 # $Id$
 # November 2001, Kevin Turner <kevin@freegeek.org>
 # Written for Free Geek
