@@ -1,0 +1,5 @@
+[fgdb]
+host = insert host here
+db = insert database name here
+user = insert user name here
+passwd = insert password here
