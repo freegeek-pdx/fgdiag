@@ -15,6 +15,8 @@ build-stamp:
 	dh_testdir
 
 	# Add here commands to compile the package.
+	make -C doc
+	python2.2 setup.py build
 
 	touch build-stamp
 
@@ -25,6 +27,7 @@ clean:
 
 	# Add here commands to clean up after the build process.
 	python2.2 setup.py clean
+	make -C doc clean
 
 	dh_clean -i
 
@@ -36,8 +39,7 @@ install: build
 
 	# Add here commands to install the package into debian/fgdiag.
 	python2.2 setup.py install --no-compile --root debian/tmp
-	dh_install -i --sourcedir debian/tmp
-
+	dh_install -i --fail-missing --sourcedir debian/tmp
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -66,7 +68,7 @@ binary-arch: build install
 	dh_compress
 	dh_fixperms
 #	dh_perl
-	dh_python -V 2.2 --verbose
+	dh_python -V 2.2
 #	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps

@@ -1,7 +1,3 @@
-fgdiag release management
-=========================
- - make Debian package, RT ticket #101.
-
 Non-FreekBox Projects
 =====================
 	Create a fax testing procedure using dial tone emulator

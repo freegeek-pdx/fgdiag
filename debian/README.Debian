@@ -2,6 +2,9 @@ fgdiag for Debian
 -----------------
 
 This debian package installs the fgdiag python package, but does not set up
-the system as a testing station.
+the system as a testing station.  
 
- -- Kevin Turner <kevin@freegeek.org>, Tue, 19 Oct 2004 19:14:54 -0700
+You also need to install a configuration file;
+see /usr/share/doc/fgdiag/examples/fgrc
+
+ -- Kevin Turner <acapnotic@twistedmatrix.com>, Wed Oct 20 14:20:41 2004
