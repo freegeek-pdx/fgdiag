@@ -351,14 +351,20 @@ class FieldMap(Table):
         """Convert a list like ("id","speed") to ("Gizmo.id","CDDrive.speed")"""
         newfieldlist = tuple()
         for f in fieldlist:
-            newfieldlist += (self.get_field_location(classes, f) + "." + f,)
+            if not f.count(".")==1:
+                newfieldlist += (self.get_field_location(classes, f) + "." + f,)
+            else:
+                newfieldlist += f
         return newfieldlist
 
     def process_value_dict(self, classes, valuedict):
         """Convert a dictionary like {"id":12345,"speed":4} to {"Gizmo.id":12345,"CDDrive.speed":4}"""
         newvaluedict = dict()
         for item in valuedict.iteritems():
-            newvaluedict[self.get_field_location(classes, item[0]) + "." + item[0]] = item[1]
+            if not item[0].count(".")==1:
+                newvaluedict[self.get_field_location(classes, item[0]) + "." + item[0]] = item[1]
+            else:
+                newvaluedict[item[0]] = item[1]
         return newvaluedict
 
 __all__ = ["connect", "Database", "Table", "TableRow", "MultipleTableRow", "Gizmo", "FieldMap"]
