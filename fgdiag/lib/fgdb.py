@@ -170,7 +170,7 @@ class Queue:
             call(*args, **kwds)     
         
 class Database:
-    def __init__(self, conn, debug = 1):
+    def __init__(self, conn, debug = 0):
         self.__conn = conn
         self.__field_map = FieldMap(self)
         self.__class_tree = ClassTree(self)

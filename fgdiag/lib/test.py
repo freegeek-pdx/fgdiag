@@ -117,7 +117,6 @@ class GizmoTester:
     
         if confirm_data(iddata):
             for device, gizmo in devicegizmos.iteritems():
-		print gizmo, device.data
                 register_test_data(gizmo, device.data)
             notice("Success!")
         else:
