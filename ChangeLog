@@ -1,3 +1,12 @@
+2004-04-08  Kevin Turner  <kevin@freegeek.org>
+
+	* fgdiag/modem/test_modem.py (ResponseParser.test_find_speed): 1.1
+	trap (and examine) output from find_speed.
+
+	* fgdiag/modem/modem.py: 1.1 Removed definitions of False and True.
+	(find_speed): 1.1 add outputFunc parameter, so that we can run tests
+	on it without it spewing to stdout.
+
 2004-04-03  Kevin Turner  <kevin@freegeek.org>
 
 	* bin/testscript.py: 1.2 s/fgdiag.lib.testing/fgdiag.lib.test/

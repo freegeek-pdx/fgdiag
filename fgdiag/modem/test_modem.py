@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # $Id$
 
-"""Unit tests for modem testing."""
+"""Unit tests for modem diagnostics."""
 
 from fgdiag.modem import modem
 from twisted.trial import unittest
+
+from StringIO import StringIO
 import string
 
 COMMAND_SET = {
@@ -39,12 +41,18 @@ class ModemStub:
             return ''
 
 class ResponseParser(unittest.TestCase):
-    def test_needsAmoreDescriptiveName(self):
+    def test_find_speed(self):
+        """Trying modem.find_speed()"""
         my_modem = ModemStub()
-        results = modem.find_speed(my_modem)
+        output = StringIO()
+        results = modem.find_speed(my_modem, outputFunc=output.write)
         self.failUnless(results)
-        self.failUnlessEqual(len(results), 1, "Too many canidate responses: %s" % (results,))
+        self.failUnlessEqual(len(results), 1,
+                             "Too many canidate responses: %s" % (results,))
         self.failUnlessEqual(results[0][0], '336')
+        self.failUnlessEqual(output.getvalue(),
+                             'I0: 256K EPROM\n'
+                             'I1: SOMETHINGOROTHER 33.6\n')
 
 if __name__ == '__main__':
     unittest.main()

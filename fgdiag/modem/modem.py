@@ -9,7 +9,7 @@
 # Depends: setserial, Python (version >= 1.5.2)
 
 SETSERIAL="/bin/setserial"
-import errno, os, re, string, time, types
+import errno, os, re, string, sys, time, types
 try:
     import warnings
 except ImportError:
@@ -24,9 +24,6 @@ import fcntl, FCNTL, termios, TERMIOS
 # sibling import
 from fgdiag.lib import pyutil
 from fgdiag.lib.pyutil import bold
-
-True = (1==1)
-False = not True
 
 _DEBUG = False
 
@@ -76,8 +73,16 @@ TIMEOUT_SECS = 5.0
 # Some USR modems are very considerate.
 ANY_KEY = "Strike a key when ready"
 
-def find_speed(modem):
-    """Treat a file-like object as a modem, and try to determine its speed."""
+def find_speed(modem, outputFunc=None):
+    """Treat a file-like object as a modem, and try to determine its speed.
+
+    @param outputFunc: Where to send the modem's responses.  Defaults to
+        L{sys.stdout}.write.
+    @type outputFunc: callable
+    """
+
+    if outputFunc is None:
+        outputFunc = sys.stdout.write
 
     # TODO: Sportsters rock, but we should special-case them to avoid
     # getting lots more diagnostics than we want.
@@ -135,7 +140,7 @@ def find_speed(modem):
 
                 first_line = False
                 if (stripped not in IGNORE_STRINGS) or _DEBUG:
-                    print "I%d: %s" % (i, stripped)
+                    outputFunc("I%d: %s\n" % (i, stripped))
                 if stripped == "OK":
                     continue
 
