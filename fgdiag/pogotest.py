@@ -58,6 +58,7 @@ class PogoTester(test.GizmoTester):
         return pogos
 
 def main():
-    test.start_test(PogoTester)
+    from lib import testscript
+    testscript.start(PogoTester)
 
 if __name__ == '__main__': main()
