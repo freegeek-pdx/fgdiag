@@ -72,6 +72,10 @@ Enhancements:
 	Modem -- make an EXTERNAL mode -- this shouldn't report the
 		serial port (irrelevant) and should allow user to plug in a
 		new modem without power cycling.
+	Keyboard -- Port to new fgdiag database api
+	Keyboard -- Use curses arrows for arrow keys
+	Keyboard -- Simplify handling of different keyboard layouts; use different dictionary for each layout, specify key class in dict
+	Keyboard -- Allow user to specify keyboard type
 
 FGDiag Lib
 ===========
