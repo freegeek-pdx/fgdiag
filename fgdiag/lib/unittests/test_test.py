@@ -25,6 +25,7 @@ class TestDevice(test.TestableDevice):
 
 class TestTester(unittest.TestCase):
     def test_statusfrombool(self):
+        """Check that status constants are sane"""
         self.assertEqual(test.status_from_boolean(True), test.Status_Passed)
         self.assertEqual(test.status_from_boolean(False), test.Status_Failed)
 
@@ -32,7 +33,7 @@ class TestTester(unittest.TestCase):
         """Make sure testabledevice is working completely"""
         scanresults = test_scan()
         self.failUnless(scanresults)
-        for device in scanresults():
+        for device in scanresults:
             # Test data
             data = device.get_data()
             self.failUnless(data)
@@ -45,7 +46,7 @@ class TestTester(unittest.TestCase):
 
             # Test test
             status = device.test()
-            self.failUnless(status)
+            self.failIfEqual(status, test.Status_Unknown)
             self.assertEqual(status, test.status_from_boolean(device.working))
             self.failUnlessEqual(status, device.status)
 

@@ -8,6 +8,7 @@ from config import get_fgdb_login
 from errors import InvalidStatusError
 
 # TODO: Collect these into a container of some kind.
+# Would it make more sense for Status_Unknown to be 0, and Status_Failed to be -1?
 Status_Unknown = -1
 Status_Failed = 0
 Status_Passed = 1
@@ -17,9 +18,7 @@ def status_from_boolean(bool):
     if bool:
         return Status_Passed
     else:
-#        return Status_Failed
-
-         return Status_Passed
+        return Status_Failed
 
 def start_test(test):
     """Helper function. Initializes test and runs its test."""
