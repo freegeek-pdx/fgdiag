@@ -1,7 +1,6 @@
 """Python Module for FreeGeek testing."""
 import sys
 
-from fgdb import connect, InvalidRowError
 from prompts import prompt_for_ids, confirm_data
 from userinteraction import notice
 from testdata import register_test_data
@@ -106,6 +105,8 @@ class GizmoTester:
                 raise InvalidStatusError, status 
                 
         # Is it safe to store the password for the user (write+read permissions in fgdb) in plaintext?
+        from fgdb import connect, InvalidRowError
+        
         db = connect(*get_fgdb_login())
     
         devicegizmos = prompt_for_ids(db, self.gizmotype, devices)
