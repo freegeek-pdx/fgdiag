@@ -1,5 +1,7 @@
 2004-05-20    <chromakode@llama>
 
+	* fgdiag/lib/fgdb.py (Database.add_gizmo): Create Gizmos!
+
 	* fgdiag/lib/logging.py (_LogReceptor): Made private
 
 2004-05-18    <chromakode@llama>

@@ -149,7 +149,7 @@ class _SQLIn:
 
 class _SQLWhere(_SQLList):
 
-    def __init__(self, data=[1]):
+    def __init__(self, data=["1=1"]):
         _SQLList.__init__(self, data)
 
 class _SQLId:
@@ -181,6 +181,14 @@ class _SQLCount:
     def __str__(self):
         return "COUNT(*)"
 
+class _SQLSelectNextVal:
+
+    def __init__(self, seq):
+        self.seq = seq
+
+    def __str__(self):
+        return "SELECT NEXTVAL(%s)" % _SQLValue(self.seq)
+
 class _SQLSelect:
 
     def __init__(self, table, fields, where):
@@ -209,7 +217,8 @@ class _SQLInsert:
         self.values = values
 
     def __str__(self):
-        return "INSERT INTO %s %s VALUES %s" % (self.table, self.fields, self.values)
+        # Parens only for fields, because values already makes them
+        return "INSERT INTO %s (%s) VALUES %s" % (self.table, self.fields, self.values)
 
 # Shortcuts
 
@@ -296,6 +305,18 @@ class Database:
         """Get a Gizmo and return an object."""
         return Gizmo(self, gid)
 
+    def add_gizmo(self, classtree):
+        self.__log("Create Gizmo", "Fetching new Gizmo ID.")
+        gid = self.query_one(_SQLSelectNextVal("gizmo_id_seq"))
+        self.__log("Create Gizmo", "New Gizmo ID is %s." % gid)
+        # Not going to try to use MultipleTable... too crazy already
+        classtreelist = classtree.split(".")
+        for gizmoclass in classtreelist:
+            tb = self.get_table(gizmoclass)
+            tb.add_row(gid, {"classtree":classtree})
+        self.__log("Create Gizmo", "Gizmo created successfully.")
+        return gid
+
     def query_one(self, sql):
         c = self.__try_execute(sql)
         return _simplify_list(c.fetchone())
@@ -358,6 +379,11 @@ class Table:
         # TableRow can stay unchanged because it just wraps the Table object given to it.
         return TableRow(self, id_, self.__idname)
 
+    def add_row(self, id_, valuedict):
+        vd = _SQLValueDict(valuedict)
+        vd[self.__idname] = id_
+        self.insert(*vd.to_fields_values())
+
     def get_by_id(self, id_, fieldlist):
         return self.select_by_id(id_, _SQLFields(fieldlist))
 
@@ -387,11 +413,18 @@ class Table:
         sql = self.update_sql(fieldvalues, where) 
         return self.__db.execute(sql)
 
+    def insert(self, fields, values):
+        sql = self.insert_sql(fields, values)
+        return self.__db.execute(sql)
+
     def select_sql(self, fields, where):
         return _SQLSelect(self.table, fields, where)
 
     def update_sql(self, fieldvalues, where):
         return _SQLUpdate(self.__table, fieldvalues, where)
+
+    def insert_sql(self, fields, values):
+        return _SQLInsert(self.__table, fields, values)
         
     def __get_table(self):
         return self.__table
@@ -458,7 +491,7 @@ class MultipleTable:
 
     def update_sql(self, fieldvalues, where):
         return _SQLUpdate(_SQLTables(self.__tables), fieldvalues, where)
-        
+      
     def __get_tables(self):
         return self.__tables
 
@@ -512,7 +545,6 @@ class FieldMapTableRow(TableRow):
     def __init__(self, tb, id_, idname = "id"):
         TableRow.__init__(self,tb,id_,idname)
         fields = self.table.database.field_map.get_fields(self.table.tables)
-        print fields
     	values = TableRow.get(self, *fields)
     	self.data = dict()
     	for i in range(len(fields)):
@@ -613,7 +645,8 @@ class ClassTree(Table):
         return self.__get_location_cache(self, classtree)
     
     def get_list(self):
-        sql = _SQLSelect("classTree", "classTree", _Where())
+        sql = self.select_sql("classTree", _SQLWhere())
+        print sql
         result = self.database.query_all(sql) 
         return _single_tuple_list(result)
         
