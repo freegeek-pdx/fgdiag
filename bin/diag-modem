@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+# $Id$
+
+from fgdiag.modem import modem
+from fgdiag.lib import pyutil
+pyutil.withPager(modem.main)
