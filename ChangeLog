@@ -1,4 +1,10 @@
-2004-10-24  Kevin Turner  <acapnotic@twistedmatrix.com>
+2004-10-27  Kevin Turner  <kevin@freegeek.org>
+
+	* debian/fgdiag.install: 1.2 
+	* setup.py (scripts): 1.5 
+	* bin/diag-cd: adding script to invoke fgdiag.cdtest.main()
+
+2004-10-24  Kevin Turner  <kevin@freegeek.org>
 
 	* admin/tagversion (debChange): 1.2 new function to update debian
 	changelog.

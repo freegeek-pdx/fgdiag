@@ -18,6 +18,7 @@ packages = [
 scripts = [
     "diag-disk",
     "diag-modem",
+    "diag-cd"
     ]
 
 scripts = ["bin/" + i for i in scripts]
