@@ -1,10 +1,8 @@
-#!/usr/bin/env python2.2
+#!/usr/bin/env python
 
 """ Testing cdrom drive 
 
-    - determines mount point
-    - mounts cd
-    - tests speed 
+    - Derived from perl script "testcd"  
 
 """
 
@@ -13,10 +11,45 @@ from lib.logging import create_node
 
 import string 
 import commands 
+import os
 
 # Create main log node
 _log = create_node(__name__)
 
+# ------  Constants (lifted from cdtest) --------
+
+# How many MB to read during test
+megstoread = 10;
+
+# Size of each read block
+BlockSize = 1024 * 1024;
+
+# Number of blocks to read
+BlockCount = (megstoread * 1024 * 1024) / BlockSize;
+
+# First calculate optimal offset (in blocks) from start of data
+# device to place at which reading begins
+# (Divide number of bytes to skip by the block size)
+###        NOTE:  $Skip may be adjusted down in test loop      ###
+
+BytesToSkip = (5.9 * 100) * (1024 * 1024);
+Skip = BytesToSkip / BlockSize;
+
+# Calculate last byte to be read
+LastByteToRead = (Skip * BlockSize) + (BlockCount * BlockSize);
+
+# Some nominal values that can be used to educate testers about
+# the usefulness of the CD disc they are using to test speed.
+OptimalMbOnDisc = 600;
+WarningMbOnDisc = 300;
+# And to disallow testing with a disc that has too little data.
+MinimumMbOnDisc = 200;
+
+#
+# End   CONSTANTS
+
+
+# ---------  Functions  --------------
 
 # Parse the output of the unix 'time' command, 
 # returning results in seconds.
@@ -47,9 +80,6 @@ def parse_GNU_elapsed_time(s_time_output):
     if (string.find(s_elapsed_time,'elapsed') > 0): 
       break 
 
-  minutes = string.atof(s_elapsed_time[0])
-  s_elapsed_time =  s_time_output[8]
-
   seconds = string.atof(s_elapsed_time[2:-7])
   minutes = string.atof(s_elapsed_time[0])
 
@@ -58,41 +88,6 @@ def parse_GNU_elapsed_time(s_time_output):
     
   return(seconds)
 
-
-# ------  Constants (lifted from cdpseed.sh) --------
-
-#  TransferAmount =  how many bytes to transfer each pass
-
-TransferAmount = 20 * 1024 * 1024
-
-#  ByteSkipIndex VALUE indicates to index into the device an
-#  additional VALUE bytes prior to starting each cycle of testing
-
-ByteSkipIndex = 1024 * 1024
-
-# MaxMul is a short cut for trying out vastly different blocksizes
-
-MaxMul = 1000
-
-#  CountConstant is used to calculate number of blocks to transfer
-#  during each cycle
-#  see: $MaxMul
-
-CountConstant=TransferAmount / MaxMul
-
-#  DefaultSkipFactorCount sets the default number of different
-#  SkipFactor values to utilize when calculating Skip value
-
-DefaultSkipFactorCount=4
-
-#  DefaultPassCount sets the default number of read trials to run
-#  for each unique set of options passed to 'dd'
-
-DefaultPassCount=1
-
-#  Blocksize
-
-Blocksize = 1024
 
 def CD_scan():
     return (CDDevice(),)
@@ -108,93 +103,120 @@ class CDDevice(test.TestableDevice):
         # Run inherited __init__
         test.TestableDevice.__init__(self)
 
-    def run_command(self, command):
-        self.__log("Run", "Running \"%s\"." % command)
-        status, output = commands.getstatusoutput(command)
-        self.__log("Run", "Returned Status: %s." % status)
-        self.__log("Run", "Returned Output: \"%s\"." % output)
-        return status, output
-
     def _d_test(self):
-        userinteraction.prompt("Insert CD", "Please put a data CD in the drive 'to be tested' and press enter.")
 
-        # Get mount point. 
-        # Try grepping dmesg first... 
+        if self.data["manufacturer"] == "No CD Drive Found": 
+          userinteraction.error("No CD Drive found." )
+          return test.Status["Failed"]
 
-        userinteraction.notice("Looking for mount point...")
-        status, output = self.run_command("dmesg | grep ^hd | grep CD | awk '{print $1}' | sort -u")
-        device=string.join(["/dev/",output],"")
-        cmd=string.join(["mount ",device])
-        status, output = self.run_command(cmd)
+ 	self.data["interface"] = "IDE" 
 
-        # If that doesn't work, try fstab...  
+        # Grep dmesg for medium warning...
 
+        status, output = commands.getstatusoutput('/bin/dmesg | grep "No medium"')
+        if status==0:
+          userinteraction.error("No medium found. You probably have a bad CD. \nInsert another CD and try again. \nIf this continues, the drive may be bad.")
+          return test.Status["Failed"]
+
+        # Try to determine the amount of data on the cdrom drive and 
+        # adjust Skip if need be.
+
+        MbOnDisc = 0 
+        cmd = 'mount -tiso9660 /dev/' + self.device + ' /mnt 2>&1' 
+        status, output = commands.getstatusoutput(cmd)
         if not status==0:
-            status, output = self.run_command("cat /etc/fstab | grep cd | awk '{print $2}' | sort -u")
-            device=output
-            cmd=string.join(["mount",device])
-            status, output = self.run_command(cmd)
+          userinteraction.error("\n--> Mount failed. \n    Insert another CD and try again. \n    If this continues, the drive may be bad.")
+          return test.Status["Failed"]
 
-        # If that doesn't work, bail.  
+        cmd = 'cat /proc/ide/' + self.device + '/capacity' 
+        status, output = commands.getstatusoutput(cmd)
+        blocks = output
 
-        if not status==0:
-           userinteraction.error("Can't find mount point")
-           return test.Status["Failed"]
+        cmd = 'umount /dev/' + self.device 
+        status, output = commands.getstatusoutput(cmd)
 
+        MbOnDisc = (int(blocks) / (1024 *2))
+        
+        if (MbOnDisc < MinimumMbOnDisc):
+          userinteraction.error("This CD disc has less than  " + str(MinimumMbOnDisc) + " MB of data.\nNo test will be performed.\n\n")
+          return test.Status["Failed"]
 
-        # Test drive speed. 
-	# Read blocks from cdrom and time it.
+        if (MbOnDisc < OptimalMbOnDisc):
+          userinteraction.error("\nThis CD disc that you are using to test has insufficient data\nfor properly testing the CD drive's speed.\n->It is recommended that you use a disc with more than " + str(OptimalMbOnDisc) + " MB of data.\n\n")
+          return test.Status["Failed"]
 
-        userinteraction.notice("Testing drive speed....")
+        if (MbOnDisc < WarningMbOnDisc):
+          userinteraction.error("\nThis CD disc has less than  " + str(WarningMbOnDisc) + " MB of data.\nBy testing it you will almost surely understate the true\nspeed of the CD drive that you are testing.\n")
+          return test.Status["Failed"]
 
-        mul        = MaxMul
-        Count      = CountConstant / mul
-        blocksize  = 1024
-        Blocksize  = blocksize * mul
-        SkipFactor = 1
-        Skip       = 0
+	if ( (MbOnDisc * 1024 * 1024) < LastByteToRead ):
+          # adjust skip value to allow read to fall within
+          # limit of data on this CD disc
+          global Skip
+          Skip = ( (MbOnDisc - 1.5 * megstoread ) * 1024 * 1024) / BlockSize
 
-        cmd=string.join(["time dd if=",device, " of=/dev/null bs=",str(Blocksize), " count=", str(Count), " skip=", str(Skip)],"")
-    
-        status, output = self.run_command(cmd)
-        if not status==0:
-           userinteraction.error("Can't read from CD...")
-           cmd=string.join(["umount",device])
-           status, output = self.run_command(cmd)
-           return test.Status["Failed"]
+        userinteraction.notice('\nCDROMS:'                        \
+        + '\n' + self.device + ": " + self.data["manufacturer"]   \
+        + 'MB to Read    : ' + str(megstoread)                  \
+        + '\nBlock Size    : ' + str(BlockSize)                   \
+        + '\nBlocks to Skip: ' + str(Skip)                        \
+        + '\nBlocks to Read: ' + str(BlockCount)                  \
+        + '\nMB on CD disc : ' + str(MbOnDisc) + '\n' )
 
-        # Determine if the 'time' command is unix or Gnu,
-	# then parse the output to get the elapsed time.
+        cmd = '/usr/bin/time dd if=/dev/' + self.device \
+        + ' of=/dev/null bs=' + str(BlockSize)          \
+        + ' count=' + str(BlockCount)                   \
+        + ' skip='  + str(int(Skip)) + ' 2>&1'
+
+        # Get it spinning, then test. 
+        status, output = commands.getstatusoutput(cmd)
+        status, output = commands.getstatusoutput(cmd)
 
         if (string.find(output,'real') > 0):
            elapsed_time = parse_shell_elapsed_time(output)
         else:
            elapsed_time = parse_GNU_elapsed_time(output)
 
-        # Determine speed. 
-        # Single speed is 150kbs/sec. 
-        # speed = (bytes read / seconds ) / (150 * 1024)
+        speed = round(((BlockSize * BlockCount) / elapsed_time) / (150 * 1024))
+ 	self.data["speed"] = speed 
 
-        speed = round(((Blocksize * Count) / elapsed_time) / (150 * 1024)) 
-        msg   = string.join(['speed: ',str(speed),'x'])  
-        userinteraction.notice(msg)
-
-        cmd=string.join(["umount",device])
-        status, output = self.run_command(cmd)
-	return test.Status["Passed"]
+        userinteraction.notice('  Tested at ' + str(int(speed)) + 'x\n') 
 
     def _d_data(self):
         # Define code to get data on the cd drive here...
-        return {}
 
-    def data(self):
-        # Define code to get data on the cd drive here...
-        return {}
+        found=False
+        for device in ('hda','hdb','hdc','hdd'):
+          path = '/proc/ide/'+ device 
+          if (os.path.exists(path + '/media')):
+            f = open(path + '/media',"r")
+            media = f.read(5)
+            f.close()
 
+            if media == 'cdrom':
+
+              found=True
+              self.device = device 
+
+              f = open(path + '/model',"r")
+              self.data["manufacturer"] = f.read()
+              f.close()
+
+              f = open(path + '/capacity',"r")
+              self.capacity = ( int(f.read()) / (1024 *2))
+              f.close()
+
+        if found == False:
+          userinteraction.error("No CD Drive found.")
+          self.data["manufacturer"] = "No CD Drive Found" 
+
+	return self.data
+         
 
     def _d_description(self, data):
+
         # Define code to make a description for a cd drive... 
-        return " "
+ 	return self.data["manufacturer"] 
 
 class CDTester(test.GizmoTester):
 
@@ -206,7 +228,7 @@ class CDTester(test.GizmoTester):
             CD.get_data()
         return CDs
 
-    def run(self,CDs):
+    def run(self, CDs):
         for CD in CDs:
             CD.test()
         return CDs
@@ -222,4 +244,3 @@ def main():
     testscript.start(CDTester)
 
 if __name__ == '__main__': main()
-
