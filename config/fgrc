@@ -1,3 +1,4 @@
+# Install in ~/.fgrc or /etc/freegeekrc
 [fgdb]
 host = insert host here
 db = insert database name here
