@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# -*- test-case-name: fgdiag.disk.test_syslog -*-
 # $Id$
 
 """Unit tests for syslog parsing."""
