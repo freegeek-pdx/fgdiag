@@ -60,7 +60,7 @@ add_receptor = _basereceptor.add_receptor
 remove_receptor = _basereceptor.remove_receptor
 
 # For Debug
-#addreceptor("print", PrintReceptor())
+#add_receptor("print", PrintReceptor())
 
 class _LogNode:
    """Log Node Class
