@@ -21,8 +21,6 @@ Enhancements:
 	CD -- ?? 
 	NIC -- Test transfer of data over wires
 	Hard Drive -- report drive geometry?
-	Hard Drive -- install a file system
-        Hard Drive -- when finished, report summary of drive, size, pass/fail
 	Floppy Drive -- dd an image to a floppy (from HD) and 
 		boot from it (for in an existing FreekBox)
 	Modem -- dial in to another modem (on server) and 
