@@ -17,7 +17,7 @@ except ImportError:
 
 # sibling import
 import disk, badblocks # , klogd
-from fgdiag.lib import pyutil
+from fgdiag.lib import pyutil, test
 
 try:
     import meminfo
@@ -58,8 +58,6 @@ pairdefs = [
 
 _color_pair = {}
 
-allDrives = {}
-
 class BadblocksWidget(badblocks.BadblocksObserver):
     """I am the visual representation of the running BadBlocks.
     """
@@ -96,23 +94,24 @@ class BadblocksWidget(badblocks.BadblocksObserver):
                            "No problems found yet...",
                            _color_pair["okay"])
         self._observed = bbObject.addObserver(self)
+        self.setBlockDevice(bbObject)
 
         w.nooutrefresh()
 
-    def set_blockDevice(self, blockDevice, description=None):
+    def setBlockDevice(self, bb, description=None):
         """Called to set the label identifying the device being processed.
 
         blockDevice is a String such as \"hda\".
         """
-        self.dev = blockDevice
+        self.dev = bb.device
         # XXX: sloppy
-        if string.find(blockDevice, 'hdb') != -1:
+        if string.find(self.dev.dev, 'hdb') != -1:
             channel = "secondary"
         else:
             channel = "primary"
         self.border.attrset(_color_pair["%s-border" % (channel,)])
         self.border.box()
-        self.border.addstr(0, 1, blockDevice,
+        self.border.addstr(0, 1, self.dev.dev,
                            _color_pair["%s-label" % (channel,)])
         self.border.attrset(_color_pair[None])
         self.border.nooutrefresh()
@@ -204,14 +203,14 @@ class BadblocksWidget(badblocks.BadblocksObserver):
     def finished(self, exitCode=None):
         """Called when the badblocks process is done.
         """
-        isGood = True
+        status = test.Status["Passed"]
 
         # if the badblocks process exited with an exitCode of 0, then it died naturally
         if not exitCode:
             self.msgwin.addstr("%s of %s complete:\n" % (self._observed.modeLabel,
-                                                         self._observed.device))
+                                                         self.dev.dev))
             seconds_elapsed = time.time() - self._observed.startTimes[0]
-            megabytes = (disk.getDeviceSize(self._observed.device) /
+            megabytes = (disk.getDeviceSize(self.dev.data["sizeMb"]) /
                          (2.0 ** (10+10)))
             self.msgwin.addstr("%s elapsed, %s per hundred megabytes.\n" % (
                 str(DateTime.TimeDelta(seconds = seconds_elapsed)),
@@ -219,17 +218,17 @@ class BadblocksWidget(badblocks.BadblocksObserver):
                                        (megabytes / 100.0)))))
         else:
             self.msgwin.addstr("The badblocks process was killed.\n")
-            isGood = False
+            status = test.Status["NeedsExpert"]
 
         if self._observed.badlist:
             self.msgwin.addstr("%d bad sectors found. :(\n" % (len(self._observed.badlist),))
-            isGood = False
+            status = test.Status["Failed"]
 
-        if isGood:
+        if status == test.Status["Passed"]:
             self.msgwin.addstr("PASSED", _color_pair['success'])
             self.progress(self._observed.sectorCount, self._observed.sectorCount)
 
-        allDrives[self.dev]["isGood"] = isGood
+        self.dev.status = status
 
         self.msgwin.refresh()
 
@@ -362,11 +361,10 @@ def init_colorpairs():
 
 
 USE_SYSLOG_FOR_KLOG = 1
-def main(stdscr):
-    """Ready, set, go!
+def main(stdscr, devs):
+    """Do the scanning, with nice ncurses windows and such.
 
-    Look for drives, prompt about them, start things running and
-    display badblocks widgets for all of them...  The whole shebang.
+    Start badblocks procs on the given devices, with widgets for each.
 
     stdscr is a curses window to operate in, such as that given to us
     by curses.wrapper.
@@ -397,65 +395,7 @@ def main(stdscr):
     else:
         klog = klogd.KernelLog().fromchild.fileno()
 
-
-    # XXX: Provide a real command-line interface.
-    if sys.argv[1:]:
-        msg("Got argv", str(sys.argv[1:])+"\n")
-        badblockses = badblocks.parallelTest([(sys.argv[1], 'over-write')])
-    else:
-
-        msg("I will perform the following scans:\n")
-        devs = None
-        try:
-            devs = disk.findBlockDevicesToScan()
-        except disk.QuestionablePartitionException, qps:
-            msg("I found partition(s) with which I do not know what to do:\n")
-            for part in qps.args[0]:
-                # part is (dev, type)
-                msg("%s: type 0x%02x\n" % part)
-            if not statusWin.ask_yesno("Should I clobber them anyway? [y/N] "):
-                msg("Not clobbering. Put this on the weird drives pile.")
-                return 0
-            msg("I will perform the following scans:\n")
-            devs = disk.findBlockDevicesToScan(forceClobber=True)
-
-        if not devs:
-            msg("I did not find any drives to scan.")
-            return 0
-
-        for d, mode in devs:
-            idstuff = disk.identification(d)
-            if VERBOSE:
-                model = "%s SN#%s" % (idstuff['model'],
-                                      idstuff['serialNo'])
-            else:
-                model = idstuff['model']
-
-            size = disk.getDeviceSize(d)
-            size_str = disk.size_string(size)
-            if size < MINIMUM_SIZE:
-                size_str += " (small)"
-            msg("    %s - %s, %s\n" % (d,
-                                       model,
-                                       size_str))
-
-            global allDrives
-            allDrives[d] = {}
-            allDrives[d].update(idstuff)
-            allDrives[d]["size"] = size_str
-            
-            if VERBOSE:
-                for kind, modes in disk.supported_modes(d).items():
-                    msg("%s: %s\n" % (kind, string.join(modes)))
-        msg("\n")
-
-        if not statusWin.ask_yesno("Okay? [y/N] "):
-            msg("\nIn that case, I won't do it.\n")
-            return 0
-        else:
-            msg("\n")
-
-        badblockses = badblocks.parallelTest(devs)
+    badblockses = badblocks.parallelTest(devs)
 
     # XXX: Find the terminal width instead of assuming it's 80 column.
     width = 80 / len(badblockses)
@@ -467,21 +407,8 @@ def main(stdscr):
         statusWin.msg("num_blocks set to %d\n" % (badblocks.Badblocks.num_blocks,))
     statusWin.msg("Commencing scan.\n")
     badblocks.mainloop(badblockses, klog)
-    for drv, attrs in allDrives.items():
-        stat = "FAILED"
-        if attrs["isGood"]:
-            stat = "PASSED"
-        msg("%(drive)s %(stat)s %(size)s" % {
-            "drive": drv,
-            "stat": stat,
-            "size": attrs["size"],
-            })
-    return 0
 
-def wrapper():
-    curses.wrapper(main)
-
-def run():
+def run(devs):
     envprefix = "DISK_"
     l = filter(lambda item, s=envprefix: item[0][:len(s)] == s,
                os.environ.items())
@@ -498,7 +425,4 @@ def run():
     if envopts.has_key("MEMSPAM"):
         MEMINFO_SPAM = True
 
-    wrapper()
-
-if __name__ == '__main__':
-    run()
+    curses.wrapper(main, devs)

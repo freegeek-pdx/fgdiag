@@ -79,25 +79,23 @@ class Badblocks(popen2.Popen3, _Accessor):
             'badblocks': self.path,
             'num_blocks': self.num_blocks,
             'mode': self.modeFlag,
-            'dev': device,
+            'dev': device.dev,
             }
         popen2.Popen3.__init__(self, cmd, True)
         pyutil.makeNonBlocking(self.fromchild.fileno())
         pyutil.makeNonBlocking(self.childerr.fileno())
 
         self.device = device
-        self.drive = string.split(device, '/')[-1][:3]
+        self.drive = string.split(device.dev, '/')[-1][:3]
         self._parserState = "stage"
         self.badlist = []
 
         if self.KEEP_LOGFILE:
-            self.logfile = open("/tmp/bb.%s.log" % (self.device[-3:],), "a")
+            self.logfile = open("/tmp/bb.%s.log" % (self.device.dev[-3:],), "a")
 
     def addObserver(self, observer):
         if observer not in self.observers:
             self.observers.append(observer)
-        observer.set_blockDevice(self.device)
-        observer.set_testMode(self.modeFlag)
         if self.totalSumCount:
             observer.set_totalSumCount(self.totalSumCount)
 
@@ -177,7 +175,7 @@ class Badblocks(popen2.Popen3, _Accessor):
                     except IOError:
                         pass
 
-                    raise RuntimeError("%s %s\n E: %s\nO: %s\n" % (self.device,
+                    raise RuntimeError("%s %s\n E: %s\nO: %s\n" % (self.device.dev,
                                                                    exc.args[0],
                                                                    o, e))
 
@@ -247,7 +245,7 @@ class Badblocks(popen2.Popen3, _Accessor):
                 raise
 
     def __str__(self):
-        s = "<%s at %x scanning %s>" % (self.__class__, id(self), self.device)
+        s = "<%s at %x scanning %s>" % (self.__class__, id(self), self.device.dev)
         return s
 
 ### Write patterns:
@@ -332,20 +330,13 @@ class BadblocksWrite(Badblocks):
 
 writing_re = re.compile(r"^Writing pattern (?P<pattern>0x\S{8})")
 
-bb_classes = {
-    'over-write': BadblocksWrite,
-    }
 
-
-def start_badblocks(device, mode):
+def start_badblocks(device):
     """Constructor for Badblocks objects.
 
-    @param device: The absolute pathname of the device to run badblocks on.
-    @type device: string
-    @param mode: one of C{'read-only'}, C{'over-write'}, or C{'safe-write'}.
-    @type mode: string
+    @param device: A diskdiag.DiskDevice object.
     """
-    return bb_classes[mode](device)
+    return BadblocksWrite(device)
 
 
 class BadblocksObserver(_Accessor):
@@ -354,14 +345,6 @@ class BadblocksObserver(_Accessor):
     runningCount = 0
     totalSumCount = None
     _observed = None
-
-    def set_testMode(self, testMode):
-        """Define which test mode badblocks is running.
-        """
-
-    def set_blockDevice(self, blockDevice):
-        """Called to specify what block device is being tested.
-        """
 
     def set_operation(self, op):
         """Called when the test's current operation changes.
@@ -403,83 +386,20 @@ def parallelTest(deviceList):
     """Test a number of devices in parallel.
 
     @param deviceList: Devices to scan.
-    @type deviceList: A list of (I{device}, I{scanmode}) pairs, where
-        I{device} is a string containing the absolute pathname of the
-        device, and I{scanmode} is C{'over-write'} (others may be
-        supported in the future).
+    @type deviceList: A list of diskdiag.DiskDevice objects.
 
-        An element of this list may also be a list of (I{device},
-        I{scanmode}) pairs itself, in which case that element is taken
-        as a list of devices to test in serial.  This serial test will
-        be conducted in parallel with the others.
-
-    @returntype: list of L{Badblocks} and L{SerialTest}s
+    @returntype: list of L{Badblocks}s
     """
 
     badblockses = []
     try:
         for i in deviceList:
-            if isinstance(i[0], types.StringType):
-                dev, mode = i
-                badblockses.append(start_badblocks(dev, mode))
-            else:
-                # Assume it's a sequence to be tested in serial.
-                badblockses.append(SerialTest(i))
+            badblockses.append(start_badblocks(i))
     except ValueError, e:
         raise ValueError(e.args[0] + repr(deviceList))
 
     return badblockses
 
-
-class SerialTest:
-    """Iterator performs tests in serial.
-    """
-
-    pos = 0
-    current = None
-
-    def __init__(self, deviceList):
-        self.queue = deviceList
-        self.results = []
-
-        total = 0
-        for dev, mode in deviceList:
-            total = total + (disk.getDeviceSize(dev) / 1024) * bb_classes[mode].passes
-
-        self.totalSumCount = total
-
-        self.next()
-
-    def next(self):
-        if self.pos >= len(self.queue):
-            return None
-
-        if self.current:
-            observers = self.current.observers
-            self.runningCount = self.runningCount + self.current.sectorCount
-        else:
-            observers = []
-
-        self.current = apply(start_badblocks, self.queue[self.pos])
-        self.current.totalSumCount = self.totalSumCount
-        self.current.runningCount = self.runningCount
-
-        self.pos = self.pos + 1
-
-        for o in observers:
-            self.current.addObserver(o)
-
-        return self.current
-
-    def poll(self):
-        val = self.current.poll()
-        if val != -1:
-            if self.next():
-                return -1
-        return val
-
-    def __getattr__(self, key):
-        return getattr(self.current, key)
 
 # this list will be populated by the observing class(es)
 mainloop_hooks = []

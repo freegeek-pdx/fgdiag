@@ -221,6 +221,7 @@ def findBlockDevicesToScan(forceClobber=False):
     """Find, but do not modify, block devices (disks and/or partitions) to scan.
 
     Also test for questionable partitions.
+    Return list of "/dev/hda", "/dev/hdb", etc
     """
     drives = findDrivesToScan()
 
@@ -236,7 +237,7 @@ def findBlockDevicesToScan(forceClobber=False):
                 if not doWipe.has_key(p_id):
                     badParts.append((p[0], p_id))
 
-        devices_to_scan.append((drive, "over-write"))
+        devices_to_scan.append(drive)
     if badParts and (not forceClobber):
         raise QuestionablePartitionException, (badParts,)
 
