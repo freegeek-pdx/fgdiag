@@ -19,6 +19,7 @@ True
 """
 import psycopg
 from errors import InvalidRowError, InvalidFieldError, SQLError
+
 def connect(host, db, user, passwd):
     """Return a Database instance connected to dburl.
 
@@ -107,11 +108,11 @@ def _check_id(id_):
 _select_sql_template = "SELECT %s FROM %s WHERE %s"
 _update_sql_template = "UPDATE %s SET %s WHERE %s"
 
-def _select_sql(fieldlist, table, where):
-    return _select_sql_template % (fieldlist, table, where)
+def _select_sql(fields, table, where):
+    return _select_sql_template % (fields, table, where)
 
-def _update_sql(valuedict, table, where):
-    return _update_sql_template % (table, valuedict, where)
+def _update_sql(fieldvalues, table, where):
+    return _update_sql_template % (table, fieldvalues, where)
 #---
 
 class Cache:
