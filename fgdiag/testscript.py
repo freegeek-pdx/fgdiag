@@ -15,4 +15,7 @@ class TestingTest(test.GizmoTest):
         #time.sleep(5)
         return {"Gizmo.notes":"Everything is working!"}
 
-if __name__ == '__main__': test.start_test(TestingTest)
+def main()
+    test.start_test(TestingTest)
+
+if __name__ == '__main__': main()

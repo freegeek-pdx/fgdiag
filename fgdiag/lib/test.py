@@ -1,4 +1,6 @@
 """Python Module for FreeGeek testing."""
+import sys
+
 from fgdb import connect, InvalidRowError
 from prompts import prompt_for_gizmo
 from userinteraction import notice
@@ -9,6 +11,8 @@ def start_test(test):
     """Helper function. Initializes test and runs it's test."""
     testinstance = test()
     testinstance.start_test()
+
+cl
 
 class GizmoTest:
     """Represents a complete gizmo Test. Inherit and implement run, then instantiate and call start_test to use."""
@@ -34,6 +38,10 @@ class GizmoTest:
         
         # Run test first
         data = self.run()
+        if data is None:
+            #Test failed?
+            print "Test failed"
+            sys.exit()
         
         # Is it safe to store the password for the user (write+read permissions in fgdb) in plaintext?
         db = connect(*get_fgdb_login())

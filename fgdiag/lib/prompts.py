@@ -22,14 +22,6 @@ def prompt_for_gizmo(db, wantedtype):
             userinteraction.warning("The type of the Gizmo you entered is %s, but a %s was expected. Please check and re-enter your Gizmo id." % (gizmotype, wantedtype))
             continue
         
-        # Check if already tested?
-        #if gizmo.get("testData"):
-        #    answer = userinteraction.yesno("The Gizmo you entered has already been tested. Do you want to test it anyway?")
-        #    if not answer:
-        #        goodgizmo = False            
-        #    
-        # Check for conflicting data?
-        
         # If it gets this far it's an ok gizmo
         goodgizmo = True
               
