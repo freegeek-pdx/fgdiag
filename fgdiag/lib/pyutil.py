@@ -5,7 +5,7 @@
 
 import os, string, sys
 from os import path
-import fcntl, FCNTL
+import fcntl
 
 PAGER = None
 
@@ -37,11 +37,8 @@ def bold(s):
 
 def makeNonBlocking(fd):
     # from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52296/
-    fl = fcntl.fcntl(fd, FCNTL.F_GETFL)
-    try:
-        fcntl.fcntl(fd, FCNTL.F_SETFL, fl | FCNTL.O_NDELAY)
-    except AttributeError:
-        fcntl.fcntl(fd, FCNTL.F_SETFL, fl | FCNTL.FNDELAY)
+    fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+    fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NDELAY)
 
 def withPager(callable, *args, **keywords):
     global PAGER
