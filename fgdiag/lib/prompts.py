@@ -41,20 +41,17 @@ def prompt_for_id(db, wantedtype, name, description=""):
 
 def confirm_data(iddata):
     alldatastring = ""
+    template = """%s %s:
+    Gizmo ID: %s"""
     for id_, data in iddata.iteritems():
-        datalist = tuple()
-        for field, value in data.iteritems():
-            datalist += ("  %s: %s" % (field, value),)
-        datastring = "\n".join(datalist)
-        template = """Gizmo %s:
-%s"""
-        alldatastring = "\n".join((alldatastring,template%(id_, datastring)))
+        name, description = data
+        alldatastring = "\n".join((alldatastring,template%(name, description, id_)))
 
-    body = """The following data will be sent to the FreeGeek Database:
+    body = """Data about the following Gizmos will be sent to the FreeGeek Database:
 ---
 %s
 ---
-Is this information correct?""" % (alldatastring)
+Are the Gizmo IDs correct?""" % (alldatastring)
     return userinteraction.yesno("Confirmation", body)
     
 def db_fallback_notice(filename):

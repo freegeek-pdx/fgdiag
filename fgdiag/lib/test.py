@@ -139,12 +139,12 @@ class GizmoTester:
         from fgdb import connect
 
         try:
-            notice("Connecting to the Free Geek Database...")
+            notice("Connecting to the FreeGeek Database...")
             db = connect(*get_fgdb_login())
         except DBConnectError, e:
             # Do any recovery here
             msg = \
-            "Unable to connect to the Free Geek Database.\nError returned: %s" % str(e)
+            "Unable to connect to the FreeGeek Database.\nError returned: %s" % str(e)
             error(msg)
             raise
         
@@ -153,7 +153,7 @@ class GizmoTester:
         # Replace with something more efficient
         iddata = dict()
         for device, gizmo in devicegizmos.iteritems():
-            iddata[gizmo.id] = device.data
+            iddata[gizmo.id] = (device.name, device.description)
 
         if confirm_data(iddata):
             for device, gizmo in devicegizmos.iteritems():
