@@ -154,7 +154,8 @@ class GizmoTester:
                 statusdata = device.status.data
 
                 # Update statusdata, so anything in device.data overrides statusdata.
-                device.data = statusdata.update(device.data)
+                statusdata.update(device.data)
+                device.data = statusdata
             else:
                 raise InvalidStatusError, device.status
 
