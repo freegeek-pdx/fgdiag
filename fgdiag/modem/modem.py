@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # $Id$
-# November 2001, Kevin Turner <acapnotic@foobox.org>
+# November 2001, Kevin Turner <kevin@freegeek.org>
 # Written for Free Geek
 
 """Attempts to determine the speed of modems on the serial ports.

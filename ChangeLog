@@ -1,3 +1,8 @@
+2004-05-29  Kevin Turner  <kevin@freegeek.org>
+
+	* doc/TODO: 1.3 add section on network devices (with netpipe),
+	SMART drive testing.
+
 2004-05-25    <chromakode@llama>
 
 	* fgdiag/lib/test.py (Module): Rewrote status implementation.
@@ -7,14 +12,14 @@
 2004-05-21    <chromakode@llama>
 
 	* fgdiag/lib/prompts.py (Module): Added various prompts.
-	
+
 	* fgdiag/lib/test.py (Module): Allow user to create gizmos in test
 	process, added final status report.
 
 2004-05-20    <chromakode@llama>
 
 	* fgdiag/lib/fgdb.py (Database.add_gizmo): Create Gizmos!
-	
+
 	* fgdiag/lib/logging.py (_LogReceptor): Made private
 
 2004-05-18    <chromakode@llama>
@@ -27,7 +32,7 @@
 	port of the original shell script in testing/floppy.sh
 
 2004-05-13    <chromakode@llama>
-	
+
 	* fgdiag/pogotest.py (Module): Modified to use testscript
 
 	* fgdiag/lib/testscript.py: Added module for testing scripts to
