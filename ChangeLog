@@ -1,5 +1,7 @@
 2004-05-04  Kevin Turner  <kevin@freegeek.org>
 
+	* fgdiag/lib/test.py (TestableDevice): 1.13 some docstrings
+
 	* fgdiag/testtester.py: 1.1 use getattr() instead of __dict__
 
 2004-05-04    <chromakode@llama>
