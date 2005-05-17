@@ -229,7 +229,7 @@ class CDDevice(test.TestableDevice):
 
 class CDTester(test.GizmoTester):
 
-    gizmotype = "Gizmo.Component.CDDrive"
+    gizmotype = "Gizmo.Component.Drive.CDDrive"
 
     def scan(self):
         CDs = CD_scan()
