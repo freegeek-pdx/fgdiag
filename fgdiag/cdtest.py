@@ -178,6 +178,7 @@ class CDDevice(test.TestableDevice):
         # Get it spinning, then test. 
         status, output = commands.getstatusoutput(cmd)
         status, output = commands.getstatusoutput(cmd)
+        status, output = commands.getstatusoutput(cmd)
 
         if (string.find(output,'real') > 0):
            elapsed_time = parse_shell_elapsed_time(output)
@@ -185,9 +186,10 @@ class CDDevice(test.TestableDevice):
            elapsed_time = parse_GNU_elapsed_time(output)
 
         speed = round(((BlockSize * BlockCount) / elapsed_time) / (150 * 1024))
- 	self.data["speed"] = speed 
+	formatted_speed = str(int(round(speed))) + 'x'
+ 	self.data["speed"] = formatted_speed 
 
-        userinteraction.notice('Tested at ' + str(int(speed)) + 'x') 
+        userinteraction.notice('Tested at ' + formatted_speed) 
         return test.Status["Passed"]
 
     def _d_data(self):
