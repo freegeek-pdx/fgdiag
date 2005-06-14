@@ -188,7 +188,6 @@ class CDDevice(test.TestableDevice):
 
         speed = round(((BlockSize * BlockCount) / elapsed_time) / (150 * 1024))
 	rounded_speed = int(round(speed))
-	rounded_speed = 999 
  	self.data["spinrate"] = rounded_speed 
 
         userinteraction.notice('Tested at ' + str(rounded_speed) + 'x') 
