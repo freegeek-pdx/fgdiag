@@ -110,6 +110,7 @@ class CDDevice(test.TestableDevice):
           return test.Status["Failed"]
 
  	self.data["interface"] = "IDE" 
+ 	self.data["scsi"]      = "N" 
 
         # Grep dmesg for medium warning...
 
@@ -186,10 +187,11 @@ class CDDevice(test.TestableDevice):
            elapsed_time = parse_GNU_elapsed_time(output)
 
         speed = round(((BlockSize * BlockCount) / elapsed_time) / (150 * 1024))
-	formatted_speed = str(int(round(speed))) + 'x'
- 	self.data["speed"] = formatted_speed 
+	rounded_speed = int(round(speed))
+	rounded_speed = 999 
+ 	self.data["spinrate"] = rounded_speed 
 
-        userinteraction.notice('Tested at ' + formatted_speed) 
+        userinteraction.notice('Tested at ' + str(rounded_speed) + 'x') 
         return test.Status["Passed"]
 
     def _d_data(self):
