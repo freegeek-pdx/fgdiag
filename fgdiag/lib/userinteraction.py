@@ -32,7 +32,7 @@ def prompt(title, body):
 def yesno(title, body):
     while 1:
         answer = prompt(title, body + " (yes/no):")
-        if answer == "yes":
+        if (answer == "yes" or answer == "y"):
             return True
-        if answer == "no":
+        if (answer == "no" or answer == "n"):
             return False
