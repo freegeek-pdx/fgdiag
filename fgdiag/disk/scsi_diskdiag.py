@@ -1,5 +1,5 @@
 # -*- Python -*-
-# $id: scsi_diskdiag.py,v 1.4 2004/07/21 04:02:44 benj Exp $
+# $Id$
 
 # updated for scsi by Kyle L. // kysle@hotmail.com
 
