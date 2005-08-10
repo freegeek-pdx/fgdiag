@@ -1,0 +1,5 @@
+#!/usr/bin/python2.3
+# $Id$
+
+from fgdiag.disk.diskdiag import DiskDiag
+DiskDiag().scsi_start_test()
