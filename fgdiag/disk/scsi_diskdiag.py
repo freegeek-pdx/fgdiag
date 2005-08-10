@@ -12,7 +12,7 @@ from fgdiag.lib import userinteraction as ui
 import cursesdisk
 import disk
 
-class DiskDevice(test.TestableDevice):
+class ScsiDiskDevice(test.TestableDevice):
     name = "SCSI Hard Drive"
 
     def __init__(self, dev):
@@ -34,7 +34,7 @@ class DiskDevice(test.TestableDevice):
     def __str__(self):
         return self.dev
 
-class DiskDiag(test.GizmoTester):
+class ScsiDiskDiag(test.GizmoTester):
     gizmotype = "Gizmo.Component.Drive.SCSIHardDrive"
 
     def scan(self):
