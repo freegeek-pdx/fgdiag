@@ -3,6 +3,7 @@ import sys
 
 from prompts import prompt_for_gizmos, confirm_data, report_success, confirm_devices
 from userinteraction import notice, error
+import userinteraction
 from testdata import register_test_data
 from config import get_fgdb_login
 from errors import InvalidStatusError, DBConnectError
@@ -167,15 +168,22 @@ class GizmoTester:
                 "Unable to connect to the FreeGeek Database.\nError returned: %s" % str(e)
                 error(msg)
                 raise
-            
-        self.__log("Start", "Starting test.")
 
-        # Run scan first
-        devices = self.scan()
+        def log_device_scan():    
+        	self.__log("Start", "Starting test.")
+        	# Run scan first
+        	devices = self.scan()
+		return devices
+        
+	devices = log_device_scan()    
 
         if not confirm_devices(devices):
-            print "press <enter> to reboot"
-            return
+		body = """Would you like to do gaian?"""
+		if userinteraction.yesno("Confirmation", body):
+			devices = log_device_scan()    
+		else:	
+            		print "press <enter> to reboot"
+            		return
         
         db = connect()
         devicegizmos = prompt_for_gizmos(db, self.gizmotype, devices)
