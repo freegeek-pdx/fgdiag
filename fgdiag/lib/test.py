@@ -178,12 +178,13 @@ class GizmoTester:
 	devices = log_device_scan()    
 
         if not confirm_devices(devices):
-		body = """Would you like to do gaian?"""
-		if userinteraction.yesno("Confirmation", body):
-			devices = log_device_scan()    
-		else:	
-            		print "press <enter> to reboot"
-            		return
+		body = """Would you like to scan CD drive gaian?"""
+		while True:
+			if userinteraction.yesno("Confirmation", body):
+				devices = log_device_scan()    
+			else:	
+            			print "press <enter> to reboot"
+            			return
         
         db = connect()
         devicegizmos = prompt_for_gizmos(db, self.gizmotype, devices)
