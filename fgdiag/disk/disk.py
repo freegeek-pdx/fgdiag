@@ -217,6 +217,58 @@ def findDrivesToScan():
 
     return drives
 
+##Kysle
+_scsi_re = re.compile("SCSI device (sd.)")
+def findScsiDrivesToScan():
+    """Returns a list of all SCSI drives which are not mounted.
+
+    e.g. ['/dev/sda', '/dev/sdb']
+    """
+    drives = []
+    scsi_devices = filter(_scsi_re.search, open("/var/log/dmesg").readlines())
+
+    def searchsd(line):
+        return("/dev/%s" % (_scsi_re.search(line).groups()[0], ))
+
+    scsi_devices = map(searchsd, scsi_devices)
+    dict = {}
+
+    def list2dict(item):
+        dict[item] = 0
+
+    map(list2dict, scsi_devices)
+    dict.keys()
+    drives = dict.keys()
+    drives.sort()
+    print("Test:" + drives)
+    return drives
+
+def findScsiBlockDevicesToScan(forceClobber=False):
+    """Find, but do not modify, block devices (disks and/or partitions) to scan.
+
+    Also test for questionable partitions.
+    Return list of "/dev/hda", "/dev/hdb", etc
+    """
+    drives = findScsiDrivesToScan()
+
+    devices_to_scan = []
+    badParts = []
+    for drive in drives:
+        partitions = list_partitions(drive)
+        # Make sure they're sorted in disk order.
+        partitions.sort(lambda a,b: cmp(a[1], b[1]))
+        if partitions:
+            for p in partitions:
+                p_id = p[-1]
+                if not doWipe.has_key(p_id):
+                    badParts.append((p[0], p_id))
+
+        devices_to_scan.append(diskdiag.DiskDevice(drive))
+        devices_to_scan[-1].get_data()
+    if badParts and (not forceClobber):
+        raise QuestionablePartitionException, (badParts,)
+    return devices_to_scan
+
 
 def findBlockDevicesToScan(forceClobber=False):
     """Find, but do not modify, block devices (disks and/or partitions) to scan.
@@ -324,6 +376,25 @@ def identification(blockDevice):
     o.close()
     return {'serialNo': string.strip(s[20:40]),
             'model': string.strip(s[54:94])}
+##Kysle
+def ScsiIdentification(blockDevice):
+    """Return a dictionary containing the serial number and model identifier.
+    """
+
+    id_re = re.compile("Attached scsi disk " + blockDevice.strip('/dev/') + " at")
+    blockDevice_id = filter(id_re.search, open("/var/log/dmesg").readlines())
+    pattern = re.compile(',')
+    blockDevice_id = pattern.sub("", blockDevice_id[0])
+    blockDevice_id = blockDevice_id.split()[9]
+
+    blockDevice_ident_re = re.compile("\(scsi0:A:" + blockDevice_id + "\):.*\n(.*)\n")
+    blockDevice_ident = open("/var/log/dmesg").read()
+    match = blockDevice_ident_re.search(blockDevice_ident).groups()[0]
+
+    print("Test:" + match.split()[3] + match.split()[1])
+    return {'serialNo': match.split()[3],
+            'model': match.split()[1]}
+
 
 def supported_modes(blockDevice):
     """Return the supported PIO and DMA modes for an IDE device.

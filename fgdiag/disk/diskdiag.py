@@ -40,7 +40,7 @@ class ScsiDiskDevice(test.TestableDevice):
 
     def _d_data(self):
         self.data["sizeMb"] = disk.getDeviceSize(self.dev) / (1024**2)
-        id = disk.identification(self.dev)
+        id = disk.ScsiIdentification(self.dev)
         self.data["modelNumber"] = id["model"]
         return self.data
 
@@ -91,7 +91,7 @@ class ScsiDiskDiag(test.GizmoTester):
     def scan(self):
         ui.notice("Scanning for devices to check")
         try:
-            devs = disk.findBlockDevicesToScan()
+            devs = disk.findScsiBlockDevicesToScan()
         except disk.QuestionablePartitionException, qpe:
             drivestr = ""
             for i in qpe.args[0]:
@@ -104,7 +104,7 @@ it on the "weird" pile)?""" % (drivestr,)
             else:
                 ui.error_exit("Stopping.")
         if not devs:
-            ui.error_exit("Found no disks to scan!")
+            ui.error_exit("Found no SCSI drives!")
         return devs
 
     def run(self, devs):
