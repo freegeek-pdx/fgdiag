@@ -22,6 +22,12 @@ class DiskDevice(test.TestableDevice):
         self.data["modelNumber"] = id["model"]
         return self.data
 
+    def _d_scsidata(self):
+        self.data["sizeMb"] = disk.getDeviceSize(self.dev) / (1024**2)
+        id = disk.ScsiIdentification(self.dev)
+        self.data["modelNumber"] = id["model"]
+        return self.data
+
     def _d_description(self, data):
         return self.dev + ": " + str(self.data["sizeMb"]) + "MB"
 
@@ -100,7 +106,7 @@ class ScsiDiskDiag(test.GizmoTester):
 Do you want to continue and clobber these partitions (no to abort and put
 it on the "weird" pile)?""" % (drivestr,)
             if ui.yesno("Questionable Partitions", prompt):
-                devs = disk.findBlockDevicesToScan(forceClobber=True)
+                devs = disk.findScsiBlockDevicesToScan(forceClobber=True)
             else:
                 ui.error_exit("Stopping.")
         if not devs:

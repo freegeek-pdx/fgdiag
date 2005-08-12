@@ -100,6 +100,19 @@ class TestableDevice:
         """
         raise NotImplementedError
 
+    def get_scsidata(self):
+        """Fetch data about the Gizmo, and return the results. Sets
+        self.data to the data, and self.description to a human
+        readable description."""
+
+        self.__log("get_data", "Running _d_data()")
+        self.data = self._d_scsidata()
+        self.__log("get_data", "Returned %s." % self.data)
+        self.__log("description", "Running _d_description()")
+        self.description = self._d_description(self.data)
+        self.__log("description", "Returned %s." % self.description)
+        return self.data
+
     def get_data(self):
         """Fetch data about the Gizmo, and return the results. Sets
         self.data to the data, and self.description to a human
@@ -112,6 +125,7 @@ class TestableDevice:
         self.description = self._d_description(self.data)
         self.__log("description", "Returned %s." % self.description)
         return self.data
+
 
     def _d_test(self):
         """Test the device.

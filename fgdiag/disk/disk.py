@@ -240,7 +240,6 @@ def findScsiDrivesToScan():
     dict.keys()
     drives = dict.keys()
     drives.sort()
-    print("Test:" + drives)
     return drives
 
 def findScsiBlockDevicesToScan(forceClobber=False):
@@ -264,7 +263,7 @@ def findScsiBlockDevicesToScan(forceClobber=False):
                     badParts.append((p[0], p_id))
 
         devices_to_scan.append(diskdiag.DiskDevice(drive))
-        devices_to_scan[-1].get_data()
+        devices_to_scan[-1].get_scsidata()
     if badParts and (not forceClobber):
         raise QuestionablePartitionException, (badParts,)
     return devices_to_scan
@@ -391,7 +390,6 @@ def ScsiIdentification(blockDevice):
     blockDevice_ident = open("/var/log/dmesg").read()
     match = blockDevice_ident_re.search(blockDevice_ident).groups()[0]
 
-    print("Test:" + match.split()[3] + match.split()[1])
     return {'serialNo': match.split()[3],
             'model': match.split()[1]}
 
