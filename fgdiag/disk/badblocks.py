@@ -308,12 +308,13 @@ class BadblocksWrite(Badblocks):
 
     def read_progress(self, output):
         # The badblocks status indicicator backspaces over itself.
+
         output = string.replace(output,"\x08","")
         if not output:
             return
         elif string.strip(output) == "done":
             self.runningCount = self.runningCount + self.sectorCount
-            if (self.operation == "Reading") and (self.pattern == "0x00000000"):
+            if (self.operation == "Reading") and (self.pattern == "03x00000000"):
                 # That was the last pass.
                 self._parserState = "done"
             else:
@@ -345,7 +346,7 @@ class BadblocksWrite(Badblocks):
         self.pattern = None
         Badblocks.finished(self, exit_code)
 
-writing_re = re.compile(r"^Writing pattern (?P<pattern>0x\S{8})")
+writing_re = re.compile(r"^Testing with pattern (?P<pattern>0x\S{0,2})")
 
 
 def start_badblocks(device):
