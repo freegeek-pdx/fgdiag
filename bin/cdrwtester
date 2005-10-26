@@ -1,0 +1,47 @@
+#!/bin/bash
+
+IMAGE=null
+
+if [ ! -n "$1" ]; then
+    echo "Usage: test.sh filename"
+    exit
+fi
+
+if [ -e "$1" ]; then
+    IMAGE=$1
+    export IMAGE
+else
+    echo "$1 is not a file!"
+    exit
+fi
+
+echo $IMAGE is the image that I will burn press ^c to stop
+
+DEVICE=null
+
+for REPLY in $(cdrecord -scanbus 2>/dev/null \
+    | egrep ' *[0-9]+,[0-9]+,[0-9]+' | grep -v "*" \
+    | awk '{print $1}'); do
+    if cdrecord -checkdrive dev=$REPLY 2>/dev/null \
+	| egrep -q 'Device seems to be:.*CD-RW'; then
+	DEVICE=$REPLY
+	export DEVICE
+    fi
+done
+echo " I will now burn the ISO please press enter"
+read
+echo
+echo cdrecord dev=$DEVICE $IMAGE
+if [ "$?" != 0 ]; then
+    echo "cdrecord failed with an error: $?"
+elif 
+    echo " I will now test the $IMAGE file press enter"
+    read
+    diff <(md5sum $IMAGE) <(md5sum $IMAGE); then
+    if [ "$?" = 0 ]; then
+	echo "passed md5 test"
+    else
+	echo "failed md5 test"
+    fi
+fi
+# askgl;ajk;asdf;akjsdfaslkjfhlkasdf ass
