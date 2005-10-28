@@ -1,4 +1,12 @@
-#!/bin/bash
+# !/bin/bash
+# AUTHOR: 0hm clout [at] freegeek.org
+# NOTES: one must have cdrecord working fully for this script, because 
+# it is more, or less a wrapper for that util as well as md5sum
+# REASON: this script is to automate the way we test cdrw drives so even less
+# knowledge is need to do so ^_^
+# TODO: Make it so this script uses two vars one for the ISO image, which it already does, and
+# another one to override the for loop and just give it a /dev/real_device (/dev/hdc, /dev/sda1, etc...)
+# example of future optional syntax: whateverthenameofthisscriptis /dev/hdc image.iso  
 
 IMAGE=null
 
@@ -15,7 +23,7 @@ else
     exit
 fi
 
-echo $IMAGE is the image that I will burn press ^c to stop
+echo $IMAGE is the image that I will burn press ^c to stop ( Ctrl+c )
 
 DEVICE=null
 
@@ -33,11 +41,11 @@ read
 echo
 echo cdrecord dev=$DEVICE $IMAGE
 if [ "$?" != 0 ]; then
-    echo "cdrecord failed with an error: $?"
-elif 
-    echo " I will now test the $IMAGE file press enter"
-    read
-    diff <(md5sum $IMAGE) <(md5sum $IMAGE); then
+    echo "cdrecord failed with an error: $?"               # probably add a fuction to find the real device
+elif                                                      # here and replace the one of the $IMAGE vars down 
+    echo " I will now test the $IMAGE file press enter"  ######## below with the real device var
+    read                                                  #
+    diff <(md5sum $IMAGE) <(md5sum $IMAGE); then           #
     if [ "$?" = 0 ]; then
 	echo "passed md5 test"
     else
