@@ -273,7 +273,7 @@ class Badblocks(popen2.Popen3, _Accessor):
 
 class BadblocksWrite(Badblocks):
     modeLabel = "overwrite & read"
-    modeFlag = "-w"
+    modeFlag = "-wt random"
     operation = None
     widget = None
     pattern = None
@@ -287,12 +287,12 @@ class BadblocksWrite(Badblocks):
         Badblocks.read_stage(self, output)
 
         if (self.operation is "Reading") or (not self.operation):
-            self.operation = "Writing"
+            self.operation = "Testing"
             match = writing_re.search(output)
             if match:
                 self.pattern = match.groupdict()["pattern"]
             else:
-                raise RuntimeError("'Writing' string didn't match: %r" %
+                raise RuntimeError("'Testing' string didn't match: %r" %
                                    (output,))
         else:
             # XXX: Sanity check here.
@@ -346,7 +346,7 @@ class BadblocksWrite(Badblocks):
         self.pattern = None
         Badblocks.finished(self, exit_code)
 
-writing_re = re.compile(r"^Testing with pattern (?P<pattern>0x\S{0,2})")
+writing_re = re.compile(r"^Testing with (?P<pattern>.*)")
 
 
 def start_badblocks(device):
