@@ -1,3 +1,15 @@
+fgdiag (0.1.7) unstable; urgency=low
+
+  [ Martin Chase]
+  * made to work with sarge (not woody)
+
+  [ Vagrant Cascadian ]
+  * make package build on sarge
+    - switch to cdbs
+    - drop man page generation (hopefully only temporarily)
+
+ -- Vagrant Cascadian <vagrant@freegeek.org>  Sat, 11 Feb 2006 17:14:40 -0800
+
 fgdiag (0.1.6) unstable; urgency=low
 
   * CVS tag Version_0_1_6
