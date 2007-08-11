@@ -1,7 +1,8 @@
 Source: fgdiag
 Section: utils
 Priority: optional
-Maintainer: Kevin Turner <kevin@freegeek.org>
+Maintainer: Freegeek Coders <coders@freegeek.org>
+Uploaders: Martin Chase <mchase@freegeek.org>, Vagrant Cascadian <vagrant@freegeek.org>
 Build-Depends: cdbs, debhelper (>= 4.0.0), python-dev, txt2man
 Standards-Version: 3.6.1
 
