@@ -1,4 +1,4 @@
-#!/usr/bin/python2.2
+#!/usr/bin/python
 """ program for testing keyboards.  Uses the ncurses library for a GUI interface.
     MUST BE RUNNED IN A 120 COLUMN WIDE CONSOLE (AND NOT IN AN XTERMINAL)
 """
