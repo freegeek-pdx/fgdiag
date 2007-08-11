@@ -2,7 +2,7 @@ Source: fgdiag
 Section: utils
 Priority: optional
 Maintainer: Kevin Turner <kevin@freegeek.org>
-Build-Depends-Indep: debhelper (>= 4.0.0), python-dev, txt2man
+Build-Depends: cdbs, debhelper (>= 4.0.0), python-dev, txt2man
 Standards-Version: 3.6.1
 
 Package: fgdiag
