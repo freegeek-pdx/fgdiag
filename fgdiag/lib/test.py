@@ -4,9 +4,7 @@ import sys
 from prompts import prompt_for_gizmos, confirm_data, report_success, confirm_devices
 from userinteraction import notice, error
 import userinteraction
-from testdata import register_test_data
-from config import get_fgdb_login
-from errors import InvalidStatusError, DBConnectError
+from errors import InvalidStatusError
 from logging import create_node
 
 _log = create_node(__name__)
@@ -162,26 +160,8 @@ class GizmoTester:
 
         Steps Taken:
         1.  Run the test given as self.run().
-        2.  Connect to FGDB.
-        3a. Prompt for a Gizmo ID.
-        3b. Check and get the Gizmo from the established FGDB connection.
-        4.  Put the data into FGDB under the selected Gizmo.
 
         """
-
-        def connect():
-             # Is it safe to store the password for the user (write+read permissions in fgdb) in plaintext?
-            from fgdb import connect
-
-            try:
-                notice("Connecting to the FreeGeek Database...")
-                return connect(*get_fgdb_login())
-            except DBConnectError, e:
-                # Do any recovery here
-                msg = \
-                "Unable to connect to the FreeGeek Database.\nError returned: %s" % str(e)
-                error(msg)
-                raise
 
         def log_device_scan():    
         	self.__log("Start", "Starting test.")
@@ -200,15 +180,12 @@ class GizmoTester:
             			print "press <enter> to reboot"
             			return
         
-        db = connect()
-        devicegizmos = prompt_for_gizmos(db, self.gizmotype, devices)
-        db.disconnect()
-        
         self.run(devices)
 
         # Stick instructions in this dict for later
         deviceinstructions = dict()
-        
+        reportdata = list()
+
         for device in devices:
             # Set working and needsExpert based on preset constant
             if Status.valid_status(device.status):
@@ -233,26 +210,7 @@ class GizmoTester:
             else:
                 raise InvalidStatusError, device.status
 
-        db = connect()
-        
-        while not confirm_data(devices, devicegizmos):
-            devicegizmos = prompt_for_gizmos(db, self.gizmotype, devices)
-        # Kind of dumb to be creating essentially the same list again...
-        reportdata = list()
-        # start transaction here
-        for device in devices:
-            gizmo = devicegizmos[device]
-            newgizmo = False
-            if gizmo is None:
-                # Create Gizmo
-                gizmo = db.get_gizmo_by_id(db.add_gizmo(self.gizmotype))
-                newgizmo = True
-            else:
-                gizmo = db.get_gizmo_by_id(gizmo.id)
-            reportdata.append((device.name, device.description, gizmo.id, newgizmo, deviceinstructions[device]))
-            register_test_data(gizmo, device.data)
-        # end transaction here
-        db.disconnect()
+            reportdata.append((device.name, device.description, deviceinstructions[device]))
         notice("Success!")
         report_success(reportdata)
         self.__log("Finish", "Successful finish of test.")
