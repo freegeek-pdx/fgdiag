@@ -64,13 +64,6 @@ def set_msg_function(f):
     msg = f
 
 
-class QuestionablePartitionException(Exception):
-    """Gets raised when we find a partition we don't know what to with.
-
-    args should be a list of (partition, type) tuples.
-    """
-    pass
-
 def list_mounted_devices():
     """List devices which are mounted or being used as swap.
 
@@ -97,31 +90,6 @@ def list_mounted_devices():
     finally:
         swap_f.close()
     return devices
-
-
-def list_block_controllers():
-    """Wrapper around /proc/devices.
-
-    @returns: short names of all controllers of block devices in the
-        system which Linux knows about, e.g. ['fd', 'ide0', 'ide1']
-    @returntype: list of strings
-    """
-    block = False
-    proc_devices_f = open("/proc/devices")
-    controllers = []
-    try:
-        for l in proc_devices_f.readlines():
-            l = string.strip(l)
-            if l == "Block devices:":
-                block = True
-                continue
-            if block:
-                major, name = string.split(l, None, 1)
-                controllers.append(name)
-    finally:
-        proc_devices_f.close()
-
-    return controllers
 
 _drive_re = re.compile("^[sh]d.$")
 def findSysDevicesToScan():
@@ -151,41 +119,6 @@ def clean_drives_list(drives):
 _sfdisk_re = re.compile("^(?P<device>/dev/\S*?)\s*: start=\s*(?P<start>\d*), "
                         "size=\s*(?P<size>\d*), "
                         "Id=\s*(?P<id>[0123456789abcdef]+)")
-
-
-def list_partitions(drive, doIncludeEmpty=True):
-    """What partitions are on this drive?
-
-    @returns: a tuple (I{device}, I{start}, I{length}, I{id}),
-        where I{device} is a string of the absolute pathname of the device,
-        I{start} and I{length} are sector counts,
-        and I{id} is an integer identifying the partition type.
-    """
-    # -uS units in sectors
-    partitions = []
-    cmd = "%(sfdisk)s -uS --dump %(drive)s" % {'sfdisk':SFDISK,
-                                               'drive':drive}
-
-    sfdisk_out, sfdisk_in, sfdisk_err = popen2.popen3(cmd)
-
-    try:
-        for l in sfdisk_out.readlines():
-            m = _sfdisk_re.match(l)
-            if m:
-                d = m.groupdict()
-                if doIncludeEmpty or (long(d['size']) != 0):
-                    partitions.append((d['device'], long(d['start']),
-                                       long(d['size']), int(d['id'], 16),))
-    finally:
-        # capture all messages but don't do anything for now
-        ecode = sfdisk_in.close()
-        errmsg = sfdisk_err.read()
-        outmsg = sfdisk_out.read()
-        # msg("\nsfdisk list partition exit code:", ecode)
-        # msg("\nsfdisk list partition error:", errmsg, ":error")
-        # msg("\nsfdisk list partition out:", outmsg, ":out")
-
-    return partitions
 
 def getDeviceSize(blockDevice):
     """Given a device name, return the size of the device in bytes.
@@ -243,66 +176,6 @@ def ScsiIdentification(blockDevice):
 
     return {'serialNo': match.split()[3],
             'model': match.split()[1]}
-
-
-def supported_modes(blockDevice):
-    """Return the supported PIO and DMA modes for an IDE device.
-
-    This is a hdparm wrapper.
-    """
-    cmd = "%(hdparm)s -i %(dev)s" % {'hdparm': HDPARM,
-                                     'dev': blockDevice}
-    hdparm = os.popen(cmd)
-
-    modes = {}
-    try:
-        for l in hdparm.readlines():
-            if string.find(l, 'modes:') != -1:
-                kind, these_modes = string.split(l, ':', 1)
-                these_modes = string.split(these_modes)
-                kind = string.split(kind)[0]
-                modes[kind] = these_modes
-    finally:
-        exitcode = hdparm.close()
-        if exitcode:
-            raise RuntimeError("hdparm returned error code %s" % (exitcode,))
-
-    return modes
-
-def mke2fs(device):
-    """mke2fs wrapper
-
-    Note: this blocks until it's done.  I forget how slow mke2fs is --
-    is this a bad idea?
-
-    Example: mke2fs(\"/dev/hdc1\")
-    """
-    cmd = "%(mke2fs)s -q %(dev)s" % {'mke2fs': MKE2FS,
-                                     'dev': device}
-    p = popen2.Popen4(cmd)
-    ecode = p.wait()
-    if ecode:
-        # XXX: This is a crappy exception type.  Make a more specific/
-        # recognizeable one.  And collect stderr output so they know
-        # what went wrong.
-        raise RuntimeError("mke2fs failed with exit code %s" % (ecode,))
-    return
-
-def size_string(bytes):
-    """Given a number of bytes, returns a metric string description.
-
-    i.e. 9000000000 bytes is \"8.38 GB\"
-    """
-
-    if bytes >= (2 ** (10+10+10)):
-        return "%.2f GB" % (bytes / (2.0 ** (10+10+10)),)
-    elif bytes >= (2 ** (10+10)):
-        return "%.2f MB" % (bytes / (2.0 ** (10+10)),)
-    elif bytes >= (2 ** 10):
-        return "%.2f kB" % (bytes / (2.0 ** 10),)
-    else:
-        return "%d bytes" % (bytes,)
-
 
 ######################################################
 # EXCERPTS FROM syslog log file:
