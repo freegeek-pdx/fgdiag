@@ -7,8 +7,6 @@
     bytes.
 """
 
-__version__ = '$Revision$'[11:-2]
-
 import curses, math, os, string, sys, time
 try:
     from mx import DateTime

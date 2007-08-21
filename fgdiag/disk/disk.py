@@ -24,44 +24,6 @@
 @type noWipe: dict
 """
 
-__version__ = '$Revision$'[11:-2]
-
-# floppies use mbadblocks
-# and setfdparm
-
-# badblocks flags:
-#  -c num_blocks: Test this many at once.  (This is why we want RAM.)
-#  -p num_passes: This many *good* passes must happen before exiting. (default 0)
-#  -s : show progress
-#  -v : verbose
-#  -w : write-mode testing; destroys data!
-
-
-###### DEVFS COMPATIBILITY NOTES ######
-#
-# Places where devfs could potentially screw us up:
-#
-# list_mounted_devices:
-#   reads /proc/mounts, /proc/swaps, RDEV
-#
-# list_block_controllers:
-#   reads /proc/devices
-#
-# list_partitions:
-#   reads sfdisk --dump
-#
-# getDeviceSize:
-#   reads sfdisk --show-size
-#
-# take_syslog_line?
-#
-# It looks like most of these things are reasonably good about keeping
-# compatibility -- if you tell them to operate on /dev/hda1, they won't
-# magically translate that to /dev/discs/0/partition1, they'll keep using the
-# /dev/hda1 you gave it.  I haven't checked what klog reports yet.
-#
-#  -- kevin@freegeek.org, 2/4/2003
-
 import StringIO
 import operator, os, popen2, string, re, sys, time
 import diskdiag
@@ -78,33 +40,11 @@ BADBLOCKS = "badblocks"
 HDPARM = "/sbin/hdparm"
 RDEV = "rdev"
 SFDISK = "/sbin/sfdisk"
+SMARTCTL = "/usr/sbin/smartctl"
 
 # XXX: If things continue to work with this disabled, remove the
 # timestamp-check code entirely.  Otherwise, set back to True.
 _CHECK_TIMESTAMPS = False
-
-# Types of partitions to perform read-only tests on.
-noWipe = {
-    0x12: 'Compaq diagnostics',
-    }
-
-# Types of partitions to stomp over indiscriminately.
-doWipe = {
-    0x00: "empty",
-    0x01: "FAT12",
-    0x04: "FAT16 < 32M",
-    0x05: "extended",
-    0x06: "FAT16",
-    0x0B: "Win95 FAT32",
-    0x0C: "Win95 FAT32 (LBA)",
-    0x0E: "Win95 FAT16 (LBA)",
-    0x51: "OnTrack",
-    0x65: "Novell Netware 386",
-    0x80: "Old Minix",
-    0x81: "Minix",
-    0x82: "Linux swap",
-    0x83: "Linux",
-    }
 
 def default_msg(*a):
     """Because 'print' isn't a function.
@@ -183,27 +123,19 @@ def list_block_controllers():
 
     return controllers
 
+_drive_re = re.compile("^[sh]d.$")
+def findSysDevicesToScan():
+    """Returns a list of non-removable, unmounted block devices. """
+    possible = os.listdir("/sys/block")
+    actual = []
+    for entry in possible:
+        if _drive_re.search(entry):
+            removable = open("/sys/block/%s/removable" % (entry)).read()[0]
+            if removable == '0':
+                actual.append("/dev/%s" % (entry))
+    return clean_drives_list(actual)
 
-_ide_re = re.compile("^ide\d+$")
-_hd_re = re.compile("^hd.+")
-def findDrivesToScan():
-    """Returns a list of all IDE drives which are not mounted.
-
-    e.g. ['/dev/hdb', '/dev/hdc']
-    """
-    ide_devices = filter(_ide_re.search, list_block_controllers())
-
-    drives = []
-    for dev in ide_devices:
-        ide_directory = os.listdir("/proc/ide/%s" % (dev,))
-        for entry in ide_directory:
-            if _hd_re.search(entry):
-                media = open("/proc/ide/%s/%s/media" % (dev, entry)).read()
-                if string.strip(media) == 'disk':
-                    drives.append("/dev/%s" % (entry),)
-                else:
-                    pass # TODO: What to do with non-'disk' IDE media?
-
+def clean_drives_list(drives):
     mounted = list_mounted_devices()
     def is_not_mounted(drive, mounted=mounted):
         l = len(drive)
@@ -212,90 +144,9 @@ def findDrivesToScan():
                 return False
         return True
 
-    drives = filter(is_not_mounted, drives)
+    #drives = filter(is_not_mounted, drives)
     drives.sort()
-
-    return drives
-
-##Kysle
-_scsi_re = re.compile("SCSI device (sd.)")
-def findScsiDrivesToScan():
-    """Returns a list of all SCSI drives which are not mounted.
-
-    e.g. ['/dev/sda', '/dev/sdb']
-    """
-    drives = []
-    scsi_devices = filter(_scsi_re.search, open("/var/log/dmesg").readlines())
-
-    def searchsd(line):
-        return("/dev/%s" % (_scsi_re.search(line).groups()[0], ))
-
-    scsi_devices = map(searchsd, scsi_devices)
-    dict = {}
-
-    def list2dict(item):
-        dict[item] = 0
-
-    map(list2dict, scsi_devices)
-    dict.keys()
-    drives = dict.keys()
-    drives.sort()
-    return drives
-
-def findScsiBlockDevicesToScan(forceClobber=False):
-    """Find, but do not modify, block devices (disks and/or partitions) to scan.
-
-    Also test for questionable partitions.
-    Return list of "/dev/hda", "/dev/hdb", etc
-    """
-    drives = findScsiDrivesToScan()
-
-    devices_to_scan = []
-    badParts = []
-    for drive in drives:
-        partitions = list_partitions(drive)
-        # Make sure they're sorted in disk order.
-        partitions.sort(lambda a,b: cmp(a[1], b[1]))
-        if partitions:
-            for p in partitions:
-                p_id = p[-1]
-                if not doWipe.has_key(p_id):
-                    badParts.append((p[0], p_id))
-
-        devices_to_scan.append(diskdiag.DiskDevice(drive))
-        devices_to_scan[-1].get_scsidata()
-    if badParts and (not forceClobber):
-        raise QuestionablePartitionException, (badParts,)
-    return devices_to_scan
-
-
-def findBlockDevicesToScan(forceClobber=False):
-    """Find, but do not modify, block devices (disks and/or partitions) to scan.
-
-    Also test for questionable partitions.
-    Return list of "/dev/hda", "/dev/hdb", etc
-    """
-    drives = findDrivesToScan()
-
-    devices_to_scan = []
-    badParts = []
-    for drive in drives:
-        partitions = list_partitions(drive)
-        # Make sure they're sorted in disk order.
-        partitions.sort(lambda a,b: cmp(a[1], b[1]))
-        if partitions:
-            for p in partitions:
-                p_id = p[-1]
-                if not doWipe.has_key(p_id):
-                    badParts.append((p[0], p_id))
-
-        devices_to_scan.append(diskdiag.DiskDevice(drive))
-        devices_to_scan[-1].get_data()
-    if badParts and (not forceClobber):
-        raise QuestionablePartitionException, (badParts,)
-    return devices_to_scan
-
-
+    return map(lambda d: diskdiag.DiskDevice(d), drives)
 
 _sfdisk_re = re.compile("^(?P<device>/dev/\S*?)\s*: start=\s*(?P<start>\d*), "
                         "size=\s*(?P<size>\d*), "
@@ -565,61 +416,7 @@ def take_syslog_line(line):
 
     return None
 
-# byte ide_dump_status (ide_drive_t *drive, const char *msg, byte stat)
-# {
-#	printk("%s: %s: status=0x%02x", drive->name, msg, stat);
-#	printk(" { ");
-#	if (stat & BUSY_STAT)
-#		printk("Busy ");
-#	else {
-#		if (stat & READY_STAT)	printk("DriveReady ");
-#		if (stat & WRERR_STAT)	printk("DeviceFault ");
-#		if (stat & SEEK_STAT)	printk("SeekComplete ");
-#		if (stat & DRQ_STAT)	printk("DataRequest ");
-#		if (stat & ECC_STAT)	printk("CorrectedError ");
-#		if (stat & INDEX_STAT)	printk("Index ");
-#		if (stat & ERR_STAT)	printk("Error ");
-#	}
-#	printk("}\n");
-#	if ((stat & (BUSY_STAT|ERR_STAT)) == ERR_STAT) {
-#		err = GET_ERR();
-#		printk("%s: %s: error=0x%02x", drive->name, msg, err);
-#		if (drive->media == ide_disk) {
-#			printk(" { ");
-#			if (err & ABRT_ERR)	printk("DriveStatusError ");
-#			if (err & ICRC_ERR)	printk("%s", (err & ABRT_ERR) ? "BadCRC " : "BadSector ");
-#			if (err & ECC_ERR)	printk("UncorrectableError ");
-#			if (err & ID_ERR)	printk("SectorIdNotFound ");
-#			if (err & TRK0_ERR)	printk("TrackZeroNotFound ");
-#			if (err & MARK_ERR)	printk("AddrMarkNotFound ");
-#			printk("}");
-#			if ((err & (BBD_ERR | ABRT_ERR)) == BBD_ERR || (err & (ECC_ERR|ID_ERR|MARK_ERR))) {
-#				byte cur = IN_BYTE(IDE_SELECT_REG);
-#				if (cur & 0x40) {	/* using LBA? */
-#					printk(", LBAsect=%ld", (unsigned long)
-#					 ((cur&0xf)<<24)
-#					 |(IN_BYTE(IDE_HCYL_REG)<<16)
-#					 |(IN_BYTE(IDE_LCYL_REG)<<8)
-#					 | IN_BYTE(IDE_SECTOR_REG));
-#				} else {
-#					printk(", CHS=%d/%d/%d",
-#					 (IN_BYTE(IDE_HCYL_REG)<<8) +
-#					  IN_BYTE(IDE_LCYL_REG),
-#					  cur & 0xf,
-#					  IN_BYTE(IDE_SECTOR_REG));
-#				}
-#				if (HWGROUP(drive) && HWGROUP(drive)->rq)
-#					printk(", sector=%ld", HWGROUP(drive)->rq->sector);
-#			}
-#		}
-#		printk("\n");
-#	}
-# }
 
-# # ll_rw_blk.c:end_that_request_first()
-# int end_that_request_first (struct request *req, int uptodate, char *name)
-# {
-#         if (!uptodate)
-#                 printk("end_request: I/O error, dev %s (%s), sector %lu\n",
-#                         kdevname(req->rq_dev), name, req->sector);
-# }
+if __name__ == "__main__":
+    drives = findSysDevicesToScan()
+    print drives.join(", ")
