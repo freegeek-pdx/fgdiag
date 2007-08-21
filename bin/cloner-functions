@@ -109,3 +109,10 @@ guessRootDevice () {
     requestRootDevice
   fi
 }
+
+boolean_is_true () {
+ case $( echo $1 | tr 'A-Z' 'a-z') in
+   y|yes|true) return 0 ;;
+   *) return 1 ;;
+ esac
+}
