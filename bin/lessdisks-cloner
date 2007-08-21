@@ -215,6 +215,8 @@ PartitionDisks () {
           echo "partitioning failed? setting partitioning to interactive mode..."
           fstab_interactive="yes" ;;
       esac
+    else
+      continue=yes
     fi
   done
 }
