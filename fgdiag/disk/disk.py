@@ -1,5 +1,4 @@
 # -*- Python -*-
-# $Id$
 
 """An interface to a variety of disk-related utilities.
 
@@ -289,6 +288,22 @@ def take_syslog_line(line):
 
     return None
 
+def smart_test(devs):
+    for dev in devs:
+        if dev.further_tests_needed():
+            dev.smart_test()
+
+# :TODO: this needs to be parallelized
+def dd_wipe(devs):
+    for dev in devs:
+        if dev.further_tests_needed():
+            dev.dd_wipe()
+
+# :TODO: this needs to be parallelized
+def install_os(devs):
+    for dev in devs:
+        if dev.further_tests_needed():
+            dev.install_os()
 
 if __name__ == "__main__":
     drives = findSysDevicesToScan()

@@ -411,8 +411,9 @@ def parallelTest(deviceList):
 
     badblockses = []
     try:
-        for i in deviceList:
-            badblockses.append(start_badblocks(i))
+        for dev in deviceList:
+            if dev.further_tests_needed():
+                badblockses.append(start_badblocks(dev))
     except ValueError, e:
         raise ValueError(e.args[0] + repr(deviceList))
 

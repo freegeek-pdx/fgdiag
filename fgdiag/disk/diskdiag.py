@@ -34,6 +34,18 @@ class DiskDevice(test.TestableDevice):
     def __str__(self):
         return self.dev
 
+    def smart_test(self):
+        pass
+
+    def dd_wipe(self):
+        pass
+
+    def install_os(self):
+        pass
+
+    def further_tests_needed(self):
+        return dev.status != test.Status["Failed"]
+
 class DiskDiag(test.GizmoTester):
     def scan(self):
         ui.notice("Scanning for devices to check")
@@ -43,7 +55,7 @@ class DiskDiag(test.GizmoTester):
         return devs
 
     def run(self, devs):
-        ui.prompt("About to commence scan.", "Press enter to begin. ")
+        ui.prompt("About to commence tests.", "Press enter to begin. ")
         disk.smart_test(devs)
         cursesdisk.run(devs)
         disk.smart_test(devs)
