@@ -39,7 +39,6 @@ BADBLOCKS = "badblocks"
 HDPARM = "/sbin/hdparm"
 RDEV = "rdev"
 SFDISK = "/sbin/sfdisk"
-SMARTCTL = "/usr/sbin/smartctl"
 
 # XXX: If things continue to work with this disabled, remove the
 # timestamp-check code entirely.  Otherwise, set back to True.

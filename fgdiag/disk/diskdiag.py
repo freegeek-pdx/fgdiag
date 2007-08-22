@@ -3,9 +3,11 @@
 
 from fgdiag.lib import test
 from fgdiag.lib import userinteraction as ui
+from subprocess import call, Popen
 import cursesdisk
 import disk
 
+SMARTCTL = "/usr/sbin/smartctl"
 class DiskDevice(test.TestableDevice):
     name = "Hard Disk"
 
@@ -35,7 +37,10 @@ class DiskDevice(test.TestableDevice):
         return self.dev
 
     def smart_test(self):
-        pass
+        retcode = call((SMARTCTL, "-q", "silent", "--all", self.dev))
+        if retcode > 4:
+            self.status = test.Status["Failed"]
+            print "Drive failed smartctl test with a return of '%d'" % (retcode)
 
     def dd_wipe(self):
         pass
@@ -44,7 +49,7 @@ class DiskDevice(test.TestableDevice):
         pass
 
     def further_tests_needed(self):
-        return dev.status != test.Status["Failed"]
+        return self.status != test.Status["Failed"]
 
 class DiskDiag(test.GizmoTester):
     def scan(self):
