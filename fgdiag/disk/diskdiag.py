@@ -8,6 +8,9 @@ import cursesdisk
 import disk
 
 SMARTCTL = "/usr/sbin/smartctl"
+DD = "/bin/dd"
+CLONE = "/usr/local/bin/lessdisks-cloner"
+
 class DiskDevice(test.TestableDevice):
     name = "Hard Disk"
 
@@ -37,16 +40,24 @@ class DiskDevice(test.TestableDevice):
         return self.dev
 
     def smart_test(self):
-        retcode = call((SMARTCTL, "-q", "silent", "--all", self.dev))
+        retcode = call([SMARTCTL, "-q", "silent", "--all", self.dev])
         if retcode > 4:
             self.status = test.Status["Failed"]
             print "Drive failed smartctl test with a return of '%d'" % (retcode)
 
-    def dd_wipe(self):
-        pass
+    def dd_wipe_process(self, wipe_type="urandom"):
+        try:
+            proc = Popen([DD, "of=?" % self.dev, "if=/dev/?" % wipe_type, "bs=1024"])
+        except OSError, e:
+            pass
+        return proc
 
     def install_os(self):
-        pass
+        try:
+            proc = Popen([CLONER, "default"], stdout="/dev/null", env={"INTERACTVE": "false"})
+        except OSError, e:
+            pass
+        return proc
 
     def further_tests_needed(self):
         return self.status != test.Status["Failed"]
@@ -74,6 +85,6 @@ class DiskDiag(test.GizmoTester):
 
     def destination(self, dev):
         if dev.status == test.Status["Passed"]:
-            return test.Destination["Stored"], "Good HD. Put it in the good bin."
+            return test.Destination["Stored"], "Good HD: label it and put it away."
         else:
-            return test.Destination["Recycled"], "Dead. Recycle it."
+            return test.Destination["Recycled"], "Dead HD: smash it, recycle it."

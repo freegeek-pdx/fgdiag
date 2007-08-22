@@ -25,6 +25,7 @@
 
 import StringIO
 import operator, os, popen2, string, re, sys, time
+from subprocess import call, Popen
 import diskdiag
 
 True = (1==1)
@@ -290,19 +291,32 @@ def take_syslog_line(line):
 def smart_test(devs):
     for dev in devs:
         if dev.further_tests_needed():
+            ui.notice("Performing smart test on %s" % (dev))
             dev.smart_test()
+            ui.notice("Smart test finished")
 
-# :TODO: this needs to be parallelized
 def dd_wipe(devs):
-    for dev in devs:
-        if dev.further_tests_needed():
-            dev.dd_wipe()
+    for wipe_type in ("zero", "urandom", "zero"):
+        ui.notice("Wiping the data on the drives with %ss..." % (wipe_type))
+        procs = []
+        for dev in devs:
+            if dev.further_tests_needed():
+                procs.append(dev.dd_wipe(wipe_type))
+        while( len(procs) > 0 ):
+            call(["/bin/sleep", "10"])
+            procs = filter(lambda proc: ! proc.poll(), procs)
+        ui.notice("Data wipe finished.")
 
-# :TODO: this needs to be parallelized
 def install_os(devs):
+    ui.notice("Installing operating systems...")
+    procs = []
     for dev in devs:
         if dev.further_tests_needed():
-            dev.install_os()
+            procs.append(dev.install_os())
+    while( len(procs) > 0 ):
+        call(["/bin/sleep", "10"])
+        procs = filter(lambda proc: ! proc.poll(), procs)
+    ui.notice("Done installing.")
 
 if __name__ == "__main__":
     drives = findSysDevicesToScan()
