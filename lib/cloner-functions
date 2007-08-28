@@ -1,6 +1,5 @@
-#/usr/share/lessdisks/cloner-functions
-# common functions between lessdisks-cloner and
-# lessdisks-cloner-create
+#/usr/share/lib/cloner-functions
+# common functions between cloner and cloner-create
 
 # copyright 2004 vagrant@freegeek.org, distributed under the terms of the
 # GNU General Public License version 2 or any later version.
@@ -11,8 +10,8 @@
 readVersion() {
   local version
   # look for the version file and get the updated line out of it
-  [ -r $1/etc/lessdisks-cloner/version ] && \
-  version=$(grep updated $1/etc/lessdisks-cloner/version | sed s/updated=//g)
+  [ -r $1/etc/fgdiag/version ] && \
+  version=$(grep updated $1/etc/fgdiag/version | sed s/updated=//g)
   # some version files don't have an updated line
   [ -z "$version" ] && version="unknown date"
   echo $version

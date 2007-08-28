@@ -1,8 +1,9 @@
 bin/diag-disk usr/bin/
 bin/diag-modem usr/bin/
 bin/diag-cd usr/bin/
-bin/lessdisks-cloner usr/bin
-bin/lessdisks-cloner-create usr/bin
 bin/generate-fstab usr/local/bin
 bin/mkpartitions usr/local/bin
-bin/cloner-functions usr/local/share/lessdisks
+bin/cloner usr/bin
+bin/cloner-create usr/bin
+lib/cloner-functions usr/local/lib
+config/* etc/fgdiag

@@ -9,7 +9,7 @@ import disk
 
 SMARTCTL = "/usr/sbin/smartctl"
 DD = "/bin/dd"
-CLONE = "/usr/local/bin/lessdisks-cloner"
+CLONE = "/usr/bin/cloner"
 
 class DiskDevice(test.TestableDevice):
     name = "Hard Disk"

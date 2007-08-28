@@ -1,5 +1,5 @@
 #!/bin/bash
-#/usr/bin/lessdisks-cloner
+#/usr/bin/cloner
 
 # copyright 2002 vagrant@freegeek.org, distributed under the terms of the
 # GNU General Public License version 2 or any later version.
@@ -10,7 +10,7 @@
 # TODO implment an argument processing loop with a case statement
 
 # source master cloner config file
-. /etc/lessdisks/cloner.config
+#. /etc/fgdiag/cloner.config
 
 # open up a terminal so we can muck around during install
 openvt /bin/ash
@@ -35,7 +35,7 @@ if [ ! -d "$TARGET" ]; then
     exit 1
 fi
 
-. /usr/local/share/lessdisks/cloner-functions
+. /usr/local/lib/cloner-functions
 
 # argument processing
 while [ -n "$1" ]; do
@@ -92,7 +92,9 @@ cd /$clonepath/
 fstab="$clonepath/$model/etc/fstab"
 
 if [ -z "$modelconfig" ]; then
-  if [ -r "$clonepath/$model/etc/cloner-ld.config" ]; then
+  if [ -r "$clonepath/$model/etc/fgdiag/cloner.config" ]; then
+    modelconfig="$clonepath/$model/etc/fgdiag/cloner.config"
+  elif [ -r "$clonepath/$model/etc/cloner-ld.config" ]; then
     modelconfig="$clonepath/$model/etc/cloner-ld.config"
   elif [ -r "$clonepath/$model/etc/lessdisks-cloner/cloner-ld.config" ]; then
     modelconfig="$clonepath/$model/etc/lessdisks-cloner/cloner-ld.config"
@@ -105,7 +107,7 @@ if [ -r "$modelconfig" ]; then
   . $modelconfig
 else
   echo "model configuration file, $modelconfig,"' not found!'
-  echo "using default values from /etc/lessdisks/cloner.config" 
+  echo "using default values"
 fi
 
 test -z "$INTERACTIVE" && INTERACTIVE=true
@@ -157,7 +159,7 @@ PartitionDisks () {
     fi
 
     # test for existence of a schemefile, a model-specific scheme file, or the default scheme file
-    for diskscheme in $schemefile $clonepath/$model/etc/lessdisks-cloner/diskschemes /etc/lessdisks/diskschemes ; do
+    for diskscheme in $schemefile $clonepath/$model/etc/fgdiag/diskschemes /etc/fgdiag/diskschemes ; do
       if [ -r "$diskscheme" ]; then
         schemefile="$diskscheme"
         echo "schemefile set to $schemefile"
@@ -165,8 +167,8 @@ PartitionDisks () {
     done
     if [ -z "$schemefile" ]; then
         echo 'WARNING: no disk scheme file found! autopartitioning likely to fail'
-        echo "WARNING: please configure $clonepath/$model/etc/lessdisks-cloner/diskschemes"
-        echo "WARNING: or /etc/lessdisks/diskschemes"
+        echo "WARNING: please configure $clonepath/$model/etc/fgdiag/diskschemes"
+        echo "WARNING: or /etc/fgdiag/diskschemes"
     fi
     if [ "$fstab_interactive" = "yes" ]; then
       new_schemefile="/tmp/diskschemes.interactive"
@@ -461,8 +463,8 @@ fi
 echo "selected method: $installmethod"
 case $installmethod in
   custom)
-    if [ -r /etc/lessdisks/cloner.customtype ]; then
-      . /etc/lessdisks/cloner.customtype
+    if [ -r /etc/fgdiag/cloner.customtype ]; then
+      . /etc/fgdiag/cloner.customtype
     fi
     ;;
   tarball|tar) installTarBall ;;
@@ -478,7 +480,7 @@ cd /
 
 # the postclone script should install the boot loader, and
 # anything else needed before first reboot
-postclone="$TARGET/etc/lessdisks-cloner/postclone"
+postclone="$TARGET/etc/fgdiag/postclone"
 
 if [ -x "$postclone" ]
 then

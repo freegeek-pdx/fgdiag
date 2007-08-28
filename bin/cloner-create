@@ -1,18 +1,18 @@
 #!/bin/bash
 # requires bash, due to mechanism used for excludes
-#/usr/bin/lessdisks-cloner-create
+#/usr/bin/cloner-create
 
 # copyright 2002 vagrant@freegeek.org, distributed under the terms of the
 # GNU General Public License version 2 or any later version.
 
 # TODO split requestModel into two functions, with the
 # creation-specific stuff as it's own function, and the rest in
-# /usr/share/lessdisks/cloner-functions
+# /usr/local/lib/cloner-functions
 # TODO explore using a "pull" style rsync method, instead of the "push" method...
 # TODO post-install stuff such as changing /etc/network/interfaces,
 # moving the XF86Configs around...
 
-otherfunctions="/usr/share/lessdisks/cloner-functions"
+otherfunctions="/usr/local/lib/cloner-functions"
 if [ -r "$otherfunctions" ]; then
   . $otherfunctions
 else
@@ -49,14 +49,6 @@ changePasswd() {
   if echo "$current" | grep -q '\$'; then type="md5"; else type="des"; fi
 
   # get the new password
-#  passwordBox "Changing Password" \
-#                 "changing root password for clone prototype...\nplease enter the password"
-#  status=$?
-#  if [ $status != 0 ]; then
-#    msgBox "Password Grab Failed" "Grabbing the password failed, using \
-#      the default password 'lessdisks'"
-    REPLY="freegeek"
-#  fi
 
   new_password=$(echo $REPLY | mkpasswd -s --hash=$type)
   
@@ -133,7 +125,7 @@ requestModel() {
 # start of actual script
 
 PATH="/usr/share/easydialog:$PATH" . easydialog.sh
-setApplicationTitle "lessdisks cloner create"
+setApplicationTitle "cloner create"
 setDimension 40 0
 
 #TARGET="/mnt"
@@ -144,20 +136,20 @@ DEBUG=${DEBUG-}
 if [ -n "$DEBUG" ]; then
   clonepath=/tmp/foo
   touch $clonepath/cloner-ld.config
-  mkdir -p $clonepath/1/etc/lessdisks-cloner/
+  mkdir -p $clonepath/1/etc/fgdiag/
     (echo version=2.0
      echo release=1
-     echo updated=Fri Nov 16 11:52:30 PST 2002) > $clonepath/1/etc/lessdisks-cloner/version
-  mkdir -p $clonepath/2/etc/lessdisks-cloner/
+     echo updated=Fri Nov 16 11:52:30 PST 2002) > $clonepath/1/etc/fgdiag/version
+  mkdir -p $clonepath/2/etc/fgdiag/
     (echo version=2.0
-     echo release=2) > $clonepath/2/etc/lessdisks-cloner/version
+     echo release=2) > $clonepath/2/etc/fgdiag/version
 fi
 
 [ -n "$DEBUG" ] || /sbin/diskmods reload # reload hard-disk modules
 filesystems="ext2 ext3 reiserfs"
 
 #source configfile
-[ -n "$DEBUG" ] || . /etc/lessdisks/cloner.config
+[ -n "$DEBUG" ] || . /etc/fgdiag/cloner.config
 
 # open a shell on another terminal so we can muck around a bit during install process...
 [ -n "$DEBUG" ] || openvt /bin/ash
@@ -207,11 +199,11 @@ changePasswd $TARGET/etc/shadow root
 # want some sort of versioning during development
 # may remove this part later, or make it optional...
 echo "version number with date..."
-cp -vf $TARGET/etc/lessdisks-cloner/version $TARGET/etc/lessdisks-cloner/version.old
-egrep ^version $TARGET/etc/lessdisks-cloner/version | head -n 1 > /tmp/version
-egrep ^release $TARGET/etc/lessdisks-cloner/version | head -n 1 >> /tmp/version
+cp -vf $TARGET/etc/fgdiag/version $TARGET/etc/fgdiag/version.old
+egrep ^version $TARGET/etc/fgdiag/version | head -n 1 > /tmp/version
+egrep ^release $TARGET/etc/fgdiag/version | head -n 1 >> /tmp/version
 echo "updated=\"`date`\"" >> /tmp/version
-cat /tmp/version > $TARGET/etc/lessdisks-cloner/version
+cat /tmp/version > $TARGET/etc/fgdiag/version
 
 # cd to mount before sourcing config file
 # this may make the excludes thing work better

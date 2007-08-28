@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Install the boot loader.  When this runs, we are under control of
+# the "lessdisks-cloner" kernel, chroot into the newly cloned system's
+# $TARGET.
+
+# Lock us into the chroot.
+#
+cd /
+
+# Let's not deal with LILO at all this time; later we can
+# conditionalize to make the script more general purpose, or just rip
+# one off from somewhere else...
+
+# Let's also assume that the golden client is already booting fine
+# with GRUB, and that the device and partition structure will be the
+# same on the clones as on the golden boy.  This should hold true for
+# the most part here at FreeGeek...  In the future I will try and
+# improve this to make it more general, or just rip something off from
+# somewhere else.
+
+grub --batch <<EOF
+root (hd0,0)
+setup (hd0) (hd0,0)
+EOF
+
+# echo to scroll past grub prompt
+echo ""
+echo ""
