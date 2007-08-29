@@ -1,5 +1,0 @@
-include ChangeLog
-graft admin
-graft doc
-graft bin
-graft config
