@@ -6,9 +6,3 @@ DEB_DH_MD5SUMS_ARGS=-X/.svn
 
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/python-distutils.mk
-
-pre-build::
-	make -C doc
-
-clean::
-	make -C doc clean
