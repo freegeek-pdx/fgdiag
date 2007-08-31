@@ -164,21 +164,21 @@ class GizmoTester:
         """
 
         def log_device_scan():    
-        	self.__log("Start", "Starting test.")
-        	# Run scan first
-        	devices = self.scan()
-		return devices
+            self.__log("Start", "Starting test.")
+            # Run scan first
+            devices = self.scan()
+            return devices
         
-	devices = log_device_scan()    
+        devices = log_device_scan()    
 
         if not confirm_devices(devices):
-		body = """Would you like to scan CD drive gaian?"""
-		while True:
-			if userinteraction.yesno("Confirmation", body):
-				devices = log_device_scan()    
-			else:	
-            			print "press <enter> to reboot"
-            			return
+            body = """Would you like to scan again?"""
+            while True:
+                if userinteraction.yesno("Confirmation", body):
+                    devices = log_device_scan()    
+                else:
+                    print "press <enter> to reboot"
+                    return
         
         self.run(devices)
 

@@ -1,3 +1,10 @@
+fgdiag (0.1.12) debian; urgency=low
+
+  * fixed bug with cursesdisk not noticing there are no drives
+    to test
+
+ -- Martin Chase <mchase@freegeek.org>  Fri, 31 Aug 2007 04:21:08 -0700
+
 fgdiag (0.1.11) debian; urgency=low
 
   * added lessdisks-cloner and related files

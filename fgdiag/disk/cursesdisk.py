@@ -399,6 +399,8 @@ def main(stdscr, devs):
         klog = klogd.KernelLog().fromchild.fileno()
 
     badblockses = badblocks.parallelTest(devs)
+    if len(badblockses) == 0:
+        return
 
     # XXX: Find the terminal width instead of assuming it's 80 column.
     width = 80 / len(badblockses)

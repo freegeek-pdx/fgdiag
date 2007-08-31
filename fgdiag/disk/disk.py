@@ -27,6 +27,7 @@ import StringIO
 import operator, os, popen2, string, re, sys, time
 from subprocess import call, Popen
 import diskdiag
+from fgdiag.lib import userinteraction as ui
 
 True = (1==1)
 False = not True
@@ -111,9 +112,12 @@ def clean_drives_list(drives):
                 return False
         return True
 
-    #drives = filter(is_not_mounted, drives)
+    drives = filter(is_not_mounted, drives)
     drives.sort()
-    return map(lambda d: diskdiag.DiskDevice(d), drives)
+    drives = map(lambda d: diskdiag.DiskDevice(d), drives)
+    for drive in drives:
+        drive.get_data()
+    return drives
 
 _sfdisk_re = re.compile("^(?P<device>/dev/\S*?)\s*: start=\s*(?P<start>\d*), "
                         "size=\s*(?P<size>\d*), "
@@ -304,7 +308,7 @@ def dd_wipe(devs):
                 procs.append(dev.dd_wipe(wipe_type))
         while( len(procs) > 0 ):
             call(["/bin/sleep", "10"])
-            procs = filter(lambda proc: ! proc.poll(), procs)
+            procs = filter(lambda proc: not proc.poll(), procs)
         ui.notice("Data wipe finished.")
 
 def install_os(devs):
@@ -315,7 +319,7 @@ def install_os(devs):
             procs.append(dev.install_os())
     while( len(procs) > 0 ):
         call(["/bin/sleep", "10"])
-        procs = filter(lambda proc: ! proc.poll(), procs)
+        procs = filter(lambda proc: not proc.poll(), procs)
     ui.notice("Done installing.")
 
 if __name__ == "__main__":
