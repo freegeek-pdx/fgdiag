@@ -298,9 +298,13 @@ def smart_test(devs):
             ui.notice("Performing smart test on %s" % (dev))
             dev.smart_test()
             ui.notice("Smart test finished")
+    failed = False
+    for dev in devs:
+        if not dev.further_tests_needed():
+            ui.notice("%s has failed." % dev.dev)
 
 def dd_wipe(devs):
-    for wipe_type in ("zero", "urandom", "zero"):
+    for wipe_type in ("one", "zero", "urandom"):
         ui.notice("Wiping the data on the drives with %ss..." % (wipe_type))
         procs = []
         for dev in devs:

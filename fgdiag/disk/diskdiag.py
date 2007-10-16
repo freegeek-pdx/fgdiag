@@ -9,7 +9,7 @@ import disk
 
 SMARTCTL = "/usr/sbin/smartctl"
 DD = "/bin/dd"
-CLONE = "/usr/bin/cloner"
+CLONER = "/usr/bin/cloner"
 
 class DiskDevice(test.TestableDevice):
     name = "Hard Disk"
@@ -73,11 +73,17 @@ class DiskDiag(test.GizmoTester):
     def run(self, devs):
         ui.prompt("About to commence tests.", "Press enter to begin. ")
         disk.smart_test(devs)
-        cursesdisk.run(devs)
+        failed = False
+        for dev in devs:
+            if not dev.further_tests_needed():
+                failed = True
+        if failed:
+            ui.prompt("Some drives have already failed; it may be more efficient to remove said drive(s) now and restart the tests.")
+        cursesdisk.run('badblocks', devs)
         disk.smart_test(devs)
         disk.dd_wipe(devs)
         disk.smart_test(devs)
-        disk.install_os(devs)
+        #disk.install_os(devs)
         disk.smart_test(devs)
         ui.notice("Done testing. Status report")
         for i in devs:
