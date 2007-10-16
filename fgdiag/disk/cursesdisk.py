@@ -363,7 +363,7 @@ def init_colorpairs():
         pairnum += 1
 
 
-USE_SYSLOG_FOR_KLOG = 1
+USE_SYSLOG_FOR_KLOG = True
 def main(stdscr, devs):
     """Do the scanning, with nice ncurses windows and such.
 
@@ -372,13 +372,12 @@ def main(stdscr, devs):
     stdscr is a curses window to operate in, such as that given to us
     by curses.wrapper.
     """
+    if len(filter(lambda dev: dev.further_tests_needed(), devs)) == 0:
+        return
     init_colorpairs()
     statusWin = StatusWin()
     disk.set_msg_function(statusWin.msg)
     msg = statusWin.msg
-
-    if MEMINFO_SPAM:
-        badblocks.mainloop_hooks.insert(0, statusWin.meminfo)
 
     # I had two ideas for reading the kernel messages.  One is to read
     # them from where they're spooled on disk by syslogd, the other
@@ -398,20 +397,18 @@ def main(stdscr, devs):
     else:
         klog = klogd.KernelLog().fromchild.fileno()
 
-    badblockses = badblocks.parallelTest(devs)
-    if len(badblockses) == 0:
-        return
+    tests = badblocks.parallelTest(devs)
 
     # XXX: Find the terminal width instead of assuming it's 80 column.
-    width = 80 / len(badblockses)
+    width = 80 / len(tests)
     column = 0
-    for b in badblockses:
-        BadblocksWidget(b, column=column, width=width)
+    for t in tests:
+        BadblocksWidget(t, column=column, width=width)
         column = column + width
     if VERBOSE:
         statusWin.msg("num_blocks set to %d\n" % (badblocks.Badblocks.num_blocks,))
     statusWin.msg("Commencing scan.\n")
-    badblocks.mainloop(badblockses, klog)
+    badblocks.mainloop(tests, klog)
 
 def run(devs):
     envprefix = "DISK_"
