@@ -46,8 +46,15 @@ class DiskDevice(test.TestableDevice):
             print "Drive failed smartctl test with a return of '%d'" % (retcode)
 
     def dd_wipe(self, wipe_type="urandom"):
+        if(wipe_type == 'one'):
+            wipe_source = '/tmp/%s' % wipe_type
+            f = open(wipe_source, 'w')
+            f.write(('%c' % 255) * (1024 * 1024))
+            f.close
+        else:
+            wipe_source = '/dev/%s' % wipe_type
         try:
-            proc = Popen([DD, "of=%s" % self.dev, "if=/dev/%s" % wipe_type, "bs=1024"])
+            proc = Popen([DD, "of=%s" % self.dev, "if=%s" % wipe_source, "bs=1024"])
         except OSError, e:
             pass
         return proc
