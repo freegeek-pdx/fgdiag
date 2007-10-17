@@ -315,7 +315,10 @@ def dd_wipe(devs):
                 f.write(('%c' % 255) * (1024 * 1024))
                 f.flush()
             except IOError, e:
+                #if(e.strerror == 'TODO: how do i recognize out-of-space?'):
                 fhs.remove(f)
+                #else:
+                #    raise
 
     for wipe_type in ("zero", "urandom"):
         ui.notice("Wiping the data on the drives with %ss..." % (wipe_type))
