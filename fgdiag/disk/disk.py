@@ -304,7 +304,20 @@ def smart_test(devs):
             ui.notice("%s has failed." % dev.dev)
 
 def dd_wipe(devs):
-    for wipe_type in ("one", "zero", "urandom"):
+    ui.notice("Wiping the data on the drives with ones...")
+    fhs = []
+    for dev in devs:
+        if dev.further_tests_needed():
+            fhs.append(open(dev.dev, 'w'))
+    while( len(fhs) > 0 ):
+        for f in fhs:
+            try:
+                f.write(('%c' % 255) * (1024 * 1024))
+                f.flush()
+            except OSError, e:
+                fhs.remove(f)
+
+    for wipe_type in ("zero", "urandom"):
         ui.notice("Wiping the data on the drives with %ss..." % (wipe_type))
         procs = []
         for dev in devs:
