@@ -314,7 +314,7 @@ def dd_wipe(devs):
             try:
                 f.write(('%c' % 255) * (1024 * 1024))
                 f.flush()
-            except OSError, e:
+            except IOError, e:
                 fhs.remove(f)
 
     for wipe_type in ("zero", "urandom"):
