@@ -1,8 +1,9 @@
 fgdiag (0.1.13) debian; urgency=low
 
   * more bug fixing
+  * added ability to dd with ones
 
- -- Martin Chase <mchase@freegeek.org>  Tue, 16 Oct 2007 12:30:00 -0700
+ -- Martin Chase <mchase@freegeek.org>  Tue, 16 Oct 2007 14:58:47 -0700
 
 fgdiag (0.1.12) debian; urgency=low
 
