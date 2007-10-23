@@ -304,22 +304,6 @@ def smart_test(devs):
             ui.notice("%s has failed." % dev.dev)
 
 def dd_wipe(devs):
-    ui.notice("Wiping the data on the drives with ones...")
-    fhs = []
-    for dev in devs:
-        if dev.further_tests_needed():
-            fhs.append(open(dev.dev, 'w'))
-    while( len(fhs) > 0 ):
-        for f in fhs:
-            try:
-                f.write(('%c' % 255) * (1024 * 1024))
-                f.flush()
-            except IOError, e:
-                #if(e.strerror == 'TODO: how do i recognize out-of-space?'):
-                fhs.remove(f)
-                #else:
-                #    raise
-
     for wipe_type in ("zero", "urandom"):
         ui.notice("Wiping the data on the drives with %ss..." % (wipe_type))
         procs = []

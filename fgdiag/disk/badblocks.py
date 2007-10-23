@@ -273,7 +273,7 @@ class Badblocks(popen2.Popen3, _Accessor):
 
 class BadblocksWrite(Badblocks):
     modeLabel = "overwrite & read"
-    modeFlag = "-wt random"
+    modeFlag = "-wt 0xffffffff"
     operation = None
     widget = None
     pattern = None
