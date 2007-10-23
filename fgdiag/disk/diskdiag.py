@@ -78,8 +78,9 @@ class DiskDiag(test.GizmoTester):
             if not dev.further_tests_needed():
                 failed = True
         if failed:
-            ui.prompt("Some drives have already failed; it may be more efficient to remove said drive(s) now and restart the tests.")
-        cursesdisk.run('badblocks', devs)
+            ui.prompt("Some drives have already FAILED; it may be more efficient to remove said drive(s) now and restart the tests.",
+                      "Press enter to continue regardless.")
+        cursesdisk.run(devs)
         disk.smart_test(devs)
         disk.dd_wipe(devs)
         disk.smart_test(devs)
