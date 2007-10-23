@@ -1,3 +1,15 @@
+fgdiag (0.1.15) debian; urgency=low
+
+  * and removed use of cursesdisk only meaningful to development
+
+ -- Martin Chase <mchase@freegeek.org>  Wed, 17 Oct 2007 13:18:50 -0700
+
+fgdiag (0.1.14) debian; urgency=low
+
+  * fixed bug with prompting about smart failures
+
+ -- Martin Chase <mchase@freegeek.org>  Wed, 17 Oct 2007 13:10:43 -0700
+
 fgdiag (0.1.13) debian; urgency=low
 
   * more bug fixing
