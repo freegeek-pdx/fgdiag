@@ -313,6 +313,7 @@ def dd_wipe(devs):
         while( len(procs) > 0 ):
             call(["/bin/sleep", "10"])
             procs = filter(lambda proc: not proc.poll(), procs)
+            call(["/sbin/kill", "-USR1", proc.pid])
         ui.notice("Data wipe finished.")
 
 def install_os(devs):
