@@ -1,0 +1,18 @@
+#!/usr/bin/ruby
+
+count = 10
+count.times {|i|
+  $stderr.puts "%s: %d   /    %d" % ['meow' * 20, i+1, count]
+  $stderr.flush
+  sleep 1
+}
+
+$stderr.puts "meow" * 100
+$stdout.puts "bad sector found at sector 10"
+$stdout.flush
+
+while true
+  $stderr.puts "%s: %d   /    %d" % ['meow' * 20, count + 1, count]
+  $stderr.flush
+  sleep 1
+end

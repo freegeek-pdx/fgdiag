@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+require 'yaml'
+require 'open4'
 require 'rubytui'
 include RubyTUI
 
@@ -11,57 +13,122 @@ class HardDrive
 
   def HardDrive.scan
     # load the modules
-    # look for possible drives
-    # return an instance for each
-    return [HardDrive.new('/dev/hda')]
+    Dir.open('/sys/block').find_all {|dev|
+      /^[sh]d[a-z]/.match(dev) and
+      `cat /sys/block/#{dev}/removable`.chomp == '0'
+    }.map {|dev| HardDrive.new(dev)}
   end
 
   def initialize(dev)
     @dev = dev
     @testing = false
     @status = UNTESTED
+    @log = []
   end
-  attr_reader :dev, :testing
+  attr_reader :dev
+  attr_accessor :testing, :log
+  attr_writer :status
 
   def run_tests
     return if @testing
     @testing = true
-    @thread = Thread.new {
-      smart &&
-      badblocks &&
-      smart &&
-      wipe &&
-      smart
-      @testing = false
+    @thread = Thread.new(self) {|drive|
+      if(drive.smart &&
+         drive.badblocks &&
+         drive.smart &&
+         drive.wipe &&
+         drive.smart)
+        drive.status = PASSED 
+      end
+      drive.testing = false
     }
+    @thread.abort_on_exception = true
     return @thread
   end
 
   def smart
+    log << "smart test started"
+    if ! system('/usr/sbin/smartctl', '-q', 'silent', '--all', dev)
+      if $?.exitstatus > 4
+        log << "smart test returned: '#{$?.exitstatus}'"
+        @status = FAILED
+        return false
+      end
+    end
+    log << "smart test passed"
+    return true
   end
 
   def badblocks
+    log << "badblocks test started"
+    log << ""
+    buff = ""
+    # progress comes in through err, bad blocks are reported on out
+    bbpid, bbin, bbout, bberr = Open4.popen4("#{File.dirname(__FILE__)}/fake_badblocks -c 1024 -s /dev/#{dev}")
+    # :TODO: test with "/sbin/badblocks -c 1024 -swt 0xffffffff /dev/#{dev}"
+    until bberr.closed? or bberr.eof?
+      reads, writes, errs = IO.select([bbout, bberr], nil, nil, 1)
+      if reads
+        progress = reads.include?(bberr) ? bberr : nil
+        sectors = reads.include?(bbout) ? bbout : nil
+      end
+      done, total = nil
+      if sectors
+        buff << sectors.read(30)
+        # :TODO: find out what this regex should be
+        if /bad/.match(buff)
+          @status = FAILED
+          log << "bad sectors found"
+          [bbin, bbout, bberr].each {|io| io.close}
+          Process.kill("INT", bbpid)
+        end
+        buff.replace("")
+      end
+      if progress and ! progress.closed?
+        until( (done and total) or bberr.eof? )
+          buff << progress.read(100)
+          done, total = buff.scan( %r,(\d+)\s*/\s*(\d+)[^\d]+, )[0]
+        end
+        if done and total and (total.to_i >= done.to_i)
+          log[-1] = "#{(done.to_i * 100) / total.to_i}% of badblocks scan complete"
+        end
+        buff.replace("")
+      end
+    end
+    return @status != FAILED
   end
 
   def wipe
+    log << "disk wipe started"
+    return true
   end
 
   def output_display
-    message(dev + ": ")
-    highlight(status)
-    puts
+    highlight(dev + ": ")
+    echo(status)
   end
 
   def status
     case @status
-    when PASSED
-      'all tests passed'
+    when PASSED 
+      "all tests passed: #{log.to_yaml}"
     when FAILED
-      'failed'
+      "failed: #{log.to_yaml}"
     when UNTESTED
-      'untested'
+      log.last
     end
   end
+
+  def passed?
+    @status == PASSED
+  end
+
+  def klog_match(line)
+    /kernel: /.match(line) and
+      /error/.match(line) and
+      /#{@dev}/.match(line)
+  end
+
 end
 
 if __FILE__ == $0
@@ -81,8 +148,13 @@ if __FILE__ == $0
     threads = threads.find_all {|t|
       t.alive? 
     }
-    sleep 10
+    sleep 2
   end
-  # test them, displaying progress
-  # report
+  header "Final status:"
+  drives.each {|d| 
+    d.output_display
+    if d.passed?
+      puts ansiCode( 'green', 'bold' ) + "#{d.dev} passed!" + ansiCode( 'reset' )
+    end
+  }
 end
