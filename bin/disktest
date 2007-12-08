@@ -24,8 +24,9 @@ class HardDrive
     @testing = false
     @status = UNTESTED
     @log = []
+    @size = `cat /sys/block/#{dev}/size`.chomp.to_i * 1024
   end
-  attr_reader :dev
+  attr_reader :dev, :size
   attr_accessor :testing, :log
   attr_writer :status
 
@@ -64,9 +65,9 @@ class HardDrive
     log << ""
     buff = ""
     # progress comes in through err, bad blocks are reported on out
-    bbpid, bbin, bbout, bberr = Open4.popen4("#{File.dirname(__FILE__)}/fake_badblocks -c 1024 -s /dev/#{dev}")
+    #bbpid, bbin, bbout, bberr = Open4.popen4("#{File.dirname(__FILE__)}/fake_badblocks -c 1024 -s /dev/#{dev}")
     #bbpid, bbin, bbout, bberr = Open4.popen4("/sbin/badblocks -c 1024 -s /dev/#{dev}")
-    #bbpid, bbin, bbout, bberr = Open4.popen4("/sbin/badblocks -c 1024 -swt 0xffffffff /dev/#{dev}")
+    bbpid, bbin, bbout, bberr = Open4.popen4("/sbin/badblocks -c 1024 -swt 0xffffffff /dev/#{dev}")
     bbout.sync = bberr.sync = true
     until bberr.closed? or bberr.eof?
       reads, writes, errs = IO.select([bbout, bberr], nil, nil, 1)
@@ -107,9 +108,38 @@ class HardDrive
     return @status != FAILED
   end # def badblocks
 
+  ZEROS = "\0" * (1024 * 1024)
+  open('/dev/urandom') {|urand| RANDOM = urand.read(1024)}
   def wipe
-    log << "disk wipe stub"
-    return true
+    log << "disk wipe started..."
+    total = 0
+    log << ""
+    drive = open("/dev/#{dev}", "w")
+    until drive.closed?
+      written = drive.write(ZEROS)
+      total += written
+      log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
+      if @status == FAILED or written < ZEROS.length
+        drive.close
+      end
+    end
+    drive = open("/dev/#{dev}", "w")
+    until drive.closed?
+      written = drive.write(RANDOM)
+      total += written
+      log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
+      if @status == FAILED or written < RANDOM.length
+        drive.close
+      end
+    end
+    log << "disk wipe finished"
+    return @status != FAILED
+  rescue Exception => e
+    log << e
+    @status = FAILED
+    return false
+  ensure
+    drive.close
   end
 
   def output_display
