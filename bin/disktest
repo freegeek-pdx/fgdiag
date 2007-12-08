@@ -28,7 +28,7 @@ class HardDrive
     @started = @finished = nil
   end
   attr_reader :dev, :size
-  attr_accessor :testing, :log
+  attr_accessor :finished, :testing, :log
   attr_writer :status
 
   def run_tests
@@ -36,15 +36,22 @@ class HardDrive
     @testing = true
     @started = Time.new
     @thread = Thread.new(self) {|drive|
-      if(drive.smart &&
-         drive.badblocks &&
-         drive.smart &&
-         drive.wipe &&
-         drive.smart)
-        drive.status = PASSED 
+      begin
+        if(drive.smart &&
+           drive.badblocks &&
+           drive.smart &&
+           drive.wipe &&
+           drive.smart)
+          drive.status = PASSED 
+        end
+      rescue Exception => e
+        drive.log << e
+        drive.log << e.backtrace
+        drive.status = FAILED
+      ensure
+        drive.testing = false
+        drive.finished = Time.new
       end
-      drive.testing = false
-      @finished = Time.new
     }
     @thread.abort_on_exception = true
     return @thread
@@ -66,37 +73,35 @@ class HardDrive
   def badblocks
     log << "badblocks test started"
     log << ""
-    buff = ""
     # progress comes in through err, bad blocks are reported on out
     #bbpid, bbin, bbout, bberr = Open4.popen4("#{File.dirname(__FILE__)}/fake_badblocks -c 1024 -s /dev/#{dev}")
     #bbpid, bbin, bbout, bberr = Open4.popen4("/sbin/badblocks -c 1024 -s /dev/#{dev}")
     bbpid, bbin, bbout, bberr = Open4.popen4("/sbin/badblocks -c 1024 -swt 0xffffffff /dev/#{dev}")
     bbout.sync = bberr.sync = true
     until bberr.closed? or bberr.eof?
+      matches = nil
+      buff = nil
       reads, writes, errs = IO.select([bbout, bberr], nil, nil, 1)
       if reads
         progress = reads.include?(bberr) ? bberr : nil
         sectors = reads.include?(bbout) ? bbout : nil
       end
-      done, total = nil
       if sectors and ! sectors.eof?
-        buff = sectors.read_nonblock(1000, buff)
+        buff = sectors.read_nonblock(1000)
         # :TODO: find out what this means for sure
         @status = FAILED
         curr = log[-1]
         log[-1] = "badblocks reports failures"
         log << curr
-        buff.replace("")
       end
       if progress and ! progress.closed?
-        until( (done and total) or bberr.eof? )
-          buff = progress.read_nonblock(1000, buff)
-          done, total = buff.scan( %r,(\d+)\s*/\s*(\d+)[^\d]+, )[0]
+        until( matches or bberr.eof? )
+          buff = progress.read_nonblock(1000)
+          matches = %r,(\d+)\s*/\s*(\d+)[^\d]*,.match(buff)
         end
-        if done and total and (total.to_i >= done.to_i)
-          log[-1] = "#{(done.to_i * 100) / total.to_i}% of badblocks scan complete"
+        if matches and (matches[2].to_i >= matches[1].to_i)
+          log[-1] = "#{(matches[1].to_i * 100) / matches[2].to_i}% of badblocks scan complete"
         end
-        buff.replace("")
       end
       if @status == FAILED
         [bbin, bbout, bberr].each {|io| io.close}
@@ -117,45 +122,53 @@ class HardDrive
     log << "disk wipe started..."
     total = 0
     log << ""
-    drive = open("/dev/#{dev}", "w")
-    until drive.closed?
-      begin
-        written = drive.write(ZEROS)
-        total += written
-        log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
-        if @status == FAILED or written < ZEROS.length
-          drive.close
+    open("/dev/#{dev}", "w") {|drive|
+      until drive.closed?
+        begin
+          written = drive.write(ZEROS)
+          total += written
+          log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
+          if @status == FAILED or written < ZEROS.length
+            break
+          end
+        rescue Errno::ENOSPC => e
+          break
         end
-      rescue Errno::ENOSPC => e
-        drive close
       end
-    end
-    drive = open("/dev/#{dev}", "w")
-    until drive.closed?
-      begin
-        written = drive.write(RANDOM)
-        total += written
-        log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
-        if @status == FAILED or written < RANDOM.length
-          drive.close
+    }
+    open("/dev/#{dev}", "w") {|drive|
+      until drive.closed?
+        begin
+          written = drive.write(RANDOM)
+          total += written
+          log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
+          if @status == FAILED or written < RANDOM.length
+            break
+          end
+        rescue Errno::ENOSPC => e
+          break
         end
-      rescue Errno::ENOSPC => e
-        drive close
       end
-    end
+    }
     log << "disk wipe finished"
     return @status != FAILED
-  rescue Exception => e
-    log << e
-    @status = FAILED
-    return false
-  ensure
-    drive.close
   end
 
   def output_display
     highlight(dev + ": ")
     echo(status + " - " + time_taken)
+  end
+
+  def output_size
+    disp_size = size
+    units = %w[bytes KB MB GB TB]
+    ind = 0
+    while( disp_size / 1024 > 0 )
+      ind += 1
+      disp_size = disp_size / 1024
+    end
+    highlight(dev + ": ")
+    echo(disp_size.to_s + units[ind])
   end
 
   def time_taken
@@ -174,11 +187,11 @@ class HardDrive
   def status
     case @status
     when PASSED 
-      "all tests passed: #{log.to_yaml}"
+      "all tests passed:\n#{log.to_yaml}"
     when FAILED
-      "failed: #{log.to_yaml}"
-    when UNTESTED
-      log.last
+      "failed:\n#{log.to_yaml}"
+    else
+      log.last or "unknown status"
     end
   end
 
@@ -211,7 +224,6 @@ class HardDrive
 end
 
 if __FILE__ == $0
-  require 'optparse'
   trap( "SIGINT" ) do
     errorMessage "\n\nUser interrupt caught.  Exiting.\n\n"
     exit!( 1 )
@@ -220,9 +232,8 @@ if __FILE__ == $0
     # :TODO: check that i'm root
     logpipe = "/tmp/klog"
     logconf = "/tmp/syslog.conf"
-    `mkfifo #{logpipe}`
     open(logconf, 'w') {|conf|
-      conf.puts "*.* |#{logpipe}"
+      conf.puts "*.* #{logpipe}"
       #conf.puts "*.* /dev/console"
     }
     `/usr/sbin/invoke-rc.d sysklogd stop`
@@ -230,6 +241,10 @@ if __FILE__ == $0
     klpid, klin, klout, klerr = open4("tail -F #{logpipe}")
     loglines = []
     drives = HardDrive.scan
+    drives.each {|d| d.output_size}
+    promptWithDefault("Are these the expected drives and do you want to test them?", "yes", "Type 'yes' to begin") do |response|
+      /^y/.match(response)
+    end
     threads = drives.map {|drive| drive.run_tests}
     clearer = `clear`
     until threads.empty?
@@ -249,15 +264,18 @@ if __FILE__ == $0
       $stderr.flush
     end
   ensure
+    Process::kill(9, klpid)
     header "Final status:"
     drives.each {|d| 
       d.output_display
+    }
+    drives.each {|d| 
       if d.passed?
         puts colored( "#{d.dev} passed!  Label and store it.", 'green', 'bold' )
       elsif d.failed?
         errorMessage "#{d.dev} failed.  Recycle it.\n"
       else
-        errorMessage "#{d.dev} did not finish testing.  Seek expert attention."
+        errorMessage "#{d.dev} did not finish testing.  Seek expert attention.\n"
       end
     }
   end
