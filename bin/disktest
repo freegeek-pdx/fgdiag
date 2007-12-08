@@ -12,10 +12,11 @@ class HardDrive
   UNTESTED = 2
 
   def HardDrive.scan
-    # :TODO: check for and load the modules?
+    mnt = `mount`
     Dir.open('/sys/block').find_all {|dev|
       /^[sh]d[a-z]/.match(dev) and
-      `cat /sys/block/#{dev}/removable`.chomp == '0'
+      `cat /sys/block/#{dev}/removable`.chomp == '0' and
+      ! mnt.include?(dev)
     }.map {|dev| HardDrive.new(dev)}
   end
 
@@ -171,6 +172,18 @@ class HardDrive
     echo(disp_size.to_s + (units[ind] or "?B"))
   end
 
+  def output_decimal_size
+    disp_size = size
+    units = %w[bytes KB MB GB TB PB EB ZB YB]
+    ind = 0
+    while( disp_size / 1000 > 0 )
+      ind += 1
+      disp_size = disp_size / 1000
+    end
+    highlight(dev + ": ")
+    echo(disp_size.to_s + (units[ind] or "?B"))
+  end
+
   def time_taken
     if @started
       if @finished
@@ -241,7 +254,7 @@ if __FILE__ == $0
     klpid, klin, klout, klerr = open4("tail -F #{logpipe}")
     loglines = []
     drives = HardDrive.scan
-    drives.each {|d| d.output_size}
+    drives.each {|d| d.output_decimal_size}
     promptWithDefault("Are these the expected drives and do you want to test them?", "yes", "Type 'yes' to begin") do |response|
       /^y/.match(response)
     end
@@ -271,10 +284,12 @@ if __FILE__ == $0
     }
     drives.each {|d| 
       if d.passed?
+        d.output_decimal_size
         puts colored( "#{d.dev} passed!  Label and store it.", 'green', 'bold' )
       elsif d.failed?
         errorMessage "#{d.dev} failed.  Recycle it.\n"
       else
+        d.output_decimal_size
         errorMessage "#{d.dev} did not finish testing.  Seek expert attention.\n"
       end
     }

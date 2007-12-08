@@ -1,8 +1,14 @@
-fgdiag (0.2.0) UNRELEASED; urgency=low
+fgdiag (0.2.1) debian; urgency=low
+
+  * make sure not to test drives that are mounted
+
+ -- Martin Chase <mchase@freegeek.org>  Sat,  8 Dec 2007 13:16:55 -0800
+
+fgdiag (0.2.0) debian; urgency=low
 
   * rewrote diag-disk into ruby disktest
 
- -- Martin Chase <mchase@freegeek.org>  Fri,  7 Dec 2007 17:19:42 -0800
+ -- Martin Chase <mchase@freegeek.org>  Sat,  8 Dec 2007 12:51:26 -0800
 
 fgdiag (0.1.16) debian; urgency=low
 
