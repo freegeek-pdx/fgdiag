@@ -1,3 +1,9 @@
+fgdiag (0.2.0) UNRELEASED; urgency=low
+
+  * rewrote diag-disk into ruby disktest
+
+ -- Martin Chase <mchase@freegeek.org>  Fri,  7 Dec 2007 17:19:42 -0800
+
 fgdiag (0.1.16) debian; urgency=low
 
   * use badblocks to one-out the drive
