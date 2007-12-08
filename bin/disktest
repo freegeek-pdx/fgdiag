@@ -161,14 +161,14 @@ class HardDrive
 
   def output_size
     disp_size = size
-    units = %w[bytes KB MB GB TB]
+    units = %w[bytes KiB MiB GiB TiB PiB EiB ZiB YiB]
     ind = 0
     while( disp_size / 1024 > 0 )
       ind += 1
       disp_size = disp_size / 1024
     end
     highlight(dev + ": ")
-    echo(disp_size.to_s + units[ind])
+    echo(disp_size.to_s + (units[ind] or "?B"))
   end
 
   def time_taken
