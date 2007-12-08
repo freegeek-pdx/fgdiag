@@ -24,7 +24,8 @@ class HardDrive
     @testing = false
     @status = UNTESTED
     @log = []
-    @size = `cat /sys/block/#{dev}/size`.chomp.to_i * 1024
+    @size = `cat /sys/block/#{dev}/size`.chomp.to_i * 512
+    @started = @finished = nil
   end
   attr_reader :dev, :size
   attr_accessor :testing, :log
@@ -33,6 +34,7 @@ class HardDrive
   def run_tests
     return if @testing
     @testing = true
+    @started = Time.new
     @thread = Thread.new(self) {|drive|
       if(drive.smart &&
          drive.badblocks &&
@@ -42,6 +44,7 @@ class HardDrive
         drive.status = PASSED 
       end
       drive.testing = false
+      @finished = Time.new
     }
     @thread.abort_on_exception = true
     return @thread
@@ -116,20 +119,28 @@ class HardDrive
     log << ""
     drive = open("/dev/#{dev}", "w")
     until drive.closed?
-      written = drive.write(ZEROS)
-      total += written
-      log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
-      if @status == FAILED or written < ZEROS.length
-        drive.close
+      begin
+        written = drive.write(ZEROS)
+        total += written
+        log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
+        if @status == FAILED or written < ZEROS.length
+          drive.close
+        end
+      rescue Errno::ENOSPC => e
+        drive close
       end
     end
     drive = open("/dev/#{dev}", "w")
     until drive.closed?
-      written = drive.write(RANDOM)
-      total += written
-      log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
-      if @status == FAILED or written < RANDOM.length
-        drive.close
+      begin
+        written = drive.write(RANDOM)
+        total += written
+        log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
+        if @status == FAILED or written < RANDOM.length
+          drive.close
+        end
+      rescue Errno::ENOSPC => e
+        drive close
       end
     end
     log << "disk wipe finished"
@@ -144,7 +155,20 @@ class HardDrive
 
   def output_display
     highlight(dev + ": ")
-    echo(status)
+    echo(status + " - " + time_taken)
+  end
+
+  def time_taken
+    if @started
+      if @finished
+        duration = @finished - @started
+      else
+        duration = Time.new - @started
+      end
+      "#{duration} seconds"
+    else
+      "(no time has been recorded yet)"
+    end
   end
 
   def status
