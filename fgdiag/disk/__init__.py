@@ -1,3 +1,0 @@
-# $Id$
-
-"""Disk Diagnostics"""

@@ -1,5 +1,0 @@
-#!/usr/bin/python
-# $Id$
-
-from fgdiag.disk.diskdiag import DiskDiag
-DiskDiag().start_test()

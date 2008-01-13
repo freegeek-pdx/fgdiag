@@ -1,6 +1,3 @@
-bin/diag-disk usr/bin/
-bin/diag-modem usr/bin/
-bin/diag-cd usr/bin/
 bin/generate-fstab usr/local/bin
 bin/mkpartitions usr/local/bin
 bin/cloner usr/bin

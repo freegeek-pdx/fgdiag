@@ -59,7 +59,6 @@ class HardDrive
   end
 
   def smart
-    log << "smart test started"
     if ! system('/usr/sbin/smartctl', '-q', 'silent', '--all', dev)
       log << "smart test returned: '#{$?.exitstatus}'"
       if $?.exitstatus > 4
@@ -110,7 +109,8 @@ class HardDrive
         break
       end
     end
-    if Process::waitpid2(bbpid)[1].exitstatus.nonzero?
+    stats = Process::waitpid2(bbpid)
+    if stats[1] and stats[1].exitstatus and stats[1].exitstatus.nonzero?
       @log << "badblocks failed"
       @status = FAILED
     end
@@ -253,7 +253,7 @@ if __FILE__ == $0
     `/sbin/syslogd -f #{logconf}`
     klpid, klin, klout, klerr = open4("tail -F #{logpipe}")
     loglines = []
-    drives = HardDrive.scan
+    drives = HardDrive.scan.sort_by {|d| d.dev}
     drives.each {|d| d.output_decimal_size}
     promptWithDefault("Are these the expected drives and do you want to test them?", "yes", "Type 'yes' to begin") do |response|
       /^y/.match(response)

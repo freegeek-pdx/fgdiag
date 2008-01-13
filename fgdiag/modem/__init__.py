@@ -1,3 +1,0 @@
-# $Id$
-
-"""Modem Diagnostics"""
