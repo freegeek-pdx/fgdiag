@@ -59,19 +59,9 @@ class HardDrive
   end
 
   def smart
-   is_ata=true
-   if /^\/dev\/sd[a-z]/.match(dev)
-      is_ata=system("lsscsi | grep /dev/sda | awk {'print $3'} | grep -q ATA")
-   end
-   if is_ata
-      system('/usr/sbin/smartctl', '-q', 'silent', '--all', '-d', 'ata', dev)
-   else
-      system('/usr/sbin/smartctl', '-q', 'silent', '--all', dev)
-   end
-   retval=$?.exitstatus
-   if retval != 0
-      log << "smart test returned: '#{retval}'"
-      if retval > 4
+    if ! system('/usr/sbin/smartctl', '-q', 'silent', '--all', dev)
+      log << "smart test returned: '#{$?.exitstatus}'"
+      if $?.exitstatus > 4
         @status = FAILED
         return false
       end
