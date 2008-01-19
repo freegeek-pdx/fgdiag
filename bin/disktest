@@ -61,7 +61,7 @@ class HardDrive
   def smart
    is_ata=true
    if /^\/dev\/sd[a-z]/.match(dev)
-      is_ata=system("lsscsi | grep /dev/sda | awk {'print $3'} | grep -q ATA")
+      is_ata=system("lsscsi | grep #{dev} | awk {'print $3'} | grep -q ATA")
    end
    if is_ata
       system('/usr/sbin/smartctl', '-q', 'silent', '--all', '-d', 'ata', dev)
