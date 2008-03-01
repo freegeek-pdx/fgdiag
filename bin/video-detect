@@ -1,0 +1,38 @@
+#!/bin/sh
+
+description=$( lshw -class display | grep description | cut -f2- -d ':' )
+product=$( lshw -class display | grep product | cut -f2- -d ':' )
+memory=$( lshw -class display | grep size | cut -f2- -d ':' )
+vendor=$( lshw -class display | grep vendor | cut -f2- -d ':' )
+
+/usr/sbin/magix
+second_opinion=$( ddcprobe | grep memory | cut -f2- -d ' ' | sed "s/kb//" )
+converted=$( expr $second_opinion / 1024 )
+reset
+
+echo $product | grep -i tnt
+if [ $? -eq 0 ]
+then
+	dd_fail=1
+fi
+
+echo $product | grep -i 86c32
+if [ $? -eq 0 ]
+then
+	dd_fail=1
+fi
+
+if [ $dd_fail -eq 1 ]
+then
+	dialog --infobox "\n Card Description: $description \n \n \n Product: $product \n \n \n Vendor: $vendor \n \n \n Memory (lshw): $memory \n \n \nPlease record the card type and the amount of memory on the gizmo label.\n\n\nPress <enter> to power the system down" 50 200
+	echo "`date`" >> /var/log/video_testing
+	echo "Description: $description  Product: $product  Vendor: $vendor  Memory: $memory" >> /var/log/video_testing
+	read
+	halt
+fi
+
+echo "`date`" >> /var/log/video_testing
+echo "Description: $description Product: $product  Vendor: $vendor  Memory: $converted " >> /var/log/video_testing
+dialog --infobox "\n Card Description: $description \n \n \n Product: $product \n \n \n Vendor: $vendor \n \n \n Memory (ddcprobe): ${converted}MB \n \n \nPlease record the card type and the amount of memory on the gizmo label. \n\nNote: Most cards will be correctly diagnosed here, but you should check the exception list\n\n\nPress <enter> to power the system down" 50 200
+read
+#halt
