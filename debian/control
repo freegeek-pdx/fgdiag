@@ -8,7 +8,7 @@ Standards-Version: 3.6.1
 
 Package: fgdiag
 Architecture: all
-Depends: mtools, console-tools, time, less, smartmontools, libtui-ruby, ruby, lsscsi
+Depends: mtools, console-tools, time, less, smartmontools, libtui-ruby, ruby, lsscsi, dialog, lshw, xresprobe, freegeek-extras
 Suggests: 
 Description: Free Geek Diagnostics
  Software used to test hardware at Free Geek.
