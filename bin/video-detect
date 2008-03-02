@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 description=$( lshw -class display | grep description | cut -f2- -d ':' )
 product=$( lshw -class display | grep product | cut -f2- -d ':' )
@@ -24,7 +24,7 @@ fi
 
 if [ $dd_fail -eq 1 ]
 then
-	dialog --infobox "\n Card Description: $description \n \n \n Product: $product \n \n \n Vendor: $vendor \n \n \n Memory (lshw): $memory \n \n \nPlease record the card type and the amount of memory on the gizmo label.\n\n\nPress <enter> to power the system down" 50 200
+	dialog --infobox "\n Card Description: $description \n \n \n Product: $product \n \n \n Vendor: $vendor \n \n \n Memory (lshw): $memory \n \n \nPlease record the card type and the amount of memory on the gizmo label.\n\n\nPress <enter> to power the system down" 0 0
 	echo "`date`" >> /var/log/video_testing
 	echo "Description: $description  Product: $product  Vendor: $vendor  Memory: $memory" >> /var/log/video_testing
 	read
@@ -33,6 +33,7 @@ fi
 
 echo "`date`" >> /var/log/video_testing
 echo "Description: $description Product: $product  Vendor: $vendor  Memory: $converted " >> /var/log/video_testing
-dialog --infobox "\n Card Description: $description \n \n \n Product: $product \n \n \n Vendor: $vendor \n \n \n Memory (ddcprobe): ${converted}MB \n \n \nPlease record the card type and the amount of memory on the gizmo label. \n\nNote: Most cards will be correctly diagnosed here, but you should check the exception list\n\n\nPress <enter> to power the system down" 50 200
-read
-#halt
+dialog --infobox "\n Card Description: $description \n \n \n Product: $product \n \n \n Vendor: $vendor \n \n \n Memory (ddcprobe): ${converted}MB \n \n \nPlease record the card type and the amount of memory on the gizmo label. \n\nNote: Most cards will be correctly diagnosed here, but you should check the exception list" 0 0
+while [[ 1 ]]; do
+    read
+done
