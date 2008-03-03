@@ -3,6 +3,7 @@ bin/mkpartitions usr/local/bin
 bin/cloner usr/bin
 bin/cloner-create usr/bin
 bin/disktest usr/bin
+bin/video-detect usr/bin
 lib/open4.rb usr/local/lib/site_ruby/1.8
 lib/cloner-functions usr/local/lib
 config/cloner.config etc/fgdiag
