@@ -1,3 +1,9 @@
+fgdiag (0.2.9) debian; urgency=low
+
+  * Magical Magix
+
+ -- Ryan Niebur <RyanRyan52@gmail.com>  Tue, 04 Mar 2008 16:57:42 -0800
+
 fgdiag (0.2.8) debian; urgency=low
 
   * Made it faster and fixed something that I did half way

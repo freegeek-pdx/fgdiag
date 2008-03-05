@@ -7,7 +7,7 @@ product=$( grep product /tmp/lshw.out | cut -f2- -d ':' )
 memory=$( grep size /tmp/lshw.out | cut -f2- -d ':' )
 vendor=$( grep vendor /tmp/lshw.out | cut -f2- -d ':' )
 
-/usr/sbin/magix
+DEBIAN_FRONTEND=noninteractive dpkg-reconfigure xserver-xorg
 second_opinion=$( ddcprobe | grep memory | cut -f2- -d ' ' | sed "s/kb//" )
 converted=$( expr $second_opinion / 1024 )
 clear
