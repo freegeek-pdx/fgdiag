@@ -1,9 +1,15 @@
+fgdiag (0.2.11) debian; urgency=low
+
+  * Added dmidecode to memid
+
+ -- Ryan Niebur <RyanRyan52@gmail.com>  Tue, 04 Mar 2008 22:55:22 -0800
+
 fgdiag (0.2.10) debian; urgency=low
 
   * Added memid, a script that gives you lots information about the
     memory in your computer
 
- -- Ryan Niebur <RyanRyan52@gmail.com>  Tue, 04 Mar 2008 22:21:11 -0800
+ -- Ryan Niebur <RyanRyan52@gmail.com>  Tue, 04 Mar 2008 22:25:21 -0800
 
 fgdiag (0.2.9) debian; urgency=low
 

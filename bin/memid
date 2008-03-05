@@ -3,10 +3,12 @@
 which decode-dimms && (lsmod | grep eeprom || modprobe eeprom)
 which decode-dimms && (decode-dimms > /tmp/decode_dimms.out)
 lshw -class memory -enable memory > /tmp/lshw.out
+dmidecode -t 17 < /tmp/dmidecode.out
 sed -ni '/*-memory/,$p' /tmp/lshw.out
 
 while [[ 1 ]]; do
     dialog --textbox /tmp/lshw.out 0 0
+    dialog --textbox /tmp/dmidecode.out 0 0
     which decode-dimms && dialog --textbox /tmp/decode_dimms.out 0 0
-    which decode-dimms && dialog --msgbox "That's all!" 0 0
+    dialog --msgbox "That's all!" 0 0
 done
