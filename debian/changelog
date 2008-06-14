@@ -1,3 +1,9 @@
+fgdiag (0.2.13) UNRELEASED; urgency=low
+
+  * changed the maintainer and the uploaders
+
+ -- Ryan Niebur <RyanRyan52@gmail.com>  Sat, 14 Jun 2008 09:15:36 -0700
+
 fgdiag (0.2.12) debian; urgency=low
 
   * Typo
