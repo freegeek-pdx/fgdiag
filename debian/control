@@ -2,7 +2,7 @@ Source: fgdiag
 Section: utils
 Priority: optional
 Maintainer: Freegeek Coders <coders@freegeek.org>
-Uploaders: Martin Chase <mchase@freegeek.org>, Vagrant Cascadian <vagrant@freegeek.org>
+Uploaders: Martin Chase <mchase@freegeek.org>, Vagrant Cascadian <vagrant@freegeek.org>, Ryan Niebur <RyanRyan52@gmail.com>
 Build-Depends: cdbs, debhelper (>= 4.0.0), python-dev, txt2man
 Standards-Version: 3.6.1
 
