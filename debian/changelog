@@ -1,8 +1,21 @@
-fgdiag (0.2.13) UNRELEASED; urgency=low
+fgdiag (0.2.15) debian; urgency=low
+
+  * that didn't work. Array.count only works in the lenny version of ruby. (GRR!!!)
+
+ -- Ryan Niebur <RyanRyan52@gmail.com>  Tue, 24 Jun 2008 11:34:38 -0700
+
+fgdiag (0.2.14) debian; urgency=low
+
+  * be a little more evil, Dave said so!
+	
+ -- Ryan Niebur <RyanRyan52@gmail.com>  Tue, 24 Jun 2008 11:26:13 -0700
+
+fgdiag (0.2.13) debian; urgency=low
 
   * changed the maintainer and the uploaders
+  * If there aren't 2 drives make the user answer an addition "are you sure" question to prevent human error
 
- -- Ryan Niebur <RyanRyan52@gmail.com>  Sat, 14 Jun 2008 09:15:36 -0700
+ -- Ryan Niebur <RyanRyan52@gmail.com>  Tue, 24 Jun 2008 11:11:45 -0700
 
 fgdiag (0.2.12) debian; urgency=low
 
