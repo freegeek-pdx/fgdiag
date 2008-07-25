@@ -252,7 +252,10 @@ if __FILE__ == $0
     exit!( 1 )
   end
   begin
-    # :TODO: check that i'm root
+    if `id -u` != "0\n"
+      $stderr.puts "This program must be ran as root"
+      exit 1
+    end
     logpipe = "/tmp/klog"
     logconf = "/tmp/syslog.conf"
     open(logconf, 'w') {|conf|
