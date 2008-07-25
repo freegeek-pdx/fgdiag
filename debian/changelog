@@ -1,3 +1,10 @@
+fgdiag (0.2.16) UNRELEASED; urgency=low
+
+  * UNTESTED
+  * read anything left on stdin before exiting
+
+ -- Ryan Niebur <RyanRyan52@gmail.com>  Fri, 25 Jul 2008 00:09:54 -0700
+
 fgdiag (0.2.15) debian; urgency=low
 
   * that didn't work. Array.count only works in the lenny version of ruby. (GRR!!!)
@@ -7,7 +14,7 @@ fgdiag (0.2.15) debian; urgency=low
 fgdiag (0.2.14) debian; urgency=low
 
   * be a little more evil, Dave said so!
-	
+
  -- Ryan Niebur <RyanRyan52@gmail.com>  Tue, 24 Jun 2008 11:26:13 -0700
 
 fgdiag (0.2.13) debian; urgency=low
