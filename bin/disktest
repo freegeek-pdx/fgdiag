@@ -293,7 +293,7 @@ if __FILE__ == $0
       }
       loglines.clear
       threads = threads.find_all {|t|
-        t.alive? 
+        t.alive?
       }
       sleep 1
       $stderr.write(clearer)
@@ -302,10 +302,10 @@ if __FILE__ == $0
   ensure
     Process::kill(9, klpid)
     header "Final status:"
-    drives.each {|d| 
+    drives.each {|d|
       d.output_display
     }
-    drives.each {|d| 
+    drives.each {|d|
       if d.passed?
         d.output_decimal_size
         puts colored( "#{d.dev} passed!  Label and store it.", 'green', 'bold' )
