@@ -271,14 +271,14 @@ if __FILE__ == $0
     promptWithDefault("Are these the expected drives and do you want to test them?", "yes", "Type 'yes' to begin") do |response|
       /^y/.match(response)
     end
-    if drives.size != 2
+    if drives.size < 2
       errorMessage("There are #{drives.size} drives! 2 were expected.\n")
-      promptWithDefault("Are you sure you want to continue?", "no", "Type 'yes, I want to test #{drives.size} drives' to continue anyway or 'no' to abort the disktest.") do |output|
+      promptWithDefault("Are you sure you want to continue?", "no", "Type 'yes, I want to test #{drives.size} drive(s)' to continue anyway or 'no' to abort the disktest.") do |output|
         if output == nil || output == '' || output.match(/^no$/)
           errorMessage("Aborted.\n")
           exit
         end
-        output.match(/^yes, I want to test . drives$/)
+        output.match(/^yes, I want to test . drive(s)$/)
       end
     end
     threads = drives.map {|drive| drive.run_tests}
