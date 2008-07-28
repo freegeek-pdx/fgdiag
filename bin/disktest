@@ -278,7 +278,7 @@ if __FILE__ == $0
           errorMessage("Aborted.\n")
           exit
         end
-        output.match(/^yes, I want to test . drive(s)$/)
+        output.match(/^yes, I want to test . drive\(s\)$/)
       end
     end
     threads = drives.map {|drive| drive.run_tests}
