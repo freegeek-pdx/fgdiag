@@ -1,10 +1,10 @@
-fgdiag (0.2.16) UNRELEASED; urgency=low
+fgdiag (0.2.16) debian; urgency=low
 
   * read anything left on stdin before exiting
   * require root
   * allow for more than 2 drives without bugging the user
 
- -- Ryan Niebur <RyanRyan52@gmail.com>  Sun, 27 Jul 2008 21:27:50 -0700
+ -- Ryan Niebur <RyanRyan52@gmail.com>  Sun, 27 Jul 2008 21:36:24 -0700
 
 fgdiag (0.2.15) debian; urgency=low
 
