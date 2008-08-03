@@ -1,3 +1,10 @@
+fgdiag (0.2.17) UNRELEASED; urgency=low
+
+  * Use a different way to read everything that's on stdin
+    Hopefully this will fix the seg faults
+
+ -- Ryan Niebur <RyanRyan52@gmail.com>  Sun, 03 Aug 2008 10:24:51 -0700
+
 fgdiag (0.2.16) debian; urgency=low
 
   * read anything left on stdin before exiting

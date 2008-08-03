@@ -5,6 +5,27 @@ require 'open4'
 require 'rubytui'
 include RubyTUI
 
+def old_clear_stdin
+  until select([$stdin], [], [], 0) == nil
+    $stdin.getc
+  end
+end
+
+def clear_stdin(parent = true)
+  if parent
+    while clear_stdin(false)
+      nil
+    end
+  else
+    begin
+      $stdin.read_nonblock(10000000)
+      return true
+    rescue Errno::EAGAIN
+      return false
+    end
+  end
+end
+
 class HardDrive
   MODULES = %w[ide_core ide_disk ide_generic]
   PASSED = 0
@@ -43,7 +64,7 @@ class HardDrive
            drive.smart &&
            drive.wipe &&
            drive.smart)
-          drive.status = PASSED 
+          drive.status = PASSED
         end
       rescue Exception => e
         drive.log << e
@@ -209,7 +230,7 @@ class HardDrive
 
   def status
     case @status
-    when PASSED 
+    when PASSED
       "all tests passed:\n#{log.to_yaml}"
     when FAILED
       "failed:\n#{log.to_yaml}"
@@ -316,8 +337,6 @@ if __FILE__ == $0
         errorMessage "#{d.dev} did not finish testing.  Seek expert attention.\n"
       end
     }
-    until select([$stdin], [], [], 0) == nil
-      $stdin.getc
-    end
+    clear_stdin
   end
 end
