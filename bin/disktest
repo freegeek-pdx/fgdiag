@@ -3,6 +3,7 @@
 require 'yaml'
 require 'open4'
 require 'rubytui'
+require 'fcntl'
 include RubyTUI
 
 def old_clear_stdin
@@ -12,6 +13,7 @@ def old_clear_stdin
 end
 
 def clear_stdin(parent = true)
+  flags=$stdin.fcntl(Fcntl::F_GETFL)
   if parent
     while clear_stdin(false)
       nil
@@ -24,6 +26,7 @@ def clear_stdin(parent = true)
       return false
     end
   end
+  $stdin.fcntl(Fcntl::F_SETFL, flags)
 end
 
 class HardDrive

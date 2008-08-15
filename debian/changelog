@@ -1,3 +1,18 @@
+fgdiag (0.2.18) UNRELEASED; urgency=low
+
+  * I figured out this evil thing!  Okay, so read_nonblock sets
+    Fcntl::O_NONBLOCK, but it doesn't unset it if it gets a EAGAIN
+    (under normal circumstances, (it can read the number of bytes you
+    tell it to try to, I guess), it does put back the flags).  Seems
+    kind of dumb and not not ruby-like, but whatever.  So before I run
+    read_nonblock I have to get all of the current flags, and then set
+    it back to that once I'm done read_nonblock-ing. And now I have a
+    setup on my laptop that is completely exactly like the setup on
+    glacier and have tested with that.  This should fix the seg faults
+    without adding "Resource Temporarily Unavailable"'s.
+
+ -- Ryan Niebur <ryanryan52@gmail.com>  Thu, 14 Aug 2008 22:35:39 -0700
+
 fgdiag (0.2.17) debian; urgency=low
 
   * Use a different way to read everything that's on stdin
