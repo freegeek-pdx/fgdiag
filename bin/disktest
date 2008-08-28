@@ -31,10 +31,10 @@ class HardDrive
 
   def HardDrive.scan
     mnt = `mount`
-    loaded_modules = `lsmod`.map{|x| x.split(' ').first}
+    loaded_modules = `lsmod`.split("\n")[1..-1].map{|x| x.split(' ').first}
     (MODULES - loaded_modules).each{|x|
       if ! system("modprobe #{x}")
-        errorMessage("Could not load required module: #{x}")
+        errorMessage("Could not load required module: #{x}\n")
         exit!(1)
       end
     }
