@@ -1,3 +1,13 @@
+fgdiag (0.2.19) UNRELEASED; urgency=low
+
+  * load all the modules that are in the MODULES list
+  * add usb_storage to the MODULES list (it should be automatically
+    loaded, but so should the rest, and martin must have made a
+    MODULES list for a reason...it might help. it will probably make
+    no difference at all.)
+
+ -- Ryan Niebur <ryanryan52@gmail.com>  Thu, 28 Aug 2008 10:35:29 -0700
+
 fgdiag (0.2.18) debian; urgency=low
 
   * I figured out this evil thing!  Okay, so read_nonblock sets

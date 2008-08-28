@@ -6,12 +6,6 @@ require 'rubytui'
 require 'fcntl'
 include RubyTUI
 
-def old_clear_stdin
-  until select([$stdin], [], [], 0) == nil
-    $stdin.getc
-  end
-end
-
 def clear_stdin(parent = true)
   flags=$stdin.fcntl(Fcntl::F_GETFL)
   if parent
@@ -30,13 +24,20 @@ def clear_stdin(parent = true)
 end
 
 class HardDrive
-  MODULES = %w[ide_core ide_disk ide_generic]
+  MODULES = %w[ide_core ide_disk ide_generic usb_storage]
   PASSED = 0
   FAILED = 1
   UNTESTED = 2
 
   def HardDrive.scan
     mnt = `mount`
+    loaded_modules = `lsmod`.map{|x| x.split(' ').first}
+    (MODULES - loaded_modules).each{|x|
+      if ! system("modprobe #{x}")
+        errorMessage("Could not load required module: #{x}")
+        exit!(1)
+      end
+    }
     Dir.open('/sys/block').find_all {|dev|
       /^[sh]d[a-z]/.match(dev) and
       `cat /sys/block/#{dev}/removable`.chomp == '0' and
