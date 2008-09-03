@@ -19,9 +19,10 @@ def clear_stdin(parent = true)
       return true
     rescue Errno::EAGAIN
       return false
+    ensure
+      $stdin.fcntl(Fcntl::F_SETFL, flags)
     end
   end
-  $stdin.fcntl(Fcntl::F_SETFL, flags)
 end
 
 class HardDrive
