@@ -5,8 +5,12 @@ fgdiag (0.2.19) UNRELEASED; urgency=low
     loaded, but so should the rest, and martin must have made a
     MODULES list for a reason...it might help. it will probably make
     no difference at all.)
+  * better error handling (the error handling was triggering an
+    error)
+  * support rsyslog. die if sysklogd and rsyslog both aren't found.
+  * more secure temporary file handling.
 
- -- Ryan Niebur <ryanryan52@gmail.com>  Thu, 28 Aug 2008 10:35:29 -0700
+ -- Ryan Niebur <ryanryan52@gmail.com>  Tue, 02 Sep 2008 18:20:50 -0700
 
 fgdiag (0.2.18) debian; urgency=low
 
