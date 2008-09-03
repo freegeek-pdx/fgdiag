@@ -5,6 +5,7 @@ require 'open4'
 require 'rubytui'
 require 'fcntl'
 include RubyTUI
+require 'tempfile'
 
 def clear_stdin(parent = true)
   flags=$stdin.fcntl(Fcntl::F_GETFL)
@@ -281,14 +282,36 @@ if __FILE__ == $0
       $stderr.puts "This program must be ran as root"
       exit 1
     end
-    logpipe = "/tmp/klog"
-    logconf = "/tmp/syslog.conf"
-    open(logconf, 'w') {|conf|
-      conf.puts "*.* #{logpipe}"
-      #conf.puts "*.* /dev/console"
-    }
-    `/usr/sbin/invoke-rc.d sysklogd stop`
-    `/sbin/syslogd -f #{logconf}`
+    logpipe=""
+    logconf=""
+    be_safe=true
+    if be_safe
+      logpipe = Tempfile.new("klog")
+      logpipe.close
+      logpipe = logpipe.path
+      logconf = Tempfile.new("syslog.conf")
+      logconf.puts "*.* #{logpipe}"
+      #    logconf.puts "*.* /dev/console"
+      logconf.close
+      logconf = logconf.path
+    else
+      logpipe = "/tmp/klog"
+      logconf = "/tmp/syslog.conf"
+      open(logconf, 'w') {|conf|
+        conf.puts "*.* #{logpipe}"
+        #conf.puts "*.* /dev/console"
+      }
+    end
+    if File.exists?("/sbin/syslogd")
+      `/usr/sbin/invoke-rc.d sysklogd stop`
+      `/sbin/syslogd -f #{logconf}`
+    elsif File.exists?("/usr/sbin/rsyslogd")
+      `/usr/sbin/invoke-rc.d rsyslog stop`
+      `/usr/sbin/rsyslogd -f #{logconf}`
+    else
+      puts "You need to install a supported syslog daemon."
+      exit (rand(100) + 1)
+    end
     klpid, klin, klout, klerr = open4("tail -F #{logpipe}")
     loglines = []
     drives = HardDrive.scan.sort_by {|d| d.dev}
