@@ -278,7 +278,7 @@ if __FILE__ == $0
     exit!( 1 )
   end
   if `id -u` != "0\n"
-    $stderr.puts "This program must be ran as root"
+    errorMessage "This program must be ran as root"
     exit 1
   end
   logpipe=""
@@ -308,8 +308,8 @@ if __FILE__ == $0
     `/usr/sbin/invoke-rc.d rsyslog stop`
     `/usr/sbin/rsyslogd -f #{logconf}`
   else
-    puts "You need to install a supported syslog daemon."
-    exit (rand(100) + 1)
+    errorMessage "You need to install a supported syslog daemon."
+    exit 1
   end
   klpid, klin, klout, klerr = open4("tail -F #{logpipe}")
   loglines = []
