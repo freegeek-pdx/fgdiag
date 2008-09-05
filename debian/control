@@ -8,8 +8,16 @@ Standards-Version: 3.6.1
 
 Package: fgdiag
 Architecture: all
-Depends: mtools, console-tools, time, less, smartmontools, libtui-ruby, ruby, lsscsi, dialog, lshw, xresprobe, dmidecode
+Depends: mtools, console-tools, time, less, smartmontools, libtui-ruby, ruby, lsscsi, dialog, lshw, xresprobe, dmidecode, libopen4-ruby1.8 | fgdiag-open4
 Recommends: i2c-tools
 Suggests: 
 Description: Free Geek Diagnostics
  Software used to test hardware at Free Geek.
+
+Package: fgdiag-open4
+Architecture: all
+Depends: ruby1.8
+Conflicts: libopen4-ruby1.8
+Description: library for managing child processes (Ruby 1.8)
+ Repackaged version for use by fgdiag because Debian Etch doesn't have
+ it.
