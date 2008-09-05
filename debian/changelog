@@ -12,8 +12,9 @@ fgdiag (0.2.19) UNRELEASED; urgency=low
   * split out open4 to it's own package
   * removed seemingly unneeded build dependencies
   * bumped standards version (no changes)
+  * added manpages
 
- -- Ryan Niebur <ryanryan52@gmail.com>  Thu, 04 Sep 2008 17:49:55 -0700
+ -- Ryan Niebur <ryanryan52@gmail.com>  Thu, 04 Sep 2008 20:54:47 -0700
 
 fgdiag (0.2.18) debian; urgency=low
 
