@@ -10,8 +10,10 @@ fgdiag (0.2.19) UNRELEASED; urgency=low
   * support rsyslog. die if sysklogd and rsyslog both aren't found.
   * more secure temporary file handling.
   * split out open4 to it's own package
+  * removed seemingly unneeded build dependancies
+  * bumped standards version (no changes)
 
- -- Ryan Niebur <ryanryan52@gmail.com>  Thu, 04 Sep 2008 17:33:43 -0700
+ -- Ryan Niebur <ryanryan52@gmail.com>  Thu, 04 Sep 2008 17:49:55 -0700
 
 fgdiag (0.2.18) debian; urgency=low
 
