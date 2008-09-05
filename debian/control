@@ -2,7 +2,7 @@ Source: fgdiag
 Section: utils
 Priority: optional
 Maintainer: Freegeek Coders <coders@freegeek.org>
-Uploaders: Martin Chase <mchase@freegeek.org>, Vagrant Cascadian <vagrant@freegeek.org>, Ryan Niebur <RyanRyan52@gmail.com>
+Uploaders: Martin Chase <mchase@freegeek.org>, Vagrant Cascadian <vagrant@freegeek.org>, Ryan Niebur <ryanryan52@gmail.com>
 Build-Depends: cdbs, debhelper (>= 4.0.0)
 Standards-Version: 3.8.0
 
