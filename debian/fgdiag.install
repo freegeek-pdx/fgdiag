@@ -1,15 +1,3 @@
-bin/generate-fstab usr/local/bin
-bin/mkpartitions usr/local/bin
-bin/cloner usr/bin
-bin/cloner-create usr/bin
 bin/disktest usr/bin
 bin/video-detect usr/bin
 bin/memid usr/bin
-lib/cloner-functions usr/local/lib
-config/cloner.config etc/fgdiag
-config/diskschemes etc/fgdiag
-config/clone-config/version etc/fgdiag/clone-config
-config/clone-config/postclone etc/fgdiag/clone-config
-config/clone-config/lessdisks-postclone/postclone-hook etc/fgdiag/clone-config/lessdisks-postclone
-config/clone-config/lessdisks-postclone/99unconfigured.sh etc/fgdiag/clone-config/lessdisks-postclone
-config/clone-config/lessdisks-postclone/boot-loader etc/fgdiag/clone-config/lessdisks-postclone
