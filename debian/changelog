@@ -1,4 +1,4 @@
-fgdiag (0.2.19) UNRELEASED; urgency=low
+fgdiag (0.2.19) debian; urgency=low
 
   * load all the modules that are in the MODULES list
   * add usb_storage to the MODULES list (it should be automatically
@@ -14,7 +14,7 @@ fgdiag (0.2.19) UNRELEASED; urgency=low
   * bumped standards version (no changes)
   * added manpages
 
- -- Ryan Niebur <ryanryan52@gmail.com>  Thu, 04 Sep 2008 20:54:47 -0700
+ -- Ryan Niebur <ryanryan52@gmail.com>  Sat, 06 Sep 2008 12:11:25 -0700
 
 fgdiag (0.2.18) debian; urgency=low
 
