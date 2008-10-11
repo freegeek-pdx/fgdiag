@@ -1,8 +1,9 @@
 fgdiag (0.2.20) UNRELEASED; urgency=low
 
   * Removed cloner stuff that is no longer needed
+  * added some environment variables to control disktest with
 
- -- Ryan Niebur <ryanryan52@gmail.com>  Sat, 06 Sep 2008 13:17:20 -0700
+ -- Ryan Niebur <ryanryan52@gmail.com>  Sat, 11 Oct 2008 14:19:14 -0700
 
 fgdiag (0.2.19) debian; urgency=low
 
