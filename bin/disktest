@@ -92,18 +92,18 @@ class HardDrive
   end
 
   def smart
-   is_ata=true
-   scsi_regex = (ENV['DISKTEST_SCSI_REGEX'] ? ENV['DISKTEST_SCSI_REGEX'] : "sd[a-z]" )
+    is_ata=true
+    scsi_regex = (ENV['DISKTEST_SCSI_REGEX'] ? ENV['DISKTEST_SCSI_REGEX'] : "sd[a-z]" )
     if /^\/dev\/#{scsi_regex}/.match(dev)
-     is_ata=`lsscsi`.select{|x| x.match(dev)}.first.split(" ")[2] == "ATA"
-   end
-   if is_ata
+      is_ata=`lsscsi`.select{|x| x.match(dev)}.first.split(" ")[2] == "ATA"
+    end
+    if is_ata
       system('/usr/sbin/smartctl', '-q', 'silent', '--all', '-d', 'ata', dev)
-   else
+    else
       system('/usr/sbin/smartctl', '-q', 'silent', '--all', dev)
-   end
-   retval=$?.exitstatus
-   if retval != 0
+    end
+    retval=$?.exitstatus
+    if retval != 0
       log << "smart test returned: '#{retval}'"
       if retval > 4
         @status = FAILED
