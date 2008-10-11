@@ -7,6 +7,12 @@ require 'fcntl'
 include RubyTUI
 require 'tempfile'
 
+# Environment variables that disktest pays attention to:
+# * DISKTEST_REQUIRED_NUMBER_OF_DRIVES
+# * DISKTEST_ALLOW_LESS_THAN_REQUIRED
+# * DISKTEST_DISK_REGEX
+# * DISKTEST_SCSI_REGEX
+
 def clear_stdin(parent = true)
   flags=$stdin.fcntl(Fcntl::F_GETFL)
   if parent
@@ -41,7 +47,7 @@ class HardDrive
       end
     }
     Dir.open('/sys/block').find_all {|dev|
-      /^[sh]d[a-z]/.match(dev) and
+      (ENV['DISKTEST_DISK_REGEX'] ? /#{ENV['DISKTEST_DISK_REGEX']}/ : /^[sh]d[a-z]/).match(dev) and
       `cat /sys/block/#{dev}/removable`.chomp == '0' and
       ! mnt.include?(dev)
     }.map {|dev| HardDrive.new(dev)}
@@ -87,7 +93,8 @@ class HardDrive
 
   def smart
    is_ata=true
-   if /^\/dev\/sd[a-z]/.match(dev)
+   scsi_regex = (ENV['DISKTEST_SCSI_REGEX'] ? ENV['DISKTEST_SCSI_REGEX'] : "sd[a-z]" )
+    if /^\/dev\/#{scsi_regex}/.match(dev)
      is_ata=`lsscsi`.select{|x| x.match(dev)}.first.split(" ")[2] == "ATA"
    end
    if is_ata
@@ -310,8 +317,9 @@ if __FILE__ == $0
     promptWithDefault("Are these the expected drives and do you want to test them?", "yes", "Type 'yes' to begin") do |response|
       /^y/.match(response)
     end
-    if drives.size < 2
-      errorMessage("There are #{drives.size} drives! 2 were expected.\n")
+    required = ENV['DISKTEST_REQUIRED_NUMBER_OF_DRIVES'] || 2
+    if drives.size < required && ENV['DISKTEST_ALLOW_LESS_THAN_REQUIRED'] != "true"
+      errorMessage("There are #{drives.size} drives! at least #{required} were expected.\n")
       promptWithDefault("Are you sure you want to continue?", "no", "Type 'yes, I want to test #{drives.size} drive(s)' to continue anyway or 'no' to abort the disktest.") do |output|
         if output == nil || output == '' || output.match(/^no$/)
           errorMessage("Aborted.\n")
