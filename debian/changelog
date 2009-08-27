@@ -1,3 +1,10 @@
+fgdiag (0.2.21) UNRELEASED; urgency=low
+
+  * set Section to debian/utils in debian/control to properly register
+    that it should be in the "debian" component in the apt repository.
+
+ -- Vagrant Cascadian <vagrant@freegeek.org>  Thu, 27 Aug 2009 12:48:08 -0700
+
 fgdiag (0.2.20) debian; urgency=low
 
   * Removed cloner stuff that is no longer needed
