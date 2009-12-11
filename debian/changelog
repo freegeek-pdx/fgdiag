@@ -1,3 +1,10 @@
+fgdiag (0.2.22) freegeek-test; urgency=low
+
+  * change color scheme to make success more noticeable
+  * print model and serial number on drive displays
+
+ -- Martin Chase <mchase@freegeek.org>  Thu, 10 Dec 2009 16:27:19 -0800
+
 fgdiag (0.2.21) UNRELEASED; urgency=low
 
   * set Section to debian/utils in debian/control to properly register

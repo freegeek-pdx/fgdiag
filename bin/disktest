@@ -55,6 +55,7 @@ class HardDrive
 
   def initialize(dev)
     @dev = dev
+    @lshw_this = nil
     @testing = false
     @status = UNTESTED
     @log = []
@@ -216,7 +217,7 @@ class HardDrive
     echo(disp_size.to_s + (units[ind] or "?B"))
   end
 
-  def output_decimal_size
+  def output_drive_descriptor
     disp_size = size
     units = %w[bytes KB MB GB TB PB EB ZB YB]
     ind = 0
@@ -225,7 +226,41 @@ class HardDrive
       disp_size = disp_size / 1000
     end
     highlight(dev + ": ")
-    echo(disp_size.to_s + (units[ind] or "?B"))
+    $stderr.puts colored(disp_size.to_s + (units[ind] or "?B") + unique_identity, "black", "on_yellow")
+    $stderr.flush
+  end
+
+  def unique_identity
+    " <<%s (%s)>>" % [model_name, serial]
+  end
+
+  def model_name
+    match = self.lshw.match("<product>(.*?)</product>")
+    return match[1]
+  end
+
+  def serial
+    match = self.lshw.match("<serial>(.*?)</serial>")
+    return match[1]
+  end
+
+  # :MC: better done with real xml parsing...
+  def lshw
+    return @lshw_this if @lshw_this
+    @@lshw_full ||= `sudo lshw -xml -class disk 2> /dev/null`
+    @@lshw_split ||= @@lshw_full.split('id="disk"')
+    debugMsg("%d lshw drives found." % @@lshw_split.length)
+
+    @lshw_this = @@lshw_split.find {|node|
+      node.match("logicalname>/dev/#{dev}</logicalname")
+    }
+    if @lshw_this
+      debugMsg(@lshw_this)
+    else
+      errorMessage("Could not get the lshw for this (%s) drive." % dev)
+      exit!(1)
+    end
+    return @lshw_this
   end
 
   def time_taken
@@ -311,9 +346,15 @@ if __FILE__ == $0
   end
   klpid, klin, klout, klerr = open4("tail -F #{logpipe}")
   loglines = []
+  clearer = `clear`
   drives = HardDrive.scan.sort_by {|d| d.dev}
   begin
-    drives.each {|d| d.output_decimal_size}
+    $stderr.write(clearer)
+    $stderr.flush
+    drives.each {|d|
+      d.output_drive_descriptor
+    }
+    RubyTUI::PromptColor.replace(["magenta", "bold"])
     promptWithDefault("Are these the expected drives and do you want to test them?", "yes", "Type 'yes' to begin") do |response|
       /^y/.match(response)
     end
@@ -329,7 +370,6 @@ if __FILE__ == $0
       end
     end
     threads = drives.map {|drive| drive.run_tests}
-    clearer = `clear`
     until threads.empty?
       if select([klout],nil,nil,0.1)
         loglines += klout.read_nonblock(1000).split("\n")
@@ -354,12 +394,12 @@ if __FILE__ == $0
     }
     drives.each {|d|
       if d.passed?
-        d.output_decimal_size
-        puts colored( "#{d.dev} passed!  Label and store it.", 'green', 'bold' )
+        d.output_drive_descriptor
+        puts colored( "#{d.dev} passed!  Label and store it.", 'bold', 'black', 'on_green' )
       elsif d.failed?
         errorMessage "#{d.dev} failed.  Recycle it.\n"
       else
-        d.output_decimal_size
+        d.output_drive_descriptor
         errorMessage "#{d.dev} did not finish testing.  Seek expert attention.\n"
       end
     }
