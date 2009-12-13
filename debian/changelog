@@ -1,3 +1,9 @@
+fgdiag (0.2.24) freegeek-test; urgency=low
+
+  * removed call to sudo (and subsequent undocument dependency thereof)
+
+ -- Martin Chase <mchase@freegeek.org>  Sun, 13 Dec 2009 12:02:01 -0800
+
 fgdiag (0.2.23) freegeek-test; urgency=low
 
   * stricter dependency on rubytui version (Closes: #15648)
