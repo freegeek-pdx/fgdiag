@@ -247,7 +247,7 @@ class HardDrive
   # :MC: better done with real xml parsing...
   def lshw
     return @lshw_this if @lshw_this
-    @@lshw_full ||= `sudo lshw -xml -class disk 2> /dev/null`
+    @@lshw_full ||= `lshw -xml -class disk 2> /dev/null`
     @@lshw_split ||= @@lshw_full.split('id="disk"')
     debugMsg("%d lshw drives found." % @@lshw_split.length)
 
