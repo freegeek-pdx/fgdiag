@@ -1,3 +1,9 @@
+fgdiag (0.2.25) freegeek-test; urgency=low
+
+  * change split to catch scsi drives
+
+ -- Martin Chase <mchase@freegeek.org>  Sun, 13 Dec 2009 13:03:11 -0800
+
 fgdiag (0.2.24) freegeek-test; urgency=low
 
   * removed call to sudo (and subsequent undocument dependency thereof)

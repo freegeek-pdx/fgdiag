@@ -248,7 +248,7 @@ class HardDrive
   def lshw
     return @lshw_this if @lshw_this
     @@lshw_full ||= `lshw -xml -class disk 2> /dev/null`
-    @@lshw_split ||= @@lshw_full.split('id="disk"')
+    @@lshw_split ||= @@lshw_full.split('id="disk')
     debugMsg("%d lshw drives found." % @@lshw_split.length)
 
     @lshw_this = @@lshw_split.find {|node|
