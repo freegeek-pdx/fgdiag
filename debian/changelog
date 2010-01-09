@@ -1,9 +1,9 @@
-fgdiag (0.2.26) UNRELEASED; urgency=low
+fgdiag (0.2.26) freegeek-test; urgency=low
 
   * adapt disktest for the version of badblocks in lenny (Closes:
     #15702)
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 09 Jan 2010 04:05:14 -0800
+ -- Ryan Niebur <ryan@debian.org>  Sat, 09 Jan 2010 04:07:35 -0800
 
 fgdiag (0.2.25) freegeek-test; urgency=low
 
