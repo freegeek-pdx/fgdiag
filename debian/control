@@ -2,13 +2,13 @@ Source: fgdiag
 Section: debian/utils
 Priority: optional
 Maintainer: Freegeek Coders <coders@freegeek.org>
-Uploaders: Martin Chase <mchase@freegeek.org>, Vagrant Cascadian <vagrant@freegeek.org>, Ryan Niebur <ryanryan52@gmail.com>
+Uploaders: Martin Chase <mchase@freegeek.org>, Vagrant Cascadian <vagrant@freegeek.org>, Ryan Niebur <ryan@debian.org>
 Build-Depends: cdbs, debhelper (>= 4.0.0)
 Standards-Version: 3.8.0
 
 Package: fgdiag
 Architecture: all
-Depends: mtools, console-tools, time, less, smartmontools, libtui-ruby (>= 1.9), ruby, lsscsi, dialog, lshw, xresprobe, dmidecode, libopen4-ruby1.8 | fgdiag-open4 (= ${binary:Version})
+Depends: mtools, console-tools, time, less, smartmontools, libtui-ruby (>= 1.9), ruby, lsscsi, dialog, lshw, xresprobe, dmidecode, libopen4-ruby1.8 | fgdiag-open4 (= ${binary:Version}), e2fsprogs (>= 1.41.3)
 Recommends: i2c-tools
 Description: Free Geek Diagnostics
  Software used to test hardware at Free Geek.

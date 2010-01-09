@@ -123,8 +123,10 @@ class HardDrive
     #bbpid, bbin, bbout, bberr = Open4.popen4("/sbin/badblocks -c 1024 -s /dev/#{dev}")
     bbpid, bbin, bbout, bberr = Open4.popen4("/sbin/badblocks -c 1024 -swt 0xffffffff /dev/#{dev}")
     bbout.sync = bberr.sync = true
+    current_state = 0
     until bberr.closed? or bberr.eof?
       matches = nil
+      statematch = nil
       buff = nil
       reads, writes, errs = IO.select([bbout, bberr], nil, nil, 1)
       if reads
@@ -140,12 +142,27 @@ class HardDrive
         log << curr
       end
       if progress and ! progress.closed?
-        until( matches or bberr.eof? )
+        until( statematch or matches or bberr.eof? )
           buff = progress.read_nonblock(1000)
-          matches = %r,(\d+)\s*/\s*(\d+)[^\d]*,.match(buff)
+          statematch = %r,^(.*):,.match(buff)
+#          matches = %r,(\d+)\s*/\s*(\d+)[^\d]*,.match(buff)
+          matches = %r,([\d.]+)%,.match(buff)
         end
-        if matches and (matches[2].to_i >= matches[1].to_i)
-          log[-1] = "#{(matches[1].to_i * 100) / matches[2].to_i}% of badblocks scan complete"
+        if statematch
+          if statematch[1].match(/Testing/)
+            current_state = 1
+          elsif statematch[1].match(/Reading/)
+            current_state = 2
+          end
+        end
+        if matches and current_state > 0
+          # when it does the read, just have it sit at 100. at first I
+          # had it go to up to 50 for state = 1, then up to 100 for
+          # state = 2, tho it only stayed in the second state for a
+          # second. and then the result wasn't == 100. this kills both
+          # birds with one stone. lets see how it works on real drives
+          # tho...  -- Ryan52
+          log[-1] = "#{current_state == 2 ? 100 : matches[1].to_f.round}% of badblocks scan complete"
         end
       end
       if @status == FAILED
