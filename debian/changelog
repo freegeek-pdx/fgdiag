@@ -1,3 +1,9 @@
+fgdiag (0.2.28) UNRELEASED; urgency=low
+
+  * show vendor too
+
+ -- Ryan Niebur <ryan@debian.org>  Tue, 12 Jan 2010 19:21:34 -0800
+
 fgdiag (0.2.27) freegeek-test; urgency=low
 
   * work around when the lshw output doesn't match

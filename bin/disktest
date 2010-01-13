@@ -248,7 +248,12 @@ class HardDrive
   end
 
   def unique_identity
-    " <<%s (%s)>>" % [model_name, serial]
+    " <<%s %s (%s)>>" % [vendor, model_name, serial]
+  end
+
+  def vendor
+    match = self.lshw.match("<vendor>(.*?)</vendor>")
+    return match ? match[1] : "Unknown Vendor"
   end
 
   def model_name
