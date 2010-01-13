@@ -253,12 +253,12 @@ class HardDrive
 
   def model_name
     match = self.lshw.match("<product>(.*?)</product>")
-    return match[1]
+    return match.is_a?(Array) ? match[1] : "Unknown Model"
   end
 
   def serial
     match = self.lshw.match("<serial>(.*?)</serial>")
-    return match[1]
+    return match.is_a?(Array) ? match[1] : "Unknown Serial"
   end
 
   # :MC: better done with real xml parsing...

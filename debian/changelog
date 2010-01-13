@@ -1,3 +1,9 @@
+fgdiag (0.2.27) UNRELEASED; urgency=low
+
+  * work around when the lshw output doesn't match
+
+ -- Ryan Niebur <ryan@debian.org>  Tue, 12 Jan 2010 18:48:32 -0800
+
 fgdiag (0.2.26) freegeek-test; urgency=low
 
   * adapt disktest for the version of badblocks in lenny (Closes:
