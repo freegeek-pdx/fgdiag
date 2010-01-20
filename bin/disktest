@@ -279,8 +279,9 @@ class HardDrive
     if @lshw_this
       debugMsg(@lshw_this)
     else
+      @lshw_this = ""
       errorMessage("Could not get the lshw for this (%s) drive." % dev)
-      exit!(1)
+#      exit!(1)
     end
     return @lshw_this
   end
