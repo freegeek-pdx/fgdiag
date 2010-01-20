@@ -1,10 +1,10 @@
-fgdiag (0.2.28) UNRELEASED; urgency=low
+fgdiag (0.2.28) freegeek-test; urgency=low
 
   * show vendor too
   * don't die of can't get lshw output for a drive. that's just silly
     and making disktest more error prone.
 
- -- Ryan Niebur <ryan@debian.org>  Tue, 19 Jan 2010 21:33:09 -0800
+ -- Ryan Niebur <ryan@debian.org>  Tue, 19 Jan 2010 22:15:46 -0800
 
 fgdiag (0.2.27) freegeek-test; urgency=low
 
