@@ -23,7 +23,7 @@ Description: library for managing child processes (Ruby 1.8)
 
 Package: libbytes-ruby1.8
 Architecture: all
-Section: public/ruby
+Section: debian/ruby
 Depends: ruby1.8, ${misc:Depends}
 Description: library for calculating bytes values (Ruby 1.8)
  This library adds to_bytes, to_hertz, and to_bitspersecond methods to
