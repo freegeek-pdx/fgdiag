@@ -224,9 +224,9 @@ class HardDrive
   end
 
   def output_drive_descriptor
-    disp_size = size.to_s.to_bytes(1, false, false)
+    disp_size = size.to_bytes(1, false, false)
     highlight(dev + ": ")
-    $stderr.puts colored(disp_size.to_s + (units[ind] or "?B") + unique_identity, "black", "on_yellow")
+    $stderr.puts colored(disp_size.to_s + unique_identity, "black", "on_yellow")
     $stderr.flush
   end
 
