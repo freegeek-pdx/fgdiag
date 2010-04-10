@@ -8,7 +8,7 @@ Standards-Version: 3.8.0
 
 Package: fgdiag
 Architecture: all
-Depends: mtools, console-tools, time, less, smartmontools, libtui-ruby (>= 1.9), ruby, lsscsi, dialog, lshw, xresprobe, dmidecode, libopen4-ruby1.8 | fgdiag-open4 (= ${binary:Version}), e2fsprogs (>= 1.41.3)
+Depends: mtools, console-tools, time, less, smartmontools, libtui-ruby (>= 1.9), ruby, lsscsi, dialog, lshw, xresprobe, dmidecode, libopen4-ruby1.8 | fgdiag-open4 (= ${binary:Version}), e2fsprogs (>= 1.41.3), libbytes-ruby1.8 (= ${binary:Version})
 Recommends: i2c-tools
 Description: Free Geek Diagnostics
  Software used to test hardware at Free Geek.
@@ -20,3 +20,12 @@ Conflicts: libopen4-ruby1.8
 Description: library for managing child processes (Ruby 1.8)
  Repackaged version for use by fgdiag because Debian Etch doesn't have
  it.
+
+Package: libbytes-ruby1.8
+Architecture: all
+Depends: ruby1.8
+Description: library for calculating bytes values (Ruby 1.8)
+ This library adds to_bytes, to_hertz, and to_bitspersecond methods to
+ the String, Fixnum, and Float class.
+ .
+ This code is used by fgdb and disktest.

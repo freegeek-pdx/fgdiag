@@ -6,6 +6,7 @@ require 'rubytui'
 require 'fcntl'
 include RubyTUI
 require 'tempfile'
+reuqire 'bytes'
 
 # Environment variables that disktest pays attention to:
 # * DISKTEST_REQUIRED_NUMBER_OF_DRIVES
@@ -222,26 +223,8 @@ class HardDrive
     echo(status + " - " + time_taken)
   end
 
-  def output_size
-    disp_size = size
-    units = %w[bytes KiB MiB GiB TiB PiB EiB ZiB YiB]
-    ind = 0
-    while( disp_size / 1024 > 0 )
-      ind += 1
-      disp_size = disp_size / 1024
-    end
-    highlight(dev + ": ")
-    echo(disp_size.to_s + (units[ind] or "?B"))
-  end
-
   def output_drive_descriptor
-    disp_size = size
-    units = %w[bytes KB MB GB TB PB EB ZB YB]
-    ind = 0
-    while( disp_size / 1000 > 0 )
-      ind += 1
-      disp_size = disp_size / 1000
-    end
+    disp_size = size.to_s.to_bytes(1, false, false)
     highlight(dev + ": ")
     $stderr.puts colored(disp_size.to_s + (units[ind] or "?B") + unique_identity, "black", "on_yellow")
     $stderr.flush
