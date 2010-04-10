@@ -3,19 +3,19 @@ Section: debian/utils
 Priority: optional
 Maintainer: Freegeek Coders <coders@freegeek.org>
 Uploaders: Martin Chase <mchase@freegeek.org>, Vagrant Cascadian <vagrant@freegeek.org>, Ryan Niebur <ryan@debian.org>
-Build-Depends: cdbs, debhelper (>= 4.0.0)
-Standards-Version: 3.8.0
+Build-Depends: cdbs, debhelper (>= 5.0.0)
+Standards-Version: 3.8.4
 
 Package: fgdiag
 Architecture: all
-Depends: mtools, console-tools, time, less, smartmontools, libtui-ruby (>= 1.9), ruby, lsscsi, dialog, lshw, xresprobe, dmidecode, libopen4-ruby1.8 | fgdiag-open4 (= ${binary:Version}), e2fsprogs (>= 1.41.3), libbytes-ruby1.8 (= ${binary:Version})
+Depends: mtools, console-tools, time, less, smartmontools, libtui-ruby (>= 1.9), ruby, lsscsi, dialog, lshw, xresprobe, dmidecode, libopen4-ruby1.8 | fgdiag-open4 (= ${binary:Version}), e2fsprogs (>= 1.41.3), libbytes-ruby1.8 (= ${binary:Version}), ${misc:Depends}
 Recommends: i2c-tools
 Description: Free Geek Diagnostics
  Software used to test hardware at Free Geek.
 
 Package: fgdiag-open4
 Architecture: all
-Depends: ruby1.8
+Depends: ruby1.8, ${misc:Depends}
 Conflicts: libopen4-ruby1.8
 Description: library for managing child processes (Ruby 1.8)
  Repackaged version for use by fgdiag because Debian Etch doesn't have
@@ -23,7 +23,8 @@ Description: library for managing child processes (Ruby 1.8)
 
 Package: libbytes-ruby1.8
 Architecture: all
-Depends: ruby1.8
+Section: public/ruby
+Depends: ruby1.8, ${misc:Depends}
 Description: library for calculating bytes values (Ruby 1.8)
  This library adds to_bytes, to_hertz, and to_bitspersecond methods to
  the String, Fixnum, and Float class.
