@@ -2,8 +2,9 @@ fgdiag (0.2.30) UNRELEASED; urgency=low
 
   * maybe if I spell require right..
   * lots of brokenness with the last change
+  * include ByteFloatWrapper into Bignum as well
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 10 Apr 2010 13:31:21 -0700
+ -- Ryan Niebur <ryan@debian.org>  Sat, 10 Apr 2010 13:32:27 -0700
 
 fgdiag (0.2.29) freegeek-test; urgency=low
 

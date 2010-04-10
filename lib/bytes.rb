@@ -12,6 +12,10 @@ module ByteFloatWrapper
   alias :to_bitspersecond :forward_to_float
 end
 
+class Bignum
+  include ByteFloatWrapper
+end
+
 class String
   include ByteFloatWrapper
 end
