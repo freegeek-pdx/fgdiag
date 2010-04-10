@@ -1,3 +1,9 @@
+fgdiag (0.2.30) UNRELEASED; urgency=low
+
+  * maybe if I spell require right..
+
+ -- Ryan Niebur <ryan@debian.org>  Sat, 10 Apr 2010 13:29:19 -0700
+
 fgdiag (0.2.29) freegeek-test; urgency=low
 
   * add a new package, libbytes-ruby1.8, with code from fgdb to
