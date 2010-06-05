@@ -122,7 +122,7 @@ class HardDrive
     # progress comes in through err, bad blocks are reported on out
     #bbpid, bbin, bbout, bberr = Open4.popen4("#{File.dirname(__FILE__)}/fake_badblocks -c 1024 -s /dev/#{dev}")
     #bbpid, bbin, bbout, bberr = Open4.popen4("/sbin/badblocks -c 1024 -s /dev/#{dev}")
-    bbpid, bbin, bbout, bberr = Open4.popen4("/sbin/badblocks -c 1024 -swt 0xffffffff /dev/#{dev}")
+    bbpid, bbin, bbout, bberr = Open4.popen4("/sbin/badblocks -e 1 -c 1024 -swt 0xffffffff /dev/#{dev}")
     bbout.sync = bberr.sync = true
     current_state = 0
     until bberr.closed? or bberr.eof?

@@ -1,3 +1,9 @@
+fgdiag (0.2.31) UNRELEASED; urgency=low
+
+  * pass -e 1 to badblocks (Closes: #17398)
+
+ -- Ryan Niebur <ryan@debian.org>  Sat, 05 Jun 2010 15:03:58 -0700
+
 fgdiag (0.2.30) freegeek-test; urgency=low
 
   * maybe if I spell require right..
