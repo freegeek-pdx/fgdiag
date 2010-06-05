@@ -1,10 +1,10 @@
-fgdiag (0.2.31) UNRELEASED; urgency=low
+fgdiag (0.2.31) freegeek-test; urgency=low
 
   * pass -e 1 to badblocks (Closes: #17398)
   * fix finding errors in syslog. broken by overlycomplicatedness.
     (Closes: #12893)
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 05 Jun 2010 15:29:07 -0700
+ -- Ryan Niebur <ryan@debian.org>  Sat, 05 Jun 2010 15:33:52 -0700
 
 fgdiag (0.2.30) freegeek-test; urgency=low
 
