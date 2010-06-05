@@ -381,7 +381,7 @@ if __FILE__ == $0
         loglines += klout.read_nonblock(1000).split("\n")
       end
       drives.each {|d|
-        d.klog(*(loglines.delete_if {|l| d.klog_match?(l)})) # TODO: just make this d.klog(*loglines), it's more efficient in the end
+        d.klog(*loglines)
         d.output_display
       }
       loglines.clear
