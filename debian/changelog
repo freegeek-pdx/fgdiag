@@ -1,3 +1,9 @@
+fgdiag (0.2.32) UNRELEASED; urgency=low
+
+  * update to dh7
+
+ -- Ryan Niebur <ryan@debian.org>  Sat, 05 Jun 2010 15:42:03 -0700
+
 fgdiag (0.2.31) freegeek-test; urgency=low
 
   * pass -e 1 to badblocks (Closes: #17398)
