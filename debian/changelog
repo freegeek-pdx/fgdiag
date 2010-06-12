@@ -3,8 +3,9 @@ fgdiag (0.2.32) UNRELEASED; urgency=low
   * update to dh7
   * move dmidecode to Recommends, it's not needed so much
   * Don't try to load nonexistant modules on powerpc (Closes: #18545)
+  * add debian/source/format (1.0)
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 12 Jun 2010 12:36:28 -0700
+ -- Ryan Niebur <ryan@debian.org>  Sat, 12 Jun 2010 12:43:51 -0700
 
 fgdiag (0.2.31) freegeek-test; urgency=low
 
