@@ -7,6 +7,7 @@ require 'fcntl'
 include RubyTUI
 require 'tempfile'
 require 'bytes'
+require 'rbconfig'
 
 # Environment variables that disktest pays attention to:
 # * DISKTEST_REQUIRED_NUMBER_OF_DRIVES
@@ -33,15 +34,26 @@ def clear_stdin(parent = true)
 end
 
 class HardDrive
-  MODULES = %w[ide_core ide_disk ide_generic usb_storage]
   PASSED = 0
   FAILED = 1
   UNTESTED = 2
 
+  def HardDrive.modules
+    @@modules ||= case (arch = Config::CONFIG["arch"].split("-")[0])
+                  when "i486", "x86_64"
+                    %w[ide_core ide_disk ide_generic usb_storage]
+                  when "powerpc"
+                    %w[ide_disk usb_storage]
+                  else
+                    errorMessage("Unsupported architecture: #{arch}\n")
+                    exit!(1)
+                  end
+  end
+
   def HardDrive.scan
     mnt = `mount`
     loaded_modules = `lsmod`.split("\n")[1..-1].map{|x| x.split(' ').first}
-    (MODULES - loaded_modules).each{|x|
+    (HardDrive.modules - loaded_modules).each{|x|
       if ! system("modprobe #{x}")
         errorMessage("Could not load required module: #{x}\n")
         exit!(1)
