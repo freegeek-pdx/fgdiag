@@ -1,9 +1,9 @@
-fgdiag (0.2.33) UNRELEASED; urgency=low
+fgdiag (0.2.33) freegeek-test; urgency=low
 
   * add dmesg output to loglines in hopes of catching some DMA errors
     (Closes: #18626)
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 19 Jun 2010 16:18:09 -0700
+ -- Ryan Niebur <ryan@debian.org>  Sat, 19 Jun 2010 16:26:38 -0700
 
 fgdiag (0.2.32) freegeek-test; urgency=low
 
