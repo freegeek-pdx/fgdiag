@@ -364,7 +364,7 @@ if __FILE__ == $0
   end
   klpid, klin, klout, klerr = open4("tail -F #{logpipe}")
   loglines = []
-  loglines << `dmesg`.split("\n")
+  loglines += `dmesg`.split("\n")
   clearer = `clear`
   drives = HardDrive.scan.sort_by {|d| d.dev}
   begin
@@ -393,6 +393,7 @@ if __FILE__ == $0
       if select([klout],nil,nil,0.1)
         loglines += klout.read_nonblock(1000).split("\n")
       end
+      loglines.flatten!
       drives.each {|d|
         d.klog(*loglines)
         d.output_display
