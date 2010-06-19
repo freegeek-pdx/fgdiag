@@ -364,6 +364,7 @@ if __FILE__ == $0
   end
   klpid, klin, klout, klerr = open4("tail -F #{logpipe}")
   loglines = []
+  loglines << `dmesg`.split("\n")
   clearer = `clear`
   drives = HardDrive.scan.sort_by {|d| d.dev}
   begin
