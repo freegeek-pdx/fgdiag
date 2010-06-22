@@ -324,9 +324,13 @@ class HardDrive
       if klog_match?(msg)
         @status = FAILED
         #:MC: ugly handling of continuously updating progress log entry
-        curr = log[-1]
-        log[-1] = msg
-        log << curr
+        if log.length > 0
+          curr = log[-1]
+          log[-1] = msg
+          log << curr
+        else
+          log << msg
+        end
       end
     end
   end

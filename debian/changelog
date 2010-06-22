@@ -1,3 +1,10 @@
+fgdiag (0.2.34) UNRELEASED; urgency=low
+
+  * fix handling of syslog errors when the log is empty (when errors pop
+    up before disktest starts)
+
+ -- Ryan Niebur <ryan@debian.org>  Tue, 22 Jun 2010 16:35:33 -0700
+
 fgdiag (0.2.33) freegeek-test; urgency=low
 
   * add dmesg output to loglines in hopes of catching some DMA errors
