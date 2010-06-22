@@ -1,3 +1,9 @@
+fgdiag (0.2.35) UNRELEASED; urgency=low
+
+  * clean up logged messages
+
+ -- Ryan Niebur <ryan@debian.org>  Tue, 22 Jun 2010 16:44:07 -0700
+
 fgdiag (0.2.34) freegeek-test; urgency=low
 
   * fix handling of syslog errors when the log is empty (when errors pop

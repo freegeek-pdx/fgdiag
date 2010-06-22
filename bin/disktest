@@ -320,16 +320,18 @@ class HardDrive
   end
 
   def klog(*msgs)
+    return if failed?
     msgs.each do |msg|
       if klog_match?(msg)
         @status = FAILED
         #:MC: ugly handling of continuously updating progress log entry
+        mymsg = "Logged kernel error: " + msg
         if log.length > 0
           curr = log[-1]
-          log[-1] = msg
+          log[-1] = mymsg
           log << curr
         else
-          log << msg
+          log << mymsg
         end
       end
     end
