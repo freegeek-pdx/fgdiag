@@ -1,8 +1,8 @@
-fgdiag (0.2.36) UNRELEASED; urgency=low
+fgdiag (0.2.36) freegeek-test; urgency=low
 
   * clean up logged messages yet more
 
- -- Ryan Niebur <ryan@debian.org>  Tue, 22 Jun 2010 17:26:54 -0700
+ -- Ryan Niebur <ryan@debian.org>  Tue, 22 Jun 2010 17:27:43 -0700
 
 fgdiag (0.2.35) freegeek-test; urgency=low
 
