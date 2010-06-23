@@ -322,6 +322,7 @@ class HardDrive
   def klog(*msgs)
     return if failed?
     msgs.each do |msg|
+      break if failed?
       if klog_match?(msg)
         @status = FAILED
         #:MC: ugly handling of continuously updating progress log entry
