@@ -1,8 +1,9 @@
 fgdiag (0.2.35) UNRELEASED; urgency=low
 
   * clean up logged messages
+  * fix smart test to actually be ran
 
- -- Ryan Niebur <ryan@debian.org>  Tue, 22 Jun 2010 16:44:07 -0700
+ -- Ryan Niebur <ryan@debian.org>  Tue, 22 Jun 2010 17:09:26 -0700
 
 fgdiag (0.2.34) freegeek-test; urgency=low
 
