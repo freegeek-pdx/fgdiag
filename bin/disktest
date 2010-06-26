@@ -175,7 +175,11 @@ class HardDrive
           # second. and then the result wasn't == 100. this kills both
           # birds with one stone. lets see how it works on real drives
           # tho...  -- Ryan52
-          log[-1] = "#{current_state == 2 ? 100 : matches[1].to_f.round}% of badblocks scan complete"
+          if current_state == 1
+            log[-1] = "#{matches[1].to_f.round}% of badblocks write (part one) complete"
+          elsif current_state == 2
+            log[-1] = "#{matches[1].to_f.round}% of badblocks read (part two) complete"
+          end
         end
       end
       if @status == FAILED
