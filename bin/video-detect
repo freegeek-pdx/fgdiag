@@ -15,25 +15,24 @@ lspci_thinks=$( lspci -v -s $(lspci | grep VGA | cut -d ' ' -f 1) | grep " prefe
 
 clear
 
-echo $product | grep -i tnt
-if [[ "$?" == "0" ]]; then
-	dd_fail=1
-fi
+date >> /var/log/video_testing
 
-echo $product | grep -i 86c32
-if [[ "$?" == "0" ]]; then
-	dd_fail=1
-fi
+lshw_memory="$memory"
+ddcprobe_memory="${converted}MB"
+lspci_memory="$lspci_thinks"
 
-echo "`date`" >> /var/log/video_testing
-
-if [[ "$dd_fail" == "1" ]]; then
-	dialog --infobox "\n Card Description: $description \n \n \n Product: $product \n \n \n Vendor: $vendor \n \n \n Memory (lshw): $memory \n \n \nPlease record the card type and the amount of memory on the gizmo label.\n\n\nPress <enter> to power the system down" 0 0
-	echo "Description: $description  Product: $product  Vendor: $vendor  Memory: $memory" >> /var/log/video_testing
+if echo $product | grep -Eqi "(tnt|86c32)"; then
+    type=lshw
 else
-    dialog --infobox "\n Card Description: $description \n \n \n Product: $product \n \n \n Vendor: $vendor \n \n \n Memory (ddcprobe): ${converted}MB \n \n \nPlease record the card type and the amount of memory on the gizmo label. \n\nNote: Most cards will be correctly diagnosed here, but you should check the exception list" 0 0
-    echo "Description: $description Product: $product  Vendor: $vendor  Memory: $converted " >> /var/log/video_testing
+    type=ddcprobe
 fi
+
+#type=lspci
+
+final_memory=$(eval "echo \$${type}_memory")
+
+dialog --infobox "\n Card Description: $description \n \n \n Product: $product \n \n \n Vendor: $vendor \n \n \n Memory ($type): $final_memory \n \n \nPlease record the card type and the amount of memory on the gizmo label.\n\n\nPress <enter> to power the system down" 0 0
+echo "Description: $description  Product: $product  Vendor: $vendor  Memory: $final_memory" >> /var/log/video_testing
 
 while [[ 1 ]]; do
     read
