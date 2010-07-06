@@ -169,12 +169,6 @@ class HardDrive
           end
         end
         if matches and current_state > 0
-          # when it does the read, just have it sit at 100. at first I
-          # had it go to up to 50 for state = 1, then up to 100 for
-          # state = 2, tho it only stayed in the second state for a
-          # second. and then the result wasn't == 100. this kills both
-          # birds with one stone. lets see how it works on real drives
-          # tho...  -- Ryan52
           if current_state == 1
             log[-1] = "#{matches[1].to_f.round}% of badblocks write (part one) complete"
           elsif current_state == 2
