@@ -1,10 +1,10 @@
-fgdiag (0.2.37) UNRELEASED; urgency=low
+fgdiag (0.2.37) freegeek-test; urgency=low
 
   * split out the reading and the writing in the user display rather
     than trying to calculate a single percentage for the whole badblocks
     run (Closes: #18546)
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 26 Jun 2010 11:24:57 -0700
+ -- Ryan Niebur <ryan@debian.org>  Tue, 06 Jul 2010 11:12:39 -0700
 
 fgdiag (0.2.36) freegeek-test; urgency=low
 
