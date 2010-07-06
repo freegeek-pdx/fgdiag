@@ -10,6 +10,9 @@ vendor=$( grep vendor /tmp/lshw.out | cut -f2- -d ':' )
 DEBIAN_FRONTEND=noninteractive dpkg-reconfigure xserver-xorg
 second_opinion=$( ddcprobe | grep memory | cut -f2- -d ' ' | sed "s/kb//" )
 converted=$( expr $second_opinion / 1024 )
+
+lspci_thinks=$( lspci -v -s $(lspci | grep VGA | cut -d ' ' -f 1) | grep " prefetchable) \[size=" | sed -r 's/.*\[size=(.+)\]/\1/' )
+
 clear
 
 echo $product | grep -i tnt

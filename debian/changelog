@@ -1,3 +1,10 @@
+fgdiag (0.2.38) UNRELEASED; urgency=low
+
+  * video-detect: add some disabled code to use lspci to determine the
+    video ram
+
+ -- Ryan Niebur <ryan@debian.org>  Tue, 06 Jul 2010 14:30:40 -0700
+
 fgdiag (0.2.37) freegeek-test; urgency=low
 
   * split out the reading and the writing in the user display rather

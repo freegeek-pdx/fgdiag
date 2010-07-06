@@ -8,7 +8,7 @@ Standards-Version: 3.8.4
 
 Package: fgdiag
 Architecture: all
-Depends: mtools, console-tools, time, less, smartmontools, libtui-ruby (>= 1.9), ruby, lsscsi, dialog, lshw, xresprobe, libopen4-ruby1.8 | fgdiag-open4 (= ${binary:Version}), e2fsprogs (>= 1.41.3), libbytes-ruby1.8 (= ${binary:Version}), ${misc:Depends}
+Depends: mtools, console-tools, time, less, smartmontools, libtui-ruby (>= 1.9), ruby, lsscsi, dialog, lshw, xresprobe, libopen4-ruby1.8 | fgdiag-open4 (= ${binary:Version}), e2fsprogs (>= 1.41.3), libbytes-ruby1.8 (= ${binary:Version}), ${misc:Depends}, pciutils
 Recommends: i2c-tools, dmidecode
 Description: Free Geek Diagnostics
  Software used to test hardware at Free Geek.
