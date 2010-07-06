@@ -1,4 +1,4 @@
-fgdiag (0.2.38) UNRELEASED; urgency=low
+fgdiag (0.2.38) freegeek-test; urgency=low
 
   * video-detect
     - add some disabled code to use lspci to determine the
@@ -8,7 +8,7 @@ fgdiag (0.2.38) UNRELEASED; urgency=low
       detection methods
     - source /etc/fgdiag.conf if it exists
 
- -- Ryan Niebur <ryan@debian.org>  Tue, 06 Jul 2010 15:06:55 -0700
+ -- Ryan Niebur <ryan@debian.org>  Tue, 06 Jul 2010 15:08:43 -0700
 
 fgdiag (0.2.37) freegeek-test; urgency=low
 
