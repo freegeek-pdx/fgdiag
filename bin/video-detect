@@ -1,5 +1,13 @@
 #!/bin/bash
 
+if [ -f /etc/fgdiag.conf ]; then
+    . /etc/fgdiag.conf
+fi
+
+if [ -z "$mem_debug" ]; then
+    mem_debug=0
+fi
+
 lshw -class display > /tmp/lshw.out
 
 description=$( grep description /tmp/lshw.out | cut -f2- -d ':' )
@@ -31,7 +39,13 @@ fi
 
 final_memory=$(eval "echo \$${type}_memory")
 
-dialog --infobox "\n Card Description: $description \n \n \n Product: $product \n \n \n Vendor: $vendor \n \n \n Memory ($type): $final_memory \n \n \nPlease record the card type and the amount of memory on the gizmo label.\n\n\nPress <enter> to power the system down" 0 0
+if [ "$mem_debug" = "1" ]; then
+    mem_str="Memory ($type): \n   ddcprobe: $ddcprobe_memory \n   lshw: $lshw_memory \n   lspci: $lspci_memory"
+else
+    mem_str="Memory ($type): $final_memory"
+fi
+
+dialog --infobox "\n Card Description: $description \n \n \n Product: $product \n \n \n Vendor: $vendor \n \n \n $mem_str \n \n \nPlease record the card type and the amount of memory on the gizmo label.\n\n\nPress <enter> to power the system down" 0 0
 echo "Description: $description  Product: $product  Vendor: $vendor  Memory: $final_memory" >> /var/log/video_testing
 
 while [[ 1 ]]; do
