@@ -5,7 +5,7 @@ if [ -f /etc/fgdiag.conf ]; then
 fi
 
 if [ -z "$mem_debug" ]; then
-    mem_debug=0
+    mem_debug=1
 fi
 
 lshw -class display > /tmp/lshw.out
