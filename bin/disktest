@@ -382,7 +382,10 @@ if __FILE__ == $0
     promptWithDefault("Are these the expected drives and do you want to test them?", "yes", "Type 'yes' to begin") do |response|
       /^y/.match(response)
     end
-    required = ENV['DISKTEST_REQUIRED_NUMBER_OF_DRIVES'] || 2
+    required = 2
+    if ENV['DISKTEST_REQUIRED_NUMBER_OF_DRIVES']
+        required = ENV['DISKTEST_REQUIRED_NUMBER_OF_DRIVES'].to_i
+    end
     if drives.size < required && ENV['DISKTEST_ALLOW_LESS_THAN_REQUIRED'] != "true"
       errorMessage("There are #{drives.size} drives! at least #{required} were expected.\n")
       promptWithDefault("Are you sure you want to continue?", "no", "Type 'yes, I want to test #{drives.size} drive(s)' to continue anyway or 'no' to abort the disktest.") do |output|
