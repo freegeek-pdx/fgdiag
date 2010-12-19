@@ -2,13 +2,14 @@ fgdiag (0.2.38) UNRELEASED; urgency=low
 
   [ Ryan Niebur ]
   * make mem_debug default
+  * remove lspci
   
   [ Vagrant Cascadian ]
   * disktest:
     - when DISKTEST_REQUIRED_NUMBER_OF_DRIVES variable is set, convert to an
       integer before using.
 
- -- Vagrant Cascadian <vagrant@debian.org>  Thu, 09 Dec 2010 14:19:29 -0800
+ -- Ryan Niebur <ryan@debian.org>  Sat, 18 Dec 2010 17:15:54 -0800
 
 fgdiag (0.2.38) freegeek-test; urgency=low
 
