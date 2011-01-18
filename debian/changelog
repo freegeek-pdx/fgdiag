@@ -1,4 +1,4 @@
-fgdiag (0.2.39) UNRELEASED; urgency=low
+fgdiag (0.2.39) freegeek-test; urgency=low
 
   [ Ryan Niebur ]
   * make mem_debug default
@@ -10,7 +10,7 @@ fgdiag (0.2.39) UNRELEASED; urgency=low
       integer before using.
     - initiate a smart self-test before testing the drives. (Closes: #21275)
 
- -- Vagrant Cascadian <vagrant@debian.org>  Tue, 18 Jan 2011 14:50:32 -0800
+ -- Vagrant Cascadian <vagrant@debian.org>  Tue, 18 Jan 2011 14:54:36 -0800
 
 fgdiag (0.2.38) freegeek-test; urgency=low
 
