@@ -86,6 +86,8 @@ class HardDrive
     @thread = Thread.new(self) {|drive|
       begin
         if(drive.smart &&
+           drive.smarttest &&
+           drive.smart && 
            drive.badblocks &&
            drive.smart &&
            drive.wipe &&
@@ -103,6 +105,13 @@ class HardDrive
     }
     @thread.abort_on_exception = true
     return @thread
+  end
+  
+  def smarttest
+    log << "initiating smart self-test"
+    system('/usr/sbin/smartctl', '-q', 'silent', '-t', 'short', "/dev/#{dev}")
+    # always return true, in case we're testing a drive without smart support.
+    return true
   end
 
   def smart
