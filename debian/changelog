@@ -1,3 +1,10 @@
+fgdiag (0.2.40) UNRELEASED; urgency=low
+
+  * remove fgdiag-open4 package, as all current versions of debian include
+    libopen4-ruby1.8. 
+
+ -- Vagrant Cascadian <vagrant@debian.org>  Tue, 25 Jan 2011 14:22:47 -0800
+
 fgdiag (0.2.39) freegeek-test; urgency=low
 
   [ Ryan Niebur ]
