@@ -8,12 +8,14 @@ include RubyTUI
 require 'tempfile'
 require 'bytes'
 require 'rbconfig'
+require 'disktestlog'
 
 # Environment variables that disktest pays attention to:
 # * DISKTEST_REQUIRED_NUMBER_OF_DRIVES
 # * DISKTEST_ALLOW_LESS_THAN_REQUIRED
 # * DISKTEST_DISK_REGEX
 # * DISKTEST_SCSI_REGEX
+# * DISKTEST_LOGTO_FGDB
 
 def clear_stdin(parent = true)
   flags=$stdin.fcntl(Fcntl::F_GETFL)
@@ -37,6 +39,7 @@ class HardDrive
   PASSED = 0
   FAILED = 1
   UNTESTED = 2
+  REVERSE = {"0" => "PASSED", "1" => "FAILED", "2" => "UNTESTED"}
 
   def HardDrive.modules
     @@modules ||= case (arch = Config::CONFIG["arch"].split("-")[0])
@@ -78,11 +81,13 @@ class HardDrive
   attr_reader :dev, :size
   attr_accessor :finished, :testing, :log
   attr_writer :status
+  attr_reader :disktest_run
 
   def run_tests
     return if @testing
     @testing = true
     @started = Time.new
+    @disktest_run = DisktestLog.new(vendor, model_name, serial)
     @thread = Thread.new(self) {|drive|
       begin
         if(drive.smart &&
@@ -101,6 +106,7 @@ class HardDrive
       ensure
         drive.testing = false
         drive.finished = Time.new
+        drive.disktest_run.complete(REVERSE[@status.to_s])
       end
     }
     @thread.abort_on_exception = true

@@ -1,3 +1,4 @@
 bin/disktest usr/bin
 bin/video-detect usr/bin
 bin/memid usr/bin
+lib/disktestlog.rb usr/lib/ruby/1.8/
