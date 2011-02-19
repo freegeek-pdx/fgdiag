@@ -1,4 +1,4 @@
-fgdiag (0.2.40) UNRELEASED; urgency=low
+fgdiag (0.2.40) freegeek-test; urgency=low
 
   [ Vagrant Cascadian ]
   * remove fgdiag-open4 package, as all current versions of debian include
@@ -7,7 +7,7 @@ fgdiag (0.2.40) UNRELEASED; urgency=low
   [ Ryan Niebur ]
   * log to the fgdb.rb install at $DISKTEST_LOGTO_FGDB if its set
 
- -- Ryan Niebur <ryan@debian.org>  Tue, 15 Feb 2011 21:03:22 -0800
+ -- Ryan Niebur <ryan@debian.org>  Sat, 19 Feb 2011 14:56:33 -0800
 
 fgdiag (0.2.39) freegeek-test; urgency=low
 
