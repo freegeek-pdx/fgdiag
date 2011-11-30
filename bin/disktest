@@ -87,7 +87,7 @@ class HardDrive
     return if @testing
     @testing = true
     @started = Time.new
-    @disktest_run = DisktestLog.new(vendor, model_name, serial)
+    @disktest_run = DisktestLog.new(vendor, model_name, serial, self.megabytes_size)
     @thread = Thread.new(self) {|drive|
       begin
         if(drive.smart &&
@@ -248,10 +248,18 @@ class HardDrive
     echo(status + " - " + time_taken)
   end
 
+  def megabytes_size
+    # integer math, should floor
+    (size / (1000*1000)).to_i
+  end
+
+  def display_size
+    size.to_bytes(1, false, false)
+  end
+
   def output_drive_descriptor
-    disp_size = size.to_bytes(1, false, false)
     highlight(dev + ": ")
-    $stderr.puts colored(disp_size.to_s + unique_identity, "black", "on_yellow")
+    $stderr.puts colored(display_size.to_s + unique_identity, "black", "on_yellow")
     $stderr.flush
   end
 

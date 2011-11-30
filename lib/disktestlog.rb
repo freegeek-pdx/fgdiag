@@ -33,14 +33,14 @@ class DisktestLog
 
   attr_reader :this_id #, :vendor, :model, :serial_number, :result
 
-  def initialize(vendor, model, serial_number)
+  def initialize(vendor, model, serial_number, size = "")
 #    @vendor = vendor
 #    @model = model
 #    @serial_number = serial_number
     return if !DisktestLog.enabled?
     begin
       self.class.prepare
-      @this_id = @@driver.add_disktest_run(vendor, model, serial_number)
+      @this_id = @@driver.add_disktest_run(vendor, model, serial_number, size)
     rescue SOAP::FaultError => e
       errorMessage "Server returned this error: #{e.message}\n\n"
       exit 1
