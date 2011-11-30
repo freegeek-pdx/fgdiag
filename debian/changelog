@@ -14,7 +14,11 @@ fgdiag (0.2.40) freegeek-test; urgency=low
   [ Ryan Niebur ]
   * log to the fgdb.rb install at $DISKTEST_LOGTO_FGDB if its set
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 19 Feb 2011 14:56:33 -0800
+  [ Vagrant Cascadian ]
+  * lower dependency on xresprobe to a recommends, as xresprobe was removed 
+    from squeeze.
+
+ -- Vagrant Cascadian <vagrant@debian.org>  Sat, 26 Mar 2011 18:41:55 -0700
 
 fgdiag (0.2.39) freegeek-test; urgency=low
 
