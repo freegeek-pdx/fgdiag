@@ -1,9 +1,9 @@
-fgdiag (0.2.41) UNRELEASED; urgency=low
+fgdiag (0.2.41) freegeek-test; urgency=low
 
   * save the number of megabytes for the drives to the disktest_runs
     table in fgdb.rb
 
- -- Ryan Niebur <ryan@debian.org>  Wed, 30 Nov 2011 14:46:35 -0800
+ -- Ryan Niebur <ryan@debian.org>  Wed, 07 Dec 2011 16:09:12 -0800
 
 fgdiag (0.2.40) freegeek-test; urgency=low
 
