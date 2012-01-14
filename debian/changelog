@@ -1,10 +1,10 @@
-fgdiag (0.2.42) UNRELEASED; urgency=low
+fgdiag (0.2.42) freegeek-test; urgency=low
 
   * Format the elapsed seconds into HH:MM:SS format (Closes: #26281)
   * if an error is caught while saving the final result to the database,
     then retry until it works (Closes: #23062)
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 14 Jan 2012 13:39:40 -0800
+ -- Ryan Niebur <ryan@debian.org>  Sat, 14 Jan 2012 14:11:02 -0800
 
 fgdiag (0.2.41) freegeek-test; urgency=low
 
