@@ -309,7 +309,13 @@ class HardDrive
       else
         duration = Time.new - @started
       end
-      "#{duration} seconds"
+      duration = duration.ceil
+      seconds = (duration % 60)
+      middle = ((duration - seconds)/60.0).to_i
+      minutes = middle % 60
+      hours = ((middle - minutes)/60.0).to_i
+      
+      "#{(sprintf "%d:%2d:%2d", hours, minutes, seconds).gsub(' ', '0')} hours"
     else
       "(no time has been recorded yet)"
     end
