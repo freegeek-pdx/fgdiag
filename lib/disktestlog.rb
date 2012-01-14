@@ -1,6 +1,9 @@
 require 'soap/rpc/driver'
 require 'rubytui'
 
+class DisktestLogException < StandardError
+end
+
 class DisktestLog
   def self.server
     ENV["DISKTEST_LOGTO_FGDB"]
@@ -18,12 +21,14 @@ class DisktestLog
     begin
       retval = @@driver.ping
       if retval != "pong"
-        RubyTUI::errorMessage "I could not connect to the server.\nMake sure you are connected to the network and try again.\n\n"
-        exit false
+        raise DisktestLogException.new("I could not connect to the server.\nMake sure you are connected to the network and try again.\n\n")
       end
+    rescue SOAP::FaultError => e
+      raise DisktestLogException.new("Server returned this error: #{e.message}\n\n")
+    rescue DisktestLogException => e
+      raise e
     rescue SOAP::RPCRoutingError, SOAP::ResponseFormatError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ECONNRESET, Errno::ETIMEDOUT, NoMethodError, SocketError, NameError => e
-      RubyTUI::errorMessage "I could not connect to the server (#{e.message}).\nMake sure you are connected to the network and try again.\n\n"
-      exit false
+      raise DisktestLogException.new("I could not connect to the server (#{e.message}).\nMake sure you are connected to the network and try again.\n\n")
     end
     @@soap_methods = @@driver.soap_methods
     @@soap_methods.each{|x|
@@ -42,8 +47,7 @@ class DisktestLog
       self.class.prepare
       @this_id = @@driver.add_disktest_run(vendor, model, serial_number, size)
     rescue SOAP::FaultError => e
-      errorMessage "Server returned this error: #{e.message}\n\n"
-      exit 1
+      raise DisktestLogException.new("Server returned this error: #{e.message}\n\n")
     end
   end
 
@@ -52,9 +56,9 @@ class DisktestLog
     return if !DisktestLog.enabled?
     begin
       @@driver.add_disktest_result(@this_id, result)
-    rescue SOAP::FaultError => e
-      errorMessage "Server returned this error: #{e.message}\n\n"
-      exit 1
+    rescue SOAP::RPCRoutingError, SOAP::ResponseFormatError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ECONNRESET, Errno::ETIMEDOUT, NoMethodError, SocketError, NameError, SOAP::FaultError => e
+      raise DisktestLogException.new(e.message)
     end
+# FOR DEBUG:    raise DisktestLogException.new("THIS IS A TEST") if File.exists?('/tmp/err')
   end
 end

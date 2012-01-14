@@ -106,7 +106,28 @@ class HardDrive
       ensure
         drive.testing = false
         drive.finished = Time.new
-        drive.disktest_run.complete(REVERSE[@status.to_s])
+        success = false
+        first = true
+        while ! success
+          success = true
+          begin
+            drive.disktest_run.complete(REVERSE[@status.to_s])
+          rescue DisktestLogException => e
+            err = "Failed to save result to database record, waiting 5 seconds to retry. Error was: #{e.message}"
+            if first
+              log << err
+            else
+              log[-1] = err
+            end
+            errorMessage "Failed to save result to database record, waiting 5 seconds to retry. Error was: #{e.message}"
+            sleep 5
+            success = false
+            first = false
+          end
+        end
+        if !first
+          log[-1] = "Saved record to database successfully."
+        end
       end
     }
     @thread.abort_on_exception = true
@@ -425,7 +446,14 @@ if __FILE__ == $0
         output.match(/^yes, I want to test . drive\(s\)$/)
       end
     end
-    threads = drives.map {|drive| drive.run_tests}
+    threads = drives.map {|drive|
+      begin
+        drive.run_tests
+      rescue DisktestLogException => e
+        RubyTUI::errorMessage "Network communication error: " + e.message
+        exit 1
+      end
+    }
     until threads.empty?
       if select([klout],nil,nil,0.1)
         loglines += klout.read_nonblock(1000).split("\n")
