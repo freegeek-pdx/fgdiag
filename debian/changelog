@@ -1,3 +1,9 @@
+fgdiag (0.2.44) UNRELEASED; urgency=low
+
+  * remove unneeded console-tools dependency?
+
+ -- Ryan Niebur <ryan@debian.org>  Sat, 07 Apr 2012 18:01:21 -0700
+
 fgdiag (0.2.43) freegeek-test; urgency=low
 
   * improve lshw parsing in the video-detect script
