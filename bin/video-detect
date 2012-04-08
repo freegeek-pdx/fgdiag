@@ -10,10 +10,10 @@ fi
 
 lshw -class display > /tmp/lshw.out
 
-description=$( grep description /tmp/lshw.out | cut -f2- -d ':' )
-product=$( grep product /tmp/lshw.out | cut -f2- -d ':' )
-memory=$( grep size /tmp/lshw.out | cut -f2- -d ':' )
-vendor=$( grep vendor /tmp/lshw.out | cut -f2- -d ':' )
+description=$( grep description: /tmp/lshw.out | cut -f2- -d ':' )
+product=$( grep product: /tmp/lshw.out | cut -f2- -d ':' )
+memory=$( grep size: /tmp/lshw.out | cut -f2- -d ':' )
+vendor=$( grep vendor: /tmp/lshw.out | cut -f2- -d ':' )
 
 DEBIAN_FRONTEND=noninteractive dpkg-reconfigure xserver-xorg
 second_opinion=$( ddcprobe | grep memory | cut -f2- -d ' ' | sed "s/kb//" )

@@ -1,3 +1,9 @@
+fgdiag (0.2.43) UNRELEASED; urgency=low
+
+  * improve lshw parsing in the video-detect script
+
+ -- Ryan Niebur <ryan@debian.org>  Sat, 07 Apr 2012 17:40:00 -0700
+
 fgdiag (0.2.42) freegeek-test; urgency=low
 
   * Format the elapsed seconds into HH:MM:SS format (Closes: #26281)
