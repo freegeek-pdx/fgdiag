@@ -1,8 +1,8 @@
-fgdiag (0.2.43) UNRELEASED; urgency=low
+fgdiag (0.2.43) freegeek-test; urgency=low
 
   * improve lshw parsing in the video-detect script
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 07 Apr 2012 17:40:00 -0700
+ -- Ryan Niebur <ryan@debian.org>  Sat, 07 Apr 2012 17:49:25 -0700
 
 fgdiag (0.2.42) freegeek-test; urgency=low
 
