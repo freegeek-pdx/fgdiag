@@ -35,11 +35,25 @@ def clear_stdin(parent = true)
   end
 end
 
+class DisktestTimeoutError < StandardError
+end
+
 class HardDrive
   PASSED = 0
   FAILED = 1
   UNTESTED = 2
-  REVERSE = {"0" => "PASSED", "1" => "FAILED", "2" => "UNTESTED"}
+  SKIPPED = 3
+  REVERSE = {"0" => "PASSED", "1" => "FAILED", "2" => "UNTESTED", "3" => "SKIPPED"}
+
+  def check_time
+    return if self.timeout_limit == -1
+    # raise DisktestTimeoutError.new("blah blah") if self.timeout_limit <= duration
+  end
+
+  def timeout_limit
+    return -1 if ENV['add_this_var'].nil?
+    # TODO: ENV['var'] * size
+  end
 
   def HardDrive.modules
     @@modules ||= case (arch = Config::CONFIG["arch"].split("-")[0])
@@ -102,7 +116,7 @@ class HardDrive
       rescue Exception => e
         drive.log << e
         drive.log << e.backtrace
-        drive.status = FAILED
+        drive.status = ((e.class == DisktestTimeoutError) ? SKIPPED : FAILED)
       ensure
         drive.testing = false
         drive.finished = Time.new
@@ -174,6 +188,7 @@ class HardDrive
     bbout.sync = bberr.sync = true
     current_state = 0
     until bberr.closed? or bberr.eof?
+      self.check_time
       matches = nil
       statematch = nil
       buff = nil
@@ -234,6 +249,7 @@ class HardDrive
     log << ""
     open("/dev/#{dev}", "w") {|drive|
       until drive.closed?
+        self.check_time
         begin
           written = drive.write(ZEROS)
           total += written
