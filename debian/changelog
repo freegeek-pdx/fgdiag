@@ -1,8 +1,10 @@
 fgdiag (0.2.44) UNRELEASED; urgency=low
 
   * remove unneeded console-tools dependency?
+  * add storage size and unique id information to disktest summary
+    output
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 07 Apr 2012 18:01:21 -0700
+ -- Ryan Niebur <ryan@debian.org>  Sat, 14 Apr 2012 11:17:44 -0700
 
 fgdiag (0.2.43) freegeek-test; urgency=low
 

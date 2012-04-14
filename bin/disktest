@@ -265,7 +265,7 @@ class HardDrive
   end
 
   def output_display
-    highlight(dev + ": ")
+    highlight(dev + " " + display_size.to_s + unique_identity + ": ")
     echo(status + " - " + time_taken)
   end
 
