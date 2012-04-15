@@ -1,8 +1,12 @@
 fgdiag (0.2.45) UNRELEASED; urgency=low
 
+  [ Ryan Niebur ]
   * Work In Progress: Timeout (#27911)
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 14 Apr 2012 15:26:46 -0700
+  [ Vagrant Cascadian ]
+  * disktest: ide_disk is no longer needed on powerpc. 
+
+ -- Vagrant Cascadian <vagrant@debian.org>  Sun, 15 Apr 2012 13:05:17 -0700
 
 fgdiag (0.2.44) freegeek-test; urgency=low
 

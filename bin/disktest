@@ -60,7 +60,7 @@ class HardDrive
                   when "i486", "x86_64"
                     %w[ide_core ide_disk ide_generic usb_storage]
                   when "powerpc"
-                    %w[ide_disk usb_storage]
+                    %w[usb_storage]
                   else
                     errorMessage("Unsupported architecture: #{arch}\n")
                     exit!(1)
