@@ -16,6 +16,7 @@ require 'disktestlog'
 # * DISKTEST_DISK_REGEX
 # * DISKTEST_SCSI_REGEX
 # * DISKTEST_LOGTO_FGDB
+# * DISKTEST_TIME_LIMIT_PER_GB
 
 def clear_stdin(parent = true)
   flags=$stdin.fcntl(Fcntl::F_GETFL)
@@ -42,17 +43,17 @@ class HardDrive
   PASSED = 0
   FAILED = 1
   UNTESTED = 2
-  SKIPPED = 3
-  REVERSE = {"0" => "PASSED", "1" => "FAILED", "2" => "UNTESTED", "3" => "SKIPPED"}
+  ABORTED = 3
+  REVERSE = {"0" => "PASSED", "1" => "FAILED", "2" => "UNTESTED", "3" => "ABORTED"}
 
   def check_time
     return if self.timeout_limit == -1
-    # raise DisktestTimeoutError.new("blah blah") if self.timeout_limit <= duration
+    raise DisktestTimeoutError.new("Disk #{self.dev} has exceeded its calculated time limit of #{format_time(self.timeout_limit)} (#{ENV['DISKTEST_TIME_LIMIT_PER_GB']} minutes per GB).") if self.timeout_limit < self.duration_seconds
   end
 
   def timeout_limit
-    return -1 if ENV['add_this_var'].nil?
-    # TODO: ENV['var'] * size
+    return -1 if ENV['DISKTEST_TIME_LIMIT_PER_GB'].nil?
+    ENV['DISKTEST_TIME_LIMIT_PER_GB'].to_f * 60 * self.size_in_gb
   end
 
   def HardDrive.modules
@@ -114,9 +115,10 @@ class HardDrive
           drive.status = PASSED
         end
       rescue Exception => e
+        is_timeout = (e.class == DisktestTimeoutError)
         drive.log << e
-        drive.log << e.backtrace
-        drive.status = ((e.class == DisktestTimeoutError) ? SKIPPED : FAILED)
+        drive.log << e.backtrace unless is_timeout
+        drive.status = (is_timeout ? ABORTED : FAILED)
       ensure
         drive.testing = false
         drive.finished = Time.new
@@ -229,7 +231,7 @@ class HardDrive
           end
         end
       end
-      if @status == FAILED
+      if @status == FAILED or @status == ABORTED
         [bbin, bbout, bberr].each {|io| io.close}
         Process.kill("INT", bbpid)
         break
@@ -240,7 +242,7 @@ class HardDrive
       @log << "badblocks failed"
       @status = FAILED
     end
-    return @status != FAILED
+    return (@status != FAILED and @status != ABORTED)
   end # def badblocks
 
   ZEROS = "\0" * (1024 * 1024)
@@ -256,7 +258,7 @@ class HardDrive
           written = drive.write(ZEROS)
           total += written
           log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
-          if @status == FAILED or written < ZEROS.length
+          if @status == FAILED or @status == ABORTED or written < ZEROS.length
             break
           end
         rescue Errno::ENOSPC => e
@@ -270,7 +272,7 @@ class HardDrive
           written = drive.write(RANDOM)
           total += written
           log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
-          if @status == FAILED or written < RANDOM.length
+          if @status == FAILED or @status == ABORTED or written < RANDOM.length
             break
           end
         rescue Errno::ENOSPC => e
@@ -279,7 +281,7 @@ class HardDrive
       end
     }
     log << "disk wipe finished"
-    return @status != FAILED
+    return (@status != FAILED and @status != ABORTED)
   end
 
   def output_display
@@ -287,8 +289,14 @@ class HardDrive
     echo(status + " - " + time_taken)
   end
 
+
+  # integer math, should floor
+  def size_in_gb
+    (size / (1000 * 1000 * 1000)).to_i
+  end
+
+  # integer math, should floor
   def megabytes_size
-    # integer math, should floor
     (size / (1000*1000)).to_i
   end
 
@@ -341,7 +349,15 @@ class HardDrive
     return @lshw_this
   end
 
-  def time_taken
+  def format_time(duration)
+    seconds = (duration % 60)
+    middle = ((duration - seconds)/60.0).to_i
+    minutes = middle % 60
+    hours = ((middle - minutes)/60.0).to_i
+    "#{(sprintf "%d:%2d:%2d", hours, minutes, seconds).gsub(' ', '0')} hours"
+  end
+
+  def duration_seconds
     if @started
       if @finished
         duration = @finished - @started
@@ -349,15 +365,14 @@ class HardDrive
         duration = Time.new - @started
       end
       duration = duration.ceil
-      seconds = (duration % 60)
-      middle = ((duration - seconds)/60.0).to_i
-      minutes = middle % 60
-      hours = ((middle - minutes)/60.0).to_i
-      
-      "#{(sprintf "%d:%2d:%2d", hours, minutes, seconds).gsub(' ', '0')} hours"
     else
-      "(no time has been recorded yet)"
+      nil
     end
+  end
+
+  def time_taken
+    duration = self.duration_seconds
+    return (duration ? format_time(duration) : "(no time has been recorded yet)")
   end
 
   def status
@@ -366,6 +381,8 @@ class HardDrive
       "all tests passed:\n#{log.to_yaml}"
     when FAILED
       "failed:\n#{log.to_yaml}"
+    when ABORTED
+      "aborted:\n#{log.to_yaml}"
     else
       log.last or "unknown status"
     end
@@ -379,6 +396,14 @@ class HardDrive
     @status == FAILED
   end
 
+  def aborted?
+    @status == ABORTED
+  end
+
+  def bad_drive?
+    failed? or aborted?
+  end
+
   Err_re = /error/
   def klog_match?(line)
     Err_re.match(line) and
@@ -386,9 +411,9 @@ class HardDrive
   end
 
   def klog(*msgs)
-    return if failed?
+    return if bad_drive?
     msgs.each do |msg|
-      break if failed?
+      break if bad_drive?
       if klog_match?(msg)
         @status = FAILED
         #:MC: ugly handling of continuously updating progress log entry
@@ -499,6 +524,8 @@ if __FILE__ == $0
       if d.passed?
         d.output_drive_descriptor
         puts colored( "#{d.dev} passed!  Label and store it.", 'bold', 'black', 'on_green' )
+      elsif d.aborted?
+        errorMessage "#{d.dev} reached its time limit and did not finish testing.  Recycle it.\n"
       elsif d.failed?
         errorMessage "#{d.dev} failed.  Recycle it.\n"
       else
