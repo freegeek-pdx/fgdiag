@@ -1,4 +1,4 @@
-fgdiag (0.2.45) UNRELEASED; urgency=low
+fgdiag (0.2.45) freegeek-test; urgency=low
 
   [ Ryan Niebur ]
   * Implement DISKTEST_TIME_LIMIT_PER_GB=6 to limit drive tests to 6
@@ -10,7 +10,7 @@ fgdiag (0.2.45) UNRELEASED; urgency=low
   [ Vagrant Cascadian ]
   * disktest: ide_disk is no longer needed on powerpc. 
 
- -- Vagrant Cascadian <vagrant@debian.org>  Sun, 15 Apr 2012 13:05:17 -0700
+ -- Ryan Niebur <ryan@debian.org>  Thu, 19 Apr 2012 14:07:00 -0700
 
 fgdiag (0.2.44) freegeek-test; urgency=low
 
