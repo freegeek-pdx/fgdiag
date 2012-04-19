@@ -366,13 +366,13 @@ class HardDrive
       end
       duration = duration.ceil
     else
-      nil
+      -1
     end
   end
 
   def time_taken
     duration = self.duration_seconds
-    return (duration ? format_time(duration) : "(no time has been recorded yet)")
+    return (duration != -1 ? format_time(duration) : "(no time has been recorded yet)")
   end
 
   def status
