@@ -147,10 +147,12 @@ class HardDrive
     @thread.abort_on_exception = true
     return @thread
   end
+
+  SMARTCTL = 'smartctl'
   
   def smarttest
     log << "initiating smart self-test"
-    system('/usr/sbin/smartctl', '-q', 'silent', '-t', 'short', "/dev/#{dev}")
+    system(SMARTCTL, '-q', 'silent', '-t', 'short', "/dev/#{dev}")
     # always return true, in case we're testing a drive without smart support.
     return true
   end
@@ -162,9 +164,9 @@ class HardDrive
       is_ata=`lsscsi`.select{|x| x.match(dev)}.first.split(" ")[2] == "ATA"
     end
     if is_ata
-      system('/usr/sbin/smartctl', '-q', 'silent', '--all', '-d', 'ata', "/dev/#{dev}")
+      system(SMARTCTL, '-q', 'silent', '--all', '-d', 'ata', "/dev/#{dev}")
     else
-      system('/usr/sbin/smartctl', '-q', 'silent', '--all', "/dev/#{dev}")
+      system(SMARTCTL, '-q', 'silent', '--all', "/dev/#{dev}")
     end
     retval=$?.exitstatus
     if retval != 0

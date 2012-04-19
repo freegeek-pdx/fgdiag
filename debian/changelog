@@ -2,6 +2,9 @@ fgdiag (0.2.45) UNRELEASED; urgency=low
 
   [ Ryan Niebur ]
   * Work In Progress: Timeout (#27911)
+  * add fake_test_bin/quicktest.sh, which can be used on a xen virtual
+    machine to very easily test disktest (smartctl and lshw have
+    problems normally)
 
   [ Vagrant Cascadian ]
   * disktest: ide_disk is no longer needed on powerpc. 
