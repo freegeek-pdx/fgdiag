@@ -1,3 +1,9 @@
+fgdiag (0.2.46) UNRELEASED; urgency=low
+
+  * Install LTSP screen.d scripts for disktest, videotest and keyboardtest. 
+
+ -- Vagrant Cascadian <vagrant@debian.org>  Wed, 25 Apr 2012 16:43:38 -0700
+
 fgdiag (0.2.45) freegeek-test; urgency=low
 
   [ Ryan Niebur ]

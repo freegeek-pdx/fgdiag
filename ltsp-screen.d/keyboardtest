@@ -1,0 +1,73 @@
+#!/bin/sh
+#
+# Copyright 2005, Canonical Ltd.
+# Copyright 2006-2012 Vagrant Cascadian
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License with your
+# Debian GNU system, in /usr/share/common-licenses/GPL.  If not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+#
+# Load code common to X based screen scripts
+#
+
+# NOTE: The while loop has been moved into screen_session (the parent script
+# to this one.  MAKE SURE YOU HAVE THE LATEST ltsp-trunk
+
+trap cleanup 0 INT QUIT TERM
+
+cleanup()
+{
+    if [ -d "${XAUTHORITY_DIR}" ]; then
+        rm -Rf "${XAUTHORITY_DIR}"
+    fi
+
+    if [ -f "${XAUTHORITY}" ]; then
+        rm -f "${XAUTHORITY}"
+    fi
+
+    if [ -f "/tmp/.X${TTY}-lock" ]; then
+        rm -f "/tmp/.X${TTY}-lock"
+    fi
+
+    if [ -S "/tmp/.X11-unix/X${TTY}" ]; then
+        rm -f "/tmp/.X11-unix/X${TTY}"
+    fi
+}
+
+. /usr/share/ltsp/screen-x-common
+# backwards compatibility: set DISPLAY from old DISP variable
+test -z "$DISPLAY" && DISPLAY="$DISP"
+XAUTHORITY_DIR=`mktemp -d /var/run/ldm-xauth-XXXXXXXXX`
+export XAUTHORITY_DIR
+XAUTHORITY="${XAUTHORITY_DIR}/Xauthority"
+touch $XAUTHORITY
+export XAUTHORITY
+
+MCOOKIE=$(mcookie)
+if [ -z "${MCOOKIE}" ]; then
+    echo "Couldn't create cookie"
+    exit 1
+fi
+
+# FIXME: This needs to non-destructively operate  in parallel with other
+# X servers running on the same machine.  See /usr/bin/startx for example.
+xauth -q add ${DISPLAY} . ${MCOOKIE} 2>/dev/null
+# Might not be necessary to do these...
+xauth -q add `hostname`${DISPLAY} . ${MCOOKIE} 2>/dev/null
+xauth -q add 127.0.0.1/unix${DISPLAY} . ${MCOOKIE} 2>/dev/null
+
+if [ -x /usr/share/ltsp/xinitrc ]; then
+    xinitrc=/usr/share/ltsp/xinitrc
+fi
+
+xinit $xinitrc /usr/bin/wx-keyboard-tester -- ${DISPLAY} vt${TTY} -auth ${XAUTHORITY} ${X_ARGS} -br >/dev/null 2>&1
