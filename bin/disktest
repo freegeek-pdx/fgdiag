@@ -303,7 +303,7 @@ class HardDrive
   end
 
   def output_display
-    highlight(dev + " " + display_size.to_s + unique_identity + ": ")
+    highlight(dev + " " + drive_details + ": ")
     echo(status + " - " + time_taken)
   end
 
@@ -324,12 +324,16 @@ class HardDrive
 
   def output_drive_descriptor
     highlight(dev + ": ")
-    $stderr.puts colored(display_size.to_s + unique_identity, "black", "on_yellow")
+    $stderr.puts colored(drive_details, "black", "on_yellow")
     $stderr.flush
   end
 
+  def drive_details
+    bus_type + " " + display_size.to_s + unique_identity
+  end
+
   def unique_identity
-    " <<%s: %s %s (%s)>>" % [bus_type, vendor, model_name, serial]
+    " <<%s %s (%s)>>" % [vendor, model_name, serial]
   end
 
   def vendor
