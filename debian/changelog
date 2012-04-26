@@ -1,3 +1,10 @@
+fgdiag (0.2.46) UNRELEASED; urgency=low
+
+  * Include bus type in output, using hdparm to detect sata vs ide
+    (Closes?? #27756)
+
+ -- Ryan Niebur <ryan@debian.org>  Thu, 26 Apr 2012 14:41:48 -0700
+
 fgdiag (0.2.45) freegeek-test; urgency=low
 
   [ Ryan Niebur ]

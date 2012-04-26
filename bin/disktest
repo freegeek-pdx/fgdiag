@@ -159,13 +159,31 @@ class HardDrive
     return true
   end
 
-  def smart
+  def bus_type
+    return @bus_type if defined?(@bus_type)
+
     is_ata=true
     scsi_regex = (ENV['DISKTEST_SCSI_REGEX'] ? ENV['DISKTEST_SCSI_REGEX'] : "sd[a-z]" )
     if /^#{scsi_regex}$/.match(dev)
       is_ata=`lsscsi`.select{|x| x.match(dev)}.first.split(" ")[2] == "ATA"
     end
+
     if is_ata
+      is_sata = !!(`hdparm -I /dev/#{dev}`.match(/(1.5|3.0|6.0)Gb/))
+
+      if is_sata
+        @bus_type = "SATA"
+      else
+        @bus_type = "IDE"
+      end
+    else
+      @bus_type = "SCSI"
+    end
+    return @bus_type
+  end
+
+  def smart
+    if bus_type != "SCSI" # is ATA
       system(SMARTCTL, '-q', 'silent', '--all', '-d', 'ata', "/dev/#{dev}")
     else
       system(SMARTCTL, '-q', 'silent', '--all', "/dev/#{dev}")
@@ -311,7 +329,7 @@ class HardDrive
   end
 
   def unique_identity
-    " <<%s %s (%s)>>" % [vendor, model_name, serial]
+    " <<%s: %s %s (%s)>>" % [bus_type, vendor, model_name, serial]
   end
 
   def vendor
