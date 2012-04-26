@@ -1,0 +1,3 @@
+#!/bin/sh
+
+HOME=${HOME:-/root} USER=${USER:-root} exec /usr/bin/video-detect
