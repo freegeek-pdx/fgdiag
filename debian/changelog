@@ -1,4 +1,4 @@
-fgdiag (0.2.46) UNRELEASED; urgency=low
+fgdiag (0.2.46) freegeek-test; urgency=low
 
   [ Ryan Niebur ]
   * Include bus type in output, using hdparm to detect sata vs ide
@@ -8,7 +8,7 @@ fgdiag (0.2.46) UNRELEASED; urgency=low
   [ Vagrant Cascadian ]
   * Install LTSP screen.d scripts for disktest, videotest and keyboardtest. 
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 28 Apr 2012 17:42:21 -0700
+ -- Ryan Niebur <ryan@debian.org>  Sat, 28 Apr 2012 17:43:00 -0700
 
 fgdiag (0.2.45) freegeek-test; urgency=low
 
