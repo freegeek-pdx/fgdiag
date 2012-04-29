@@ -17,6 +17,7 @@ require 'disktestlog'
 # * DISKTEST_SCSI_REGEX
 # * DISKTEST_LOGTO_FGDB
 # * DISKTEST_TIME_LIMIT_PER_GB
+# * DISKTEST_TIME_LIMIT_MINIMUM
 
 def clear_stdin(parent = true)
   flags=$stdin.fcntl(Fcntl::F_GETFL)
@@ -53,7 +54,13 @@ class HardDrive
 
   def timeout_limit
     return -1 if ENV['DISKTEST_TIME_LIMIT_PER_GB'].nil?
-    ENV['DISKTEST_TIME_LIMIT_PER_GB'].to_f * 60 * self.size_in_gb
+    limit = ENV['DISKTEST_TIME_LIMIT_PER_GB'].to_f * self.size_in_gb
+    if ! ENV['DISKTEST_TIME_LIMIT_MINIMUM'].nil?
+      if limit < ENV['DISKTEST_TIME_LIMIT_MINIMUM'].to_f
+        limit = ENV['DISKTEST_TIME_LIMIT_MINIMUM'].to_f
+      end
+    end
+    return limit * 60
   end
 
   def HardDrive.modules
