@@ -1,3 +1,11 @@
+fgdiag (0.2.47) freegeek-test; urgency=low
+
+  * also recognize unknown 76[0] from hdparm as SATA, as some possibly
+    older manufacturers have used the bit immediately before the bits
+    which properly detect the drive (Closes: #27756)
+
+ -- Ryan Niebur <ryan@debian.org>  Thu, 10 May 2012 14:46:29 -0700
+
 fgdiag (0.2.46) freegeek-test; urgency=low
 
   [ Ryan Niebur ]

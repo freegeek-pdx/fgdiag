@@ -176,7 +176,7 @@ class HardDrive
     end
 
     if is_ata
-      is_sata = !!(`hdparm -I /dev/#{dev} 2>&1`.match(/(1.5|3.0|6.0)Gb/))
+      is_sata = !!(`hdparm -I /dev/#{dev} 2>&1`.match(/((1.5|3.0|6.0)Gb|unknown 76\[0\])/))
 
       if is_sata
         @bus_type = "SATA"
