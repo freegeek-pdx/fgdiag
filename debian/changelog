@@ -1,3 +1,12 @@
+fgdiag (0.2.48) UNRELEASED; urgency=low
+
+	See TODO list in files
+
+  * Do a smart test before asking if the drives should be tested
+    (Closes: #28135)
+
+ -- Ryan Niebur <ryan@debian.org>  Thu, 17 May 2012 16:44:34 -0700
+
 fgdiag (0.2.47) freegeek-test; urgency=low
 
   * also recognize unknown 76[0] from hdparm as SATA, as some possibly

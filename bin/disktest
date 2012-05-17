@@ -45,7 +45,8 @@ class HardDrive
   FAILED = 1
   UNTESTED = 2
   ABORTED = 3
-  REVERSE = {"0" => "PASSED", "1" => "FAILED", "2" => "UNTESTED", "3" => "ABORTED"}
+  STOPPED = 4
+  REVERSE = {"0" => "PASSED", "1" => "FAILED", "2" => "UNTESTED", "3" => "ABORTED", "4" => "STOPPED"}
 
   def check_time
     return if self.timeout_limit == -1
@@ -91,6 +92,8 @@ class HardDrive
     }.map {|dev| HardDrive.new(dev)}
   end
 
+  # TODO: if DiskTestLog.already_testing? then: "WARNING: The record shows that DEV is being tested in another machine and hasn't yet completed, perhaps this means the machine was not properly powered off. Would you like to continue?"
+
   def initialize(dev)
     @dev = dev
     @lshw_this = nil
@@ -99,20 +102,25 @@ class HardDrive
     @log = []
     @size = `cat /sys/block/#{dev}/size`.chomp.to_i * 512
     @started = @finished = nil
+    # TODO: record starting time (on save, see @started if it exists, will default to created_at on migration), bus_type and reason and stage that tests failed in
+    @disktest_run = DisktestLog.new(vendor, model_name, serial, self.megabytes_size)
   end
   attr_reader :dev, :size
   attr_accessor :finished, :testing, :log
   attr_writer :status
   attr_reader :disktest_run
 
+  def status_s
+    REVERSE[@status.to_s]
+  end
+
   def run_tests
     return if @testing
     @testing = true
     @started = Time.new
-    @disktest_run = DisktestLog.new(vendor, model_name, serial, self.megabytes_size)
     @thread = Thread.new(self) {|drive|
       begin
-        if(drive.smart &&
+        if((not drive.failed?) &&
            drive.smarttest &&
            drive.smart && 
            drive.badblocks &&
@@ -129,32 +137,36 @@ class HardDrive
       ensure
         drive.testing = false
         drive.finished = Time.new
-        success = false
-        first = true
-        while ! success
-          success = true
-          begin
-            drive.disktest_run.complete(REVERSE[@status.to_s])
-          rescue DisktestLogException => e
-            err = "Failed to save result to database record, waiting 5 seconds to retry. Error was: #{e.message}"
-            if first
-              log << err
-            else
-              log[-1] = err
-            end
-            errorMessage "Failed to save result to database record, waiting 5 seconds to retry. Error was: #{e.message}"
-            sleep 5
-            success = false
-            first = false
-          end
-        end
-        if !first
-          log[-1] = "Saved record to database successfully."
-        end
+        drive.save_status
       end
     }
     @thread.abort_on_exception = true
     return @thread
+  end
+
+  def save_status
+    success = false
+    first = true
+    while ! success
+      success = true
+      begin
+        self.disktest_run.complete(status_s)
+      rescue DisktestLogException => e
+        err = "Failed to save result to database record, waiting 5 seconds to retry. Error was: #{e.message}"
+        if first
+          log << err
+        else
+          log[-1] = err
+        end
+        errorMessage "Failed to save result to database record, waiting 5 seconds to retry. Error was: #{e.message}"
+        sleep 5
+        success = false
+        first = false
+      end
+    end
+    if !first
+      log[-1] = "Saved record to database successfully."
+    end
   end
 
   SMARTCTL = 'smartctl'
@@ -314,7 +326,6 @@ class HardDrive
     echo(status + " - " + time_taken)
   end
 
-
   # integer math, should floor
   def size_in_gb
     (size / (1000 * 1000 * 1000)).to_i
@@ -410,6 +421,8 @@ class HardDrive
       "all tests passed:\n#{log.to_yaml}"
     when FAILED
       "failed:\n#{log.to_yaml}"
+    when STOPPED
+      "stopped:\n#{log.to_yaml}"
     when ABORTED
       "aborted:\n#{log.to_yaml}"
     else
@@ -497,11 +510,22 @@ if __FILE__ == $0
   begin
     $stderr.write(clearer)
     $stderr.flush
+    colored("Checking drives for SMART status:")
     drives.each {|d|
+      d.smart
+      highlight(d.status_s + " ")
       d.output_drive_descriptor
     }
     RubyTUI::PromptColor.replace(["magenta", "bold"])
     promptWithDefault("Are these the expected drives and do you want to test them?", "yes", "Type 'yes' to begin") do |response|
+      if response.match(/^n/i)
+        errorMessage("Aborted.\n")
+        drives.each{|d|
+          d.status = HardDrive::STOPPED if !d.failed?
+          d.save_status
+        }
+        exit
+      end
       /^y/.match(response)
     end
     required = 2
@@ -513,6 +537,10 @@ if __FILE__ == $0
       promptWithDefault("Are you sure you want to continue?", "no", "Type 'yes, I want to test #{drives.size} drive(s)' to continue anyway or 'no' to abort the disktest.") do |output|
         if output == nil || output == '' || output.match(/^no$/)
           errorMessage("Aborted.\n")
+          drives.each{|d|
+            d.status = HardDrive::STOPPED if !d.failed?
+            d.save_status
+          }
           exit
         end
         output.match(/^yes, I want to test . drive\(s\)$/)

@@ -51,6 +51,11 @@ class DisktestLog
     end
   end
 
+  def already_testing?(vendor, model, serial_number)
+    return false if !DisktestLog.enabled?
+    return @@driver.check_disktest_running(vendor, model, serial_number) # TODO: implement
+  end
+
   def complete(result)
 #    @result = result
     return if !DisktestLog.enabled?
