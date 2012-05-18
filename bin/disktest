@@ -213,9 +213,11 @@ class HardDrive
     end
     retval=$?.exitstatus
     if retval != 0
-      log << "smart test returned: '#{retval}'"
+      smart_s = "smart test returned: '#{retval}'"
+      log << smart_s
       if retval > 4
         @status = FAILED
+        @reason = smart_s
         return false
       end
     end
@@ -246,8 +248,9 @@ class HardDrive
         buff = sectors.read_nonblock(1000)
         # :TODO: find out what this means for sure
         @status = FAILED
+        @reason = "badblocks reports failures"
         curr = log[-1]
-        log[-1] = "badblocks reports failures"
+        log[-1] = @reason
         log << curr
       end
       if progress and ! progress.closed?
@@ -280,7 +283,8 @@ class HardDrive
     end
     stats = Process::waitpid2(bbpid)
     if stats[1] and stats[1].exitstatus and stats[1].exitstatus.nonzero?
-      @log << "badblocks failed"
+      @reason = "badblocks failed"
+      @log << @reason
       @status = FAILED
     end
     return (@status != FAILED and @status != ABORTED)
@@ -463,13 +467,13 @@ class HardDrive
       if klog_match?(msg)
         @status = FAILED
         #:MC: ugly handling of continuously updating progress log entry
-        mymsg = "Logged kernel error: " + msg
+        @reason = "Logged kernel error: " + msg
         if log.length > 0
           curr = log[-1]
-          log[-1] = mymsg
+          log[-1] = @reason
           log << curr
         else
-          log << mymsg
+          log << @reason
         end
       end
     end

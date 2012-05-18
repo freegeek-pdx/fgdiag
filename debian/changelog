@@ -1,7 +1,5 @@
 fgdiag (0.2.48) UNRELEASED; urgency=low
 
-	Set @reason wherever there is FAILED set
-
   * Do a smart test before asking if the drives should be tested
     (Closes: #28135)
 
