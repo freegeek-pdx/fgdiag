@@ -36,31 +36,41 @@ class DisktestLog
     }
   end
 
+  def self.already_testing?(vendor, model, serial_number)
+    self.prepare
+    return false if !DisktestLog.enabled?
+    return @@driver.check_disktest_running(vendor, model, serial_number)
+  end
+
   attr_reader :this_id #, :vendor, :model, :serial_number, :result
 
-  def initialize(vendor, model, serial_number, size = "")
+  def initialize(vendor, model, serial_number, size, bus_type)
 #    @vendor = vendor
 #    @model = model
 #    @serial_number = serial_number
     return if !DisktestLog.enabled?
     begin
       self.class.prepare
-      @this_id = @@driver.add_disktest_run(vendor, model, serial_number, size)
+      @this_id = @@driver.new_disktest_run(vendor, model, serial_number, size, bus_type)
     rescue SOAP::FaultError => e
       raise DisktestLogException.new("Server returned this error: #{e.message}\n\n")
     end
   end
 
-  def already_testing?(vendor, model, serial_number)
-    return false if !DisktestLog.enabled?
-    return @@driver.check_disktest_running(vendor, model, serial_number) # TODO: implement
+  def started(start_time)
+    return if !DisktestLog.enabled?
+    begin
+      @@driver.add_disktest_started(@this_id, start_time)
+    rescue SOAP::RPCRoutingError, SOAP::ResponseFormatError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ECONNRESET, Errno::ETIMEDOUT, NoMethodError, SocketError, NameError, SOAP::FaultError => e
+      raise DisktestLogException.new(e.message)
+    end
   end
 
-  def complete(result)
+  def complete(result, complete_time, details)
 #    @result = result
     return if !DisktestLog.enabled?
     begin
-      @@driver.add_disktest_result(@this_id, result)
+      @@driver.add_disktest_completed(@this_id, result, complete_time, details)
     rescue SOAP::RPCRoutingError, SOAP::ResponseFormatError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ECONNRESET, Errno::ETIMEDOUT, NoMethodError, SocketError, NameError, SOAP::FaultError => e
       raise DisktestLogException.new(e.message)
     end

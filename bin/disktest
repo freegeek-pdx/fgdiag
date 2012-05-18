@@ -92,23 +92,26 @@ class HardDrive
     }.map {|dev| HardDrive.new(dev)}
   end
 
-  # TODO: if DiskTestLog.already_testing? then: "WARNING: The record shows that DEV is being tested in another machine and hasn't yet completed, perhaps this means the machine was not properly powered off. Would you like to continue?"
-
   def initialize(dev)
     @dev = dev
     @lshw_this = nil
     @testing = false
     @status = UNTESTED
+    @reason = ""
     @log = []
     @size = `cat /sys/block/#{dev}/size`.chomp.to_i * 512
     @started = @finished = nil
-    # TODO: record starting time (on save, see @started if it exists, will default to created_at on migration), bus_type and reason and stage that tests failed in
-    @disktest_run = DisktestLog.new(vendor, model_name, serial, self.megabytes_size)
+    @already_testing = DisktestLog.already_testing?(vendor, model_name, serial)
+    @disktest_run = DisktestLog.new(vendor, model_name, serial, self.megabytes_size, self.bus_type)
   end
   attr_reader :dev, :size
   attr_accessor :finished, :testing, :log
   attr_writer :status
   attr_reader :disktest_run
+
+  def already_testing?
+    @already_testing
+  end
 
   def status_s
     REVERSE[@status.to_s]
@@ -118,6 +121,7 @@ class HardDrive
     return if @testing
     @testing = true
     @started = Time.new
+    self.disktest_run.started(@started)
     @thread = Thread.new(self) {|drive|
       begin
         if((not drive.failed?) &&
@@ -150,7 +154,7 @@ class HardDrive
     while ! success
       success = true
       begin
-        self.disktest_run.complete(status_s)
+        self.disktest_run.complete(status_s, finished, @reason)
       rescue DisktestLogException => e
         err = "Failed to save result to database record, waiting 5 seconds to retry. Error was: #{e.message}"
         if first
@@ -170,7 +174,7 @@ class HardDrive
   end
 
   SMARTCTL = 'smartctl'
-  
+
   def smarttest
     log << "initiating smart self-test"
     system(SMARTCTL, '-q', 'silent', '-t', 'short', "/dev/#{dev}")
@@ -510,12 +514,18 @@ if __FILE__ == $0
   begin
     $stderr.write(clearer)
     $stderr.flush
-    colored("Checking drives for SMART status:")
+    busy_drives = drives.select{|d| d.already_testing?}
+    $stderr.puts colored("Checking drives for SMART status:\n")
     drives.each {|d|
       d.smart
-      highlight(d.status_s + " ")
+      s = d.status_s
+      s = "PASSED" if s == "UNTESTED"
+      highlight(s + " ")
       d.output_drive_descriptor
     }
+    if busy_drives.length > 0
+      highlight("\nWARNING: The record shows that the following drive(s) are still being tested in another machine but haven't yet completed: #{busy_drives.map{|x| x.dev}.join(",")}. Perhaps this means the testing machine was not properly powered off.\n\n")
+    end
     RubyTUI::PromptColor.replace(["magenta", "bold"])
     promptWithDefault("Are these the expected drives and do you want to test them?", "yes", "Type 'yes' to begin") do |response|
       if response.match(/^n/i)
