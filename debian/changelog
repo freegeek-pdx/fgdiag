@@ -1,4 +1,4 @@
-fgdiag (0.2.48) UNRELEASED; urgency=low
+fgdiag (0.2.48) freegeek-test; urgency=low
 
   * Do a smart test before asking if the drives should be tested
     (Closes: #28135)
@@ -223,7 +223,7 @@ fgdiag (0.2.22) freegeek-test; urgency=low
 
  -- Martin Chase <mchase@freegeek.org>  Thu, 10 Dec 2009 16:27:19 -0800
 
-fgdiag (0.2.21) UNRELEASED; urgency=low
+fgdiag (0.2.21) freegeek-test; urgency=low
 
   * set Section to debian/utils in debian/control to properly register
     that it should be in the "debian" component in the apt repository.
