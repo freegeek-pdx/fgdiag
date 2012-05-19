@@ -60,7 +60,7 @@ class DisktestLog
   def started(start_time)
     return if !DisktestLog.enabled?
     begin
-      @@driver.add_disktest_started(@this_id, start_time)
+      @@driver.add_disktest_started(@this_id, start_time.to_s)
     rescue SOAP::RPCRoutingError, SOAP::ResponseFormatError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ECONNRESET, Errno::ETIMEDOUT, NoMethodError, SocketError, NameError, SOAP::FaultError => e
       raise DisktestLogException.new(e.message)
     end
@@ -70,7 +70,7 @@ class DisktestLog
 #    @result = result
     return if !DisktestLog.enabled?
     begin
-      @@driver.add_disktest_completed(@this_id, result, complete_time, details)
+      @@driver.add_disktest_completed(@this_id, result, complete_time.to_s, details)
     rescue SOAP::RPCRoutingError, SOAP::ResponseFormatError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ECONNRESET, Errno::ETIMEDOUT, NoMethodError, SocketError, NameError, SOAP::FaultError => e
       raise DisktestLogException.new(e.message)
     end
