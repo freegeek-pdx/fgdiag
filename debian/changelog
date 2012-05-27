@@ -1,3 +1,9 @@
+fgdiag (0.2.49) freegeek-test; urgency=low
+
+  * Improve output when drives fail or are cancelled
+
+ -- Ryan Niebur <ryan@debian.org>  Sat, 26 May 2012 20:34:24 -0700
+
 fgdiag (0.2.48) freegeek-test; urgency=low
 
   * Do a smart test before asking if the drives should be tested
