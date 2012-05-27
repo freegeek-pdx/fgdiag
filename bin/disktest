@@ -285,7 +285,7 @@ class HardDrive
       end
     end
     stats = Process::waitpid2(bbpid)
-    if stats[1] and stats[1].exitstatus and stats[1].exitstatus.nonzero?
+    if stats[1] and stats[1].termsig != 2 and stats[1].exitstatus and stats[1].exitstatus.nonzero?
       @reason = "badblocks failed"
       @log << @reason
       @status = FAILED
@@ -489,10 +489,6 @@ class HardDrive
 end
 
 if __FILE__ == $0
-  trap( "SIGINT" ) do
-    errorMessage "\n\nUser interrupt caught.  Exiting.\n\n"
-    exit!( 1 )
-  end
   if `id -u` != "0\n"
     errorMessage "This program must be ran as root.\n\n"
     exit 1
@@ -522,6 +518,13 @@ if __FILE__ == $0
   loglines += `dmesg`.split("\n")
   clearer = `clear`
   drives = HardDrive.scan.sort_by {|d| d.dev}
+  trap( "SIGINT" ) do
+    errorMessage "\n\nUser interrupt caught.  Exiting.\n\n"
+    drives.each{|d|
+      d.status = HardDrive::STOPPED if d.status == HardDrive::UNTESTED
+      d.save_status
+    }
+  end
   begin
     $stderr.write(clearer)
     $stderr.flush
@@ -538,7 +541,6 @@ if __FILE__ == $0
       highlight("\nWARNING: The record shows that the following drive(s) are still being tested in another machine but haven't yet completed: #{busy_drives.map{|x| x.dev}.join(",")}. Perhaps this means the testing machine was not properly powered off.\n\n")
     end
     RubyTUI::PromptColor.replace(["magenta", "bold"])
-    continue = true
     promptWithDefault("Are these the expected drives and do you want to test them?", "yes", "Type 'yes' to begin") do |response|
       if response.match(/^n/i)
         errorMessage("Aborted.\n")
@@ -546,7 +548,6 @@ if __FILE__ == $0
           d.status = HardDrive::STOPPED if !d.failed?
           d.save_status
         }
-        continue = false
       end
       /^y/.match(response)
     end
@@ -554,7 +555,7 @@ if __FILE__ == $0
     if ENV['DISKTEST_REQUIRED_NUMBER_OF_DRIVES']
         required = ENV['DISKTEST_REQUIRED_NUMBER_OF_DRIVES'].to_i
     end
-    if continue && drives.size < required && ENV['DISKTEST_ALLOW_LESS_THAN_REQUIRED'] != "true"
+    if drives.size < required && ENV['DISKTEST_ALLOW_LESS_THAN_REQUIRED'] != "true"
       errorMessage("There are #{drives.size} drives! at least #{required} were expected.\n")
       promptWithDefault("Are you sure you want to continue?", "no", "Type 'yes, I want to test #{drives.size} drive(s)' to continue anyway or 'no' to abort the disktest.") do |output|
         if output == nil || output == '' || output.match(/^no$/)
@@ -568,7 +569,6 @@ if __FILE__ == $0
         output.match(/^yes, I want to test . drive\(s\)$/)
       end
     end
-    if continue
     threads = drives.map {|drive|
       begin
         drive.run_tests
@@ -594,7 +594,6 @@ if __FILE__ == $0
       $stderr.write(clearer)
       $stderr.flush
     end
-    end
   ensure
     Process::kill(9, klpid)
     header "Final status:"
@@ -612,7 +611,6 @@ if __FILE__ == $0
       elsif d.failed?
         errorMessage "#{d.dev} failed.  Recycle it.\n"
       else
-        d.output_drive_descriptor
         errorMessage "#{d.dev} did not finish testing.  Seek expert attention.\n"
       end
     }
