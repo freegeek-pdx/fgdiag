@@ -1,8 +1,12 @@
 fgdiag (0.2.49) UNRELEASED; urgency=low
 
-  * add a missing check_time during the second write pass
+	TODO: finish interrupts
 
- -- Ryan Niebur <ryan@debian.org>  Thu, 14 Jun 2012 11:48:26 -0700
+  * add a missing check_time during the second write pass
+  * Improve output when drives fail or are cancelled
+  * Handle interrupts a bit better, sometimes
+
+ -- Ryan Niebur <ryan@debian.org>  Sat, 26 May 2012 20:34:24 -0700
 
 fgdiag (0.2.48) freegeek-test; urgency=low
 

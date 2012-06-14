@@ -1,5 +1,8 @@
 #!/usr/bin/ruby
 
+# TODO: This needs to output the status as stopped, not failed when badblocks receives sigint
+#       Then we can have it respond to interrupt better.
+
 require 'yaml'
 require 'open4'
 require 'rubytui'
@@ -282,7 +285,7 @@ class HardDrive
       end
     end
     stats = Process::waitpid2(bbpid)
-    if stats[1] and stats[1].exitstatus and stats[1].exitstatus.nonzero?
+    if stats[1] and stats[1].termsig != 2 and stats[1].exitstatus and stats[1].exitstatus.nonzero?
       @reason = "badblocks failed"
       @log << @reason
       @status = FAILED
@@ -451,6 +454,10 @@ class HardDrive
     @status == ABORTED
   end
 
+  def stopped?
+    @status == STOPPED
+  end
+
   def bad_drive?
     failed? or aborted?
   end
@@ -483,10 +490,6 @@ class HardDrive
 end
 
 if __FILE__ == $0
-  trap( "SIGINT" ) do
-    errorMessage "\n\nUser interrupt caught.  Exiting.\n\n"
-    exit!( 1 )
-  end
   if `id -u` != "0\n"
     errorMessage "This program must be ran as root.\n\n"
     exit 1
@@ -516,6 +519,13 @@ if __FILE__ == $0
   loglines += `dmesg`.split("\n")
   clearer = `clear`
   drives = HardDrive.scan.sort_by {|d| d.dev}
+  trap( "SIGINT" ) do
+    errorMessage "\n\nUser interrupt caught.  Exiting.\n\n"
+    drives.each{|d|
+      d.status = HardDrive::STOPPED if d.status == HardDrive::UNTESTED
+      d.save_status
+    }
+  end
   begin
     $stderr.write(clearer)
     $stderr.flush
@@ -539,7 +549,6 @@ if __FILE__ == $0
           d.status = HardDrive::STOPPED if !d.failed?
           d.save_status
         }
-        exit
       end
       /^y/.match(response)
     end
@@ -593,15 +602,16 @@ if __FILE__ == $0
       d.output_display
     }
     drives.each {|d|
+      d.output_drive_descriptor
       if d.passed?
-        d.output_drive_descriptor
         puts colored( "#{d.dev} passed!  Label and store it.", 'bold', 'black', 'on_green' )
       elsif d.aborted?
         errorMessage "#{d.dev} reached its time limit and did not finish testing.  Recycle it.\n"
+      elsif d.stopped?
+        errorMessage "#{d.dev} did not finish testing.  Test it again.\n"
       elsif d.failed?
         errorMessage "#{d.dev} failed.  Recycle it.\n"
       else
-        d.output_drive_descriptor
         errorMessage "#{d.dev} did not finish testing.  Seek expert attention.\n"
       end
     }
