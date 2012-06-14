@@ -2,6 +2,7 @@
 
 # TODO: This needs to output the status as stopped, not failed when badblocks receives sigint
 #       Then we can have it respond to interrupt better.
+# if completed within the last 1 seconds as failed, unset the failed reason.??
 
 require 'yaml'
 require 'open4'
@@ -521,7 +522,9 @@ if __FILE__ == $0
   trap( "SIGINT" ) do
     errorMessage "\n\nUser interrupt caught.  Exiting.\n\n"
     drives.each{|d|
+      d.status = HardDrive::UNTESTED if d.status == HardDrive::FAILED and d.finished >= (Time.now - 1) # TODO: check race condition handling
       d.status = HardDrive::STOPPED if d.status == HardDrive::UNTESTED
+      d.finished = Time.now  # FIXME: is this needed? where else?
       d.save_status
     }
   end
