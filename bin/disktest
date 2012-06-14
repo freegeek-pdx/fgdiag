@@ -329,10 +329,10 @@ class HardDrive
         end
       end
     }
-    if total.to_i == (2*size.to_i)
+    if total.to_i >= (2*size.to_i)
       log << "disk wipe finished"
     else
-      log << "disk wipe did not finish entire disk (only #{total.to_i} written out of expected #{2 * size.to_i}, double of read size: #{size.to_i})"
+      log << "disk wipe did not finish entire disk (only wrote #{total.to_i} of expected #{2 * size.to_i}, based on size #{size.to_i})"
       @status = RETRY unless end_test?
     end
     return !end_test?
