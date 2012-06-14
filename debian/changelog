@@ -1,10 +1,11 @@
 fgdiag (0.2.49) UNRELEASED; urgency=low
 
-	TODO: finish interrupts
-
   * add a missing check_time during the second write pass
   * Improve output when drives fail or are cancelled
-  * Handle interrupts a bit better, sometimes
+  * Handle interrupts by stopping the tests
+  * Add a retry failure state if the drive did not wipe all of the
+    blocks
+  * Improve logging of badblocks status during the first half
 
  -- Ryan Niebur <ryan@debian.org>  Sat, 26 May 2012 20:34:24 -0700
 

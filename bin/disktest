@@ -1,9 +1,5 @@
 #!/usr/bin/ruby
 
-# TODO: This needs to output the status as stopped, not failed when badblocks receives sigint
-#       Then we can have it respond to interrupt better.
-# if completed within the last 1 seconds as failed, unset the failed reason.??
-
 require 'yaml'
 require 'open4'
 require 'rubytui'
@@ -50,7 +46,8 @@ class HardDrive
   UNTESTED = 2
   ABORTED = 3
   STOPPED = 4
-  REVERSE = {"0" => "PASSED", "1" => "FAILED", "2" => "UNTESTED", "3" => "ABORTED", "4" => "STOPPED"}
+  RETRY = 5
+  REVERSE = {"0" => "PASSED", "1" => "FAILED", "2" => "UNTESTED", "3" => "ABORTED", "4" => "STOPPED", "5" => "RETRY"}
 
   def check_time
     return if self.timeout_limit == -1
@@ -110,7 +107,7 @@ class HardDrive
   end
   attr_reader :dev, :size
   attr_accessor :finished, :testing, :log
-  attr_writer :status
+  attr_accessor :status
   attr_reader :disktest_run
 
   def already_testing?
@@ -127,15 +124,16 @@ class HardDrive
     @started = Time.new
     self.disktest_run.started(@started)
     @thread = Thread.new(self) {|drive|
+      Thread.current['is_parent_thread'] = false
       begin
-        if((not drive.failed?) &&
+        if((not drive.end_test?) &&
            drive.smarttest &&
            drive.smart && 
            drive.badblocks &&
            drive.smart &&
            drive.wipe &&
            drive.smart)
-          drive.status = PASSED
+          drive.status = PASSED unless drive.end_test?
         end
       rescue Exception => e
         is_timeout = (e.class == DisktestTimeoutError)
@@ -238,10 +236,10 @@ class HardDrive
     bbpid, bbin, bbout, bberr = Open4.popen4("/sbin/badblocks -e 1 -c 1024 -swt 0xffffffff /dev/#{dev}")
     bbout.sync = bberr.sync = true
     current_state = 0
+    statematch = "Testing" # assume starting
     until bberr.closed? or bberr.eof?
       self.check_time
       matches = nil
-      statematch = nil
       buff = nil
       reads, writes, errs = IO.select([bbout, bberr], nil, nil, 1)
       if reads
@@ -258,28 +256,27 @@ class HardDrive
         log << curr
       end
       if progress and ! progress.closed?
-        until( statematch or matches or bberr.eof? )
+        until( matches or bberr.eof? )
           buff = progress.read_nonblock(1000)
-          statematch = %r,^(.*):,.match(buff)
+          newmatch = %r,^([^ ]+).*:,.match(buff)
+          statematch = newmatch[1] if newmatch
 #          matches = %r,(\d+)\s*/\s*(\d+)[^\d]*,.match(buff)
           matches = %r,([\d.]+)%,.match(buff)
         end
-        if statematch
-          if statematch[1].match(/Testing/)
-            current_state = 1
-          elsif statematch[1].match(/Reading/)
-            current_state = 2
+        if matches
+          part = "unknown step"
+          if statematch
+            part += " (#{statematch})"
+            if statematch.match(/Testing/)
+              part = "write (part one)"
+            elsif statematch.match(/Reading/)
+              part = "read (part two)"
+            end
           end
-        end
-        if matches and current_state > 0
-          if current_state == 1
-            log[-1] = "#{matches[1].to_f.round}% of badblocks write (part one) complete"
-          elsif current_state == 2
-            log[-1] = "#{matches[1].to_f.round}% of badblocks read (part two) complete"
-          end
+          log[-1] = "#{matches[1].to_f.round}% of badblocks #{part} complete"
         end
       end
-      if @status == FAILED or @status == ABORTED
+      if end_test?
         [bbin, bbout, bberr].each {|io| io.close}
         Process.kill("INT", bbpid)
         break
@@ -287,11 +284,13 @@ class HardDrive
     end
     stats = Process::waitpid2(bbpid)
     if stats[1] and stats[1].termsig != 2 and stats[1].exitstatus and stats[1].exitstatus.nonzero?
-      @reason = "badblocks failed"
-      @log << @reason
-      @status = FAILED
+      unless end_test?
+        @reason = "badblocks failed"
+        @log << @reason
+        @status = FAILED
+      end
     end
-    return (@status != FAILED and @status != ABORTED)
+    return !end_test?
   end # def badblocks
 
   ZEROS = "\0" * (1024 * 1024)
@@ -307,7 +306,7 @@ class HardDrive
           written = drive.write(ZEROS)
           total += written
           log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
-          if @status == FAILED or @status == ABORTED or written < ZEROS.length
+          if end_test? or written < ZEROS.length
             break
           end
         rescue Errno::ENOSPC => e
@@ -322,7 +321,7 @@ class HardDrive
           written = drive.write(RANDOM)
           total += written
           log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
-          if @status == FAILED or @status == ABORTED or written < RANDOM.length
+          if end_test? or written < RANDOM.length
             break
           end
         rescue Errno::ENOSPC => e
@@ -330,13 +329,18 @@ class HardDrive
         end
       end
     }
-    log << "disk wipe finished"
-    return (@status != FAILED and @status != ABORTED)
+    if total.to_i == (2*size.to_i)
+      log << "disk wipe finished"
+    else
+      log << "disk wipe did not finish entire disk (only #{total.to_i} written out of expected #{2 * size.to_i}, double of read size: #{size.to_i})"
+      @status = RETRY unless end_test?
+    end
+    return !end_test?
   end
 
   def output_display
     highlight(dev + " " + drive_details + ": ")
-    echo(status + " - " + time_taken)
+    echo(final_status + " - " + time_taken)
   end
 
   # integer math, should floor
@@ -429,6 +433,10 @@ class HardDrive
   end
 
   def status
+    @status
+  end
+
+  def final_status
     case @status
     when PASSED
       "all tests passed:\n#{log.to_yaml}"
@@ -436,6 +444,8 @@ class HardDrive
       "failed:\n#{log.to_yaml}"
     when STOPPED
       "stopped:\n#{log.to_yaml}"
+    when RETRY
+      "retry:\n#{log.to_yaml}"
     when ABORTED
       "aborted:\n#{log.to_yaml}"
     else
@@ -451,6 +461,10 @@ class HardDrive
     @status == FAILED
   end
 
+  def retry?
+    @status == RETRY
+  end
+
   def aborted?
     @status == ABORTED
   end
@@ -461,6 +475,10 @@ class HardDrive
 
   def bad_drive?
     failed? or aborted?
+  end
+
+  def end_test?
+    failed? or aborted? or stopped? or retry?
   end
 
   Err_re = /error/
@@ -520,14 +538,16 @@ if __FILE__ == $0
   loglines += `dmesg`.split("\n")
   clearer = `clear`
   drives = HardDrive.scan.sort_by {|d| d.dev}
+  Thread.current['is_parent_thread'] = true
   trap( "SIGINT" ) do
-    errorMessage "\n\nUser interrupt caught.  Exiting.\n\n"
+    if Thread.current['is_parent_thread']
+    errorMessage "\n\nUser interrupt caught.  Ending disktest and exiting.\n\n"
     drives.each{|d|
-      d.status = HardDrive::UNTESTED if d.status == HardDrive::FAILED and d.finished >= (Time.now - 1) # TODO: check race condition handling
       d.status = HardDrive::STOPPED if d.status == HardDrive::UNTESTED
-      d.finished = Time.now  # FIXME: is this needed? where else?
+      d.finished = Time.now
       d.save_status
     }
+    end
   end
   begin
     $stderr.write(clearer)
@@ -583,7 +603,7 @@ if __FILE__ == $0
     }
     until threads.empty?
       if select([klout],nil,nil,0.1)
-        loglines += klout.read_nonblock(1000).split("\n")
+        loglines += klout.read_nonblock(1000).split("\n") unless klout.eof
       end
       loglines.flatten!
       drives.each {|d|
@@ -612,6 +632,8 @@ if __FILE__ == $0
         errorMessage "#{d.dev} reached its time limit and did not finish testing.  Recycle it.\n"
       elsif d.stopped?
         errorMessage "#{d.dev} did not finish testing.  Test it again.\n"
+      elsif d.retry?
+        errorMessage "#{d.dev} did not wipe the entire disk.  Test it again.\n"
       elsif d.failed?
         errorMessage "#{d.dev} failed.  Recycle it.\n"
       else
