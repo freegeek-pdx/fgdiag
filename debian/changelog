@@ -1,5 +1,8 @@
 fgdiag (0.2.49) UNRELEASED; urgency=low
 
+	TODO: finish interrupts
+
+  * add a missing check_time during the second write pass
   * Improve output when drives fail or are cancelled
   * Handle interrupts a bit better, sometimes
 
