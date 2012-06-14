@@ -538,7 +538,8 @@ if __FILE__ == $0
   loglines += `dmesg`.split("\n")
   clearer = `clear`
   drives = HardDrive.scan.sort_by {|d| d.dev}
-  Thread.current['is_parent_thread'] = true
+  # Disable SIGINT initially until testing starts
+  Thread.current['is_parent_thread'] = false
   trap( "SIGINT" ) do
     if Thread.current['is_parent_thread']
     errorMessage "\n\nUser interrupt caught.  Ending disktest and exiting.\n\n"
@@ -593,6 +594,7 @@ if __FILE__ == $0
         output.match(/^yes, I want to test . drive\(s\)$/)
       end
     end
+    Thread.current['is_parent_thread'] = true
     threads = drives.map {|drive|
       begin
         drive.run_tests
