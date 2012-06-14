@@ -313,6 +313,7 @@ class HardDrive
     }
     open("/dev/#{dev}", "w") {|drive|
       until drive.closed?
+        self.check_time
         begin
           written = drive.write(RANDOM)
           total += written
