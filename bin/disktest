@@ -543,11 +543,12 @@ if __FILE__ == $0
   trap( "SIGINT" ) do
     if Thread.current['is_parent_thread']
     errorMessage "\n\nUser interrupt caught.  Ending disktest and exiting.\n\n"
-    drives.each{|d|
-      d.status = HardDrive::STOPPED if d.status == HardDrive::UNTESTED
-      d.finished = Time.now
-      d.save_status
-    }
+#    drives.each{|d|
+#      d.status = HardDrive::STOPPED if d.status == HardDrive::UNTESTED
+#      d.finished = Time.now
+#      d.save_status
+#    }
+      exit # TODO: should this stay or go?
     end
   end
   begin
