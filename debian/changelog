@@ -6,6 +6,7 @@ fgdiag (0.2.49) UNRELEASED; urgency=low
   * Add a retry failure state if the drive did not wipe all of the
     blocks (Closes: #28900)
   * Improve logging of badblocks status during the first half
+  * Log the log to the database
 
  -- Ryan Niebur <ryan@debian.org>  Sat, 26 May 2012 20:34:24 -0700
 

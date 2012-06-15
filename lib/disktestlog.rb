@@ -66,11 +66,11 @@ class DisktestLog
     end
   end
 
-  def complete(result, complete_time, details)
+  def complete(result, complete_time, details, log)
 #    @result = result
     return if !DisktestLog.enabled?
     begin
-      @@driver.add_disktest_completed(@this_id, result, complete_time.to_s, details)
+      @@driver.add_disktest_completed_log(@this_id, result, complete_time.to_s, details, log)
     rescue SOAP::RPCRoutingError, SOAP::ResponseFormatError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ECONNRESET, Errno::ETIMEDOUT, NoMethodError, SocketError, NameError, SOAP::FaultError => e
       raise DisktestLogException.new(e.message)
     end

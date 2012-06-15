@@ -156,7 +156,7 @@ class HardDrive
     while ! success
       success = true
       begin
-        self.disktest_run.complete(status_s, finished, @reason)
+        self.disktest_run.complete(status_s, finished, @reason, log.join("\n"))
       rescue DisktestLogException => e
         err = "Failed to save result to database record, waiting 5 seconds to retry. Error was: #{e.message}"
         if first
