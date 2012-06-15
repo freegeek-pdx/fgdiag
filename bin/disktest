@@ -542,12 +542,13 @@ if __FILE__ == $0
   Thread.current['is_parent_thread'] = false
   trap( "SIGINT" ) do
     if Thread.current['is_parent_thread']
-    errorMessage "\n\nUser interrupt caught.  Ending disktest and exiting.\n\n"
+    errorMessage "\n\nUser interrupt caught.  Exiting.\n\n" #ending disktest and..
 #    drives.each{|d|
 #      d.status = HardDrive::STOPPED if d.status == HardDrive::UNTESTED
 #      d.finished = Time.now
 #      d.save_status
 #    }
+      exit!( 1 ) # that's bad I'd guess..
       exit # TODO: should this stay or go?
     end
   end
