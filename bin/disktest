@@ -573,8 +573,9 @@ if __FILE__ == $0
           d.status = HardDrive::STOPPED if !d.failed?
           d.save_status
         }
+        exit
       end
-      /^y/.match(response)
+      /^y/i.match(response)
     end
     required = 2
     if ENV['DISKTEST_REQUIRED_NUMBER_OF_DRIVES']
@@ -583,7 +584,7 @@ if __FILE__ == $0
     if drives.size < required && ENV['DISKTEST_ALLOW_LESS_THAN_REQUIRED'] != "true"
       errorMessage("There are #{drives.size} drives! at least #{required} were expected.\n")
       promptWithDefault("Are you sure you want to continue?", "no", "Type 'yes, I want to test #{drives.size} drive(s)' to continue anyway or 'no' to abort the disktest.") do |output|
-        if output == nil || output == '' || output.match(/^no$/)
+        if output == nil || output == '' || output.match(/^n/i)
           errorMessage("Aborted.\n")
           drives.each{|d|
             d.status = HardDrive::STOPPED if !d.failed?
