@@ -294,7 +294,7 @@ class HardDrive
   end # def badblocks
 
   ZEROS = "\0" * (1024 * 1024)
-  open('/dev/urandom') {|urand| RANDOM = urand.read(1024)}
+  open('/dev/urandom') {|urand| RANDOM = urand.read(1024) * 1024}
   def wipe
     log << "disk wipe started..."
     total = 0
@@ -303,7 +303,10 @@ class HardDrive
       until drive.closed?
         self.check_time
         begin
-          written = drive.write(ZEROS)
+          needed = size.to_i - drive.pos
+          str = ZEROS
+          str = str[0..(needed - 1)] if needed < ZEROS.length
+          written = drive.write(str)
           total += written
           log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
           if end_test? or written < ZEROS.length
@@ -318,7 +321,10 @@ class HardDrive
       until drive.closed?
         self.check_time
         begin
-          written = drive.write(RANDOM)
+          needed = size.to_i - drive.pos
+          str = RANDOM
+          str = str[0..(needed - 1)] if needed < RANDOM.length
+          written = drive.write(str)
           total += written
           log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
           if end_test? or written < RANDOM.length
@@ -329,10 +335,10 @@ class HardDrive
         end
       end
     }
-    if total.to_i >= (2*size.to_i)
+    if total.to_i == (2*size.to_i)
       log << "disk wipe finished"
     else
-      log << "disk wipe did not finish entire disk (only wrote #{total.to_i} of expected #{2 * size.to_i}, based on size #{size.to_i})"
+      log << "disk wipe did not finish entire disk (wrote #{total.to_i} of expected #{2 * size.to_i}, based on size #{size.to_i})"
       @status = RETRY unless end_test?
     end
     return !end_test?
