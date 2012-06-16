@@ -5,7 +5,7 @@ fgdiag (0.2.50) UNRELEASED; urgency=low
   * Add missing exit to disktest
   * Add optimization to write larger amounts of RANDOM at once
   * Fix RETRY check size comparison to correctly count writes
-    that succeed
+    that succeed (Closes: #28990)
 
  -- Ryan Niebur <ryan@debian.org>  Fri, 15 Jun 2012 12:30:40 -0700
 
