@@ -237,6 +237,7 @@ class HardDrive
     bbout.sync = bberr.sync = true
     current_state = 0
     statematch = "Testing" # assume starting
+    interrupted = false
     until bberr.closed? or bberr.eof?
       self.check_time
       matches = nil
@@ -258,6 +259,7 @@ class HardDrive
       if progress and ! progress.closed?
         until( matches or bberr.eof? )
           buff = progress.read_nonblock(1000)
+          interrupted = true if buff.match(/Interrupted/)
           newmatch = %r,^([^ ]+).*:,.match(buff)
           statematch = newmatch[1] if newmatch
 #          matches = %r,(\d+)\s*/\s*(\d+)[^\d]*,.match(buff)
@@ -285,9 +287,13 @@ class HardDrive
     stats = Process::waitpid2(bbpid)
     if stats[1] and stats[1].termsig != 2 and stats[1].exitstatus and stats[1].exitstatus.nonzero?
       unless end_test?
-        @reason = "badblocks failed"
-        @log << @reason
-        @status = FAILED
+        if interrupted
+          @status = STOPPED
+        else
+          @reason = "badblocks failed"
+          @log << @reason
+          @status = FAILED
+        end
       end
     end
     return !end_test?
@@ -548,14 +554,15 @@ if __FILE__ == $0
   Thread.current['is_parent_thread'] = false
   trap( "SIGINT" ) do
     if Thread.current['is_parent_thread']
-    errorMessage "\n\nUser interrupt caught.  Exiting.\n\n" #ending disktest and..
-#    drives.each{|d|
-#      d.status = HardDrive::STOPPED if d.status == HardDrive::UNTESTED
-#      d.finished = Time.now
-#      d.save_status
-#    }
-      exit!( 1 ) # that's bad I'd guess..
-      exit # TODO: should this stay or go?
+    errorMessage "\n\nUser interrupt caught.  Ending disktest and exiting.\n\n"
+    drives.each{|d|
+      d.status = HardDrive::STOPPED if d.status == HardDrive::UNTESTED
+      d.finished = Time.now
+    }
+    drives.each{|d|
+      d.save_status
+      }
+      exit
     end
   end
   begin
