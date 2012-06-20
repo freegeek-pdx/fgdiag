@@ -1,6 +1,5 @@
 fgdiag (0.2.50) freegeek-test; urgency=low
 
-  [ Ryan Niebur ]
   * Add missing exit to disktest
   * Add optimization to write larger amounts of RANDOM at once
   * Fix RETRY check size comparison to correctly count writes
@@ -8,7 +7,7 @@ fgdiag (0.2.50) freegeek-test; urgency=low
   * Update my testing scripts for multiple drives
   * Fix and re-enable interrupt handler for multiple drives
 
- --  <ryan52@borked.fglan>  Wed, 20 Jun 2012 08:51:24 -0700
+ -- Ryan Niebur <ryan@debian.org>  Wed, 20 Jun 2012 08:51:24 -0700
 
 fgdiag (0.2.49) freegeek-test; urgency=low
 
