@@ -1,3 +1,10 @@
+fgdiag (0.2.51) freegeek-test; urgency=low
+
+  * Add ability to update incorrect serial numbers and a
+    DISKTEST_DATA_SECURITY_BATCH_MODE=true mode which is extra careful
+
+ -- Ryan Niebur <ryan@debian.org>  Wed, 27 Jun 2012 15:35:39 -0700
+
 fgdiag (0.2.50) freegeek-test; urgency=low
 
   [ Ryan Niebur ]

@@ -18,6 +18,7 @@ require 'disktestlog'
 # * DISKTEST_LOGTO_FGDB
 # * DISKTEST_TIME_LIMIT_PER_GB
 # * DISKTEST_TIME_LIMIT_MINIMUM
+# * DISKTEST_DATA_SECURITY_BATCH_MODE
 
 def clear_stdin(parent = true)
   flags=$stdin.fcntl(Fcntl::F_GETFL)
@@ -43,10 +44,10 @@ end
 class HardDrive
   PASSED = 0
   FAILED = 1
-  UNTESTED = 2
-  ABORTED = 3
-  STOPPED = 4
-  RETRY = 5
+  UNTESTED = 2 # INCOMPLETE
+  ABORTED = 3 # TIMEOUT
+  STOPPED = 4 # CANCELLED
+  RETRY = 5   # NEEDS_RETRY
   REVERSE = {"0" => "PASSED", "1" => "FAILED", "2" => "UNTESTED", "3" => "ABORTED", "4" => "STOPPED", "5" => "RETRY"}
 
   def check_time
@@ -379,6 +380,10 @@ class HardDrive
     bus_type + " " + display_size.to_s + unique_identity
   end
 
+  def missing_serial?
+    serial == "Unknown Serial"
+  end
+
   def unique_identity
     " <<%s %s (%s)>>" % [vendor, model_name, serial]
   end
@@ -393,7 +398,13 @@ class HardDrive
     return match ? match[1] : "Unknown Model"
   end
 
+  def set_serial(value)
+    @serial = value
+    @disktest_run.update_serial(value)
+  end
+
   def serial
+    return @serial if defined?(@serial)
     match = self.lshw.match("<serial>(.*?)</serial>")
     return match ? match[1] : "Unknown Serial"
   end
@@ -568,7 +579,6 @@ if __FILE__ == $0
   begin
     $stderr.write(clearer)
     $stderr.flush
-    busy_drives = drives.select{|d| d.already_testing?}
     $stderr.puts colored("Checking drives for SMART status:\n")
     drives.each {|d|
       d.smart
@@ -577,9 +587,14 @@ if __FILE__ == $0
       highlight(s + " ")
       d.output_drive_descriptor
     }
-    if busy_drives.length > 0
-      highlight("\nWARNING: The record shows that the following drive(s) are still being tested in another machine but haven't yet completed: #{busy_drives.map{|x| x.dev}.join(",")}. Perhaps this means the testing machine was not properly powered off.\n\n")
+    def show_busy_drives(drives, existing = [])
+      busy_drives = drives.select{|d| d.already_testing?} - existing
+      if busy_drives.length > 0
+        highlight("\nWARNING: The record shows that the following drive(s) are still being tested in another machine but haven't yet completed: #{busy_drives.map{|x| x.dev}.join(",")}. Perhaps this means the testing machine was not properly powered off.\n\n")
+      end
+      busy_drives
     end
+    busy_drives = show_busy_drives(drives)
     RubyTUI::PromptColor.replace(["magenta", "bold"])
     promptWithDefault("Are these the expected drives and do you want to test them?", "yes", "Type 'yes' to begin") do |response|
       if response.match(/^n/i)
@@ -610,6 +625,62 @@ if __FILE__ == $0
         output.match(/^yes, I want to test . drive\(s\)$/)
       end
     end
+    def menu_about_serials(drives)
+      d = true
+      while d
+        opts = drives.map{|x| x.dev + ": " + x.drive_details}
+        opts << "Finish correcting serial numbers."
+        choice = menu("\nPlease choose a serial number:", "Which would you like to correct?", *opts)
+        choice.match(/^([^ :]+):/)
+        d = $1
+        if d
+          drive = drives.select{|x| x.dev == d}.first
+          serial = 1
+          verify = 2
+          while serial != verify
+            serial = prompt("\nPlease enter the correct serial number for #{d}", "Cannot be empty") do |p|
+              !p.strip.empty?
+            end
+            if ENV['DISKTEST_DATA_SECURITY_BATCH_MODE'] == "true"
+              verify = prompt("Please enter the correct serial number again to verify")
+              if verify != serial
+                errorMessage("Serial numbers did not match.\n")
+              end
+            else
+              verify = serial
+            end
+
+          end
+          drive.set_serial(serial)
+        end
+      end
+    end
+    prompt_serials = true
+    if ENV['DISKTEST_DATA_SECURITY_BATCH_MODE'] == "true"
+      count = -1
+      while count != 0
+        count = 0
+        drives.each do |d|
+          if d.missing_serial?
+            count += 1
+            errorMessage("Warning: #{d.dev} does not have a serial number, please correct it before starting the test.\n")
+          end
+        end
+        if count > 0
+          prompt_serials = false
+          menu_about_serials(drives)
+        end
+      end
+    end
+    if prompt_serials
+      promptWithDefault("Are the hard drive serial numbers displayed correctly above?", "yes", "Type 'yes' to continue or 'no' to correct serial numbers.") do |response|
+        if response.match(/^n/i)
+          menu_about_serials(drives)
+        end
+        /^[yn]/i.match(response)
+      end
+    end
+    busy_drives = show_busy_drives(drives, busy_drives)
     Thread.current['is_parent_thread'] = true
     threads = drives.map {|drive|
       begin

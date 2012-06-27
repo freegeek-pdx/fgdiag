@@ -57,6 +57,15 @@ class DisktestLog
     end
   end
 
+  def update_serial(serial)
+    return if !DisktestLog.enabled?
+    begin
+      @@driver.update_serial(@this_id, serial)
+    rescue SOAP::RPCRoutingError, SOAP::ResponseFormatError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ECONNRESET, Errno::ETIMEDOUT, NoMethodError, SocketError, NameError, SOAP::FaultError => e
+      raise DisktestLogException.new(e.message)
+    end
+  end
+
   def started(start_time)
     return if !DisktestLog.enabled?
     begin

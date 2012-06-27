@@ -15,14 +15,13 @@ cat - <<EOF
   </node>
   <node id="disk:1" claimed="true" class="disk" handle="SCSI:02:00:00:00">
    <description>ATA Disk</description>
-   <product>WDC WD800ZZ-00ZZ</product>
    <vendor>Western Digital</vendor>
+   <product>WDC WD800ZZ-00ZZ</product>
    <physid>0</physid>
    <businfo>scsi@2:0.0.0</businfo>
    <logicalname>/dev/xvdc</logicalname>
    <dev>8:0</dev>
    <version>06.0</version>
-   <serial>WD-ABCD00000456</serial>
    <size units="bytes">80032038912</size>
   </node>
 EOF
