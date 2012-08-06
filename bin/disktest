@@ -52,7 +52,10 @@ class HardDrive
 
   def check_time
     return if self.timeout_limit == -1
-    raise DisktestTimeoutError.new("Disk #{self.dev} has exceeded its calculated time limit of #{format_time(self.timeout_limit)} (#{ENV['DISKTEST_TIME_LIMIT_PER_GB']} minutes per GB).") if self.timeout_limit < self.duration_seconds
+    if self.timeout_limit < self.duration_seconds
+      @reason = "exceeded its calculated time limit of #{format_time(self.timeout_limit)} (#{ENV['DISKTEST_TIME_LIMIT_PER_GB']} minutes per GB)"
+      raise DisktestTimeoutError.new("Disk #{self.dev} has #{@reason}")
+    end
   end
 
   def timeout_limit

@@ -1,3 +1,10 @@
+fgdiag (0.2.52) UNRELEASED; urgency=low
+
+  * Set a failure reason when aborting due to timeout, to make the
+    status more clear
+
+ -- Ryan Niebur <ryan@debian.org>  Sun, 05 Aug 2012 19:37:16 -0700
+
 fgdiag (0.2.51) freegeek-test; urgency=low
 
   * Add ability to update incorrect serial numbers and a
