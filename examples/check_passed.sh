@@ -20,9 +20,8 @@ for DRIVE in $DRIVES; do
     FIND="<logicalname>/dev/${DRIVE}</logicalname>"
     if grep "$FIND" $TMPFILE | grep -q '<serial>'; then
         SERIAL=$(grep "$FIND" $TMPFILE | sed -r 's,^.*<serial>([^<]+)</serial>.*$,\1,')
-        # TODO: curl will need to be replaced
         echo "Debug: Checking drive $DRIVE with serial $SERIAL"
-        if [ "$(curl -s "http://${DATABASE}/disktest_runs/check_passed/${SERIAL}")" != "true" ]; then
+        if [ "$(wget -q -O - "http://${DATABASE}/disktest_runs/check_passed/${SERIAL}")" != "true" ]; then
             echo "Error: No PASSED disktest run found with serial $SERIAL"
             STATUS=1
         fi
