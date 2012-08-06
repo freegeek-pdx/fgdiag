@@ -3,8 +3,10 @@ fgdiag (0.2.52) UNRELEASED; urgency=low
   * Set a failure reason when aborting due to timeout, to make the
     status more clear
   * Enable interrupt handler during initial SMART testing
+  * Add examples/check_passed.sh, a minimal implementation to query lshw
+    and the database for whether a drive passed disktest
 
- -- Ryan Niebur <ryan@debian.org>  Sun, 05 Aug 2012 19:46:39 -0700
+ -- Ryan Niebur <ryan@debian.org>  Sun, 05 Aug 2012 22:14:13 -0700
 
 fgdiag (0.2.51) freegeek-test; urgency=low
 
