@@ -13,7 +13,7 @@ fi
 
 TMPFILE=$(mktemp)
 
-# TODO: lshw needs a udeb, which also might require one for libunwind7?
+# TODO: lshw needs a udeb
 sudo lshw -class disk -xml | tr -d '[\n]' | sed -r 's,</node>\s+<node,</node>\n<node,g' > $TMPFILE
 # TODO: remove sudo under d-i
 for DRIVE in $DRIVES; do
