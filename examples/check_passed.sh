@@ -13,9 +13,7 @@ fi
 
 TMPFILE=$(mktemp)
 
-# TODO: lshw needs a udeb
-sudo lshw -class disk -xml | tr -d '[\n]' | sed -r 's,</node>\s+<node,</node>\n<node,g' > $TMPFILE
-# TODO: remove sudo under d-i
+lshw -class disk -xml | tr -d '[\n]' | sed -r 's,</node>\s+<node,</node>\n<node,g' > $TMPFILE
 for DRIVE in $DRIVES; do
     FIND="<logicalname>/dev/${DRIVE}</logicalname>"
     if grep "$FIND" $TMPFILE | grep -q '<serial>'; then
