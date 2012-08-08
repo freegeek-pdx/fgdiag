@@ -593,9 +593,9 @@ if __FILE__ == $0
     }
     Thread.current['is_parent_thread'] = false
     def show_busy_drives(drives, existing = [])
-      busy_drives = drives.select{|d| d.already_testing?} - existing
+      busy_drives = drives.select{|d| (!d.missing_serial?) && d.already_testing?} - existing
       if busy_drives.length > 0
-        highlight("\nWARNING: The record shows that the following drive(s) are still being tested in another machine but haven't yet completed: #{busy_drives.map{|x| x.dev}.join(",")}. Perhaps this means the testing machine was not properly powered off.\n\n")
+        highlight("\nWARNING: The record shows that the following drive(s) are still being tested in another machine but haven't yet completed: #{busy_drives.map{|x| x.dev}.join(", ")}.\nPerhaps this means the testing machine was not properly powered off.\n\n")
       end
       busy_drives
     end

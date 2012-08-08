@@ -5,6 +5,8 @@ fgdiag (0.2.52) UNRELEASED; urgency=low
   * Enable interrupt handler during initial SMART testing
   * Add examples/check_passed.sh, a minimal implementation to query lshw
     and the database for whether a drive passed disktest
+  * Disable test for if the drive is already being tested if the serial
+    number was not detected
 
  -- Ryan Niebur <ryan@debian.org>  Sun, 05 Aug 2012 22:14:13 -0700
 
