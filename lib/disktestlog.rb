@@ -45,8 +45,8 @@ class DisktestLog
   attr_reader :this_id #, :vendor, :model, :serial_number, :result
 
   def initialize(vendor, model, serial_number, size, bus_type)
-#    @vendor = vendor
-#    @model = model
+    @vendor = vendor
+    @model = model
 #    @serial_number = serial_number
     return if !DisktestLog.enabled?
     begin
@@ -55,6 +55,14 @@ class DisktestLog
     rescue SOAP::FaultError => e
       raise DisktestLogException.new("Server returned this error: #{e.message}\n\n")
     end
+  end
+
+  def pull_form_factor
+    @@driver.get_form_factor(@vendor, @model)
+  end
+
+  def save_form_factor(form_factor)
+    @@driver.set_form_factor(@this_id, form_factor)
   end
 
   def update_serial(serial)
