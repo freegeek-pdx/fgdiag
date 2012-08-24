@@ -624,7 +624,7 @@ if __FILE__ == $0
       drives.select{|x| x.form_factor == '-?-'}.each do |drive|
         drive.pull_form_factor # again, if updates
         if drive.form_factor == '-?-'
-          d.output_drive_descriptor
+          drive.output_drive_descriptor
           choice = menu("\nPlease choose the correct form factor:", "Which form factor is drive #{drive.dev}?", *FORM_FACTORS)
           drive.set_form_factor(choice)
         end
