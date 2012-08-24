@@ -1,3 +1,9 @@
+fgdiag (0.2.54) freegeek-test; urgency=low
+
+  * Minor change to output needed information
+
+ -- Ryan Niebur <ryan@debian.org>  Fri, 24 Aug 2012 15:01:21 -0700
+
 fgdiag (0.2.53) freegeek-test; urgency=low
 
   * Ask about the serial numbers before asking if the drives are
