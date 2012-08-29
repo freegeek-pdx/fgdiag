@@ -1,10 +1,10 @@
-fgdiag (0.2.54) UNRELEASED; urgency=low
+fgdiag (0.2.54) freegeek-test; urgency=low
 
   * Minor change to output needed information
   * Integrate the form factor question into the serial number menu
     (Closes: #30395)
 
- -- Ryan Niebur <ryan@debian.org>  Fri, 24 Aug 2012 15:01:21 -0700
+ -- Ryan Niebur <ryan@debian.org>  Wed, 29 Aug 2012 13:22:22 -0700
 
 fgdiag (0.2.53) freegeek-test; urgency=low
 
