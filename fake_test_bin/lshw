@@ -3,7 +3,7 @@
 cat - <<EOF
   <node id="disk:0" claimed="true" class="disk" handle="SCSI:02:00:00:00">
    <description>ATA Disk</description>
-   <product>WDC WD800ZZ-00ZZ</product>
+   <product>WDC WD800ZZ-00AB</product>
    <vendor>Western Digital</vendor>
    <physid>0</physid>
    <businfo>scsi@2:0.0.0</businfo>
@@ -16,7 +16,7 @@ cat - <<EOF
   <node id="disk:1" claimed="true" class="disk" handle="SCSI:02:00:00:00">
    <description>ATA Disk</description>
    <vendor>Western Digital</vendor>
-   <product>WDC WD800ZZ-00ZZ</product>
+   <product>WDC WD800ZZ-00AB</product>
    <physid>0</physid>
    <businfo>scsi@2:0.0.0</businfo>
    <logicalname>/dev/xvdc</logicalname>

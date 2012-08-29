@@ -595,21 +595,6 @@ if __FILE__ == $0
     end
   end
   begin
-    $stderr.write(clearer)
-    $stderr.flush
-    $stderr.puts colored("Checking drives for SMART status:\n")
-    Thread.current['is_parent_thread'] = true
-    drives.each do |drive|
-      drive.pull_form_factor
-    end
-    drives.each {|d|
-      d.smart
-      s = d.status_s
-      s = "PASSED" if s == "UNTESTED"
-      highlight(s + " ")
-      d.output_drive_descriptor
-    }
-    Thread.current['is_parent_thread'] = false
     def show_busy_drives(drives, existing = [])
       busy_drives = drives.select{|d| (!d.missing_serial?) && d.already_testing?} - existing
       if busy_drives.length > 0
@@ -617,14 +602,28 @@ if __FILE__ == $0
       end
       busy_drives
     end
-    busy_drives = show_busy_drives(drives)
-    RubyTUI::PromptColor.replace(["magenta", "bold"])
-    FORM_FACTORS = ['2.5"', '3.5"', 'Other']
+    def menus(drives)
+      done = "Finished Making Corrections"
+      ret = ""
+      while ret != done
+        ret = menu("\nCorrecting drive details:", "What would you like to do?", "Correct Serial Numbers", "Correct Form Factors", done)
+        if ret.match(/Serial/)
+          menu_about_serials(drives)
+        elsif ret.match(/Factor/)
+          menu_about_form_factors(drives)
+        end
+      end
+    end
     def menu_about_form_factors(drives)
-      drives.select{|x| x.form_factor == '-?-'}.each do |drive|
-        drive.pull_form_factor # again, if updates
-        if drive.form_factor == '-?-'
-          drive.output_drive_descriptor
+      d = true
+      while d
+        opts = drives.map{|x| x.pull_form_factor; x.dev + ": " + x.drive_details}
+        opts << "Finish correcting form factors."
+        choice = menu("\nPlease choose a drive:", "Which would you like to correct?", *opts)
+        choice.match(/^([^ :]+):/)
+        d = $1
+        if d
+          drive = drives.select{|x| x.dev == d}.first
           choice = menu("\nPlease choose the correct form factor:", "Which form factor is drive #{drive.dev}?", *FORM_FACTORS)
           drive.set_form_factor(choice)
         end
@@ -635,7 +634,7 @@ if __FILE__ == $0
       while d
         opts = drives.map{|x| x.dev + ": " + x.drive_details}
         opts << "Finish correcting serial numbers."
-        choice = menu("\nPlease choose a serial number:", "Which would you like to correct?", *opts)
+        choice = menu("\nPlease choose a drive:", "Which would you like to correct?", *opts)
         choice.match(/^([^ :]+):/)
         d = $1
         if d
@@ -660,33 +659,57 @@ if __FILE__ == $0
         end
       end
     end
+    $stderr.write(clearer)
+    $stderr.flush
+    $stderr.puts colored("Checking drives for SMART status:\n")
+    Thread.current['is_parent_thread'] = true
+    drives.each do |drive|
+      drive.pull_form_factor
+    end
+    drives.each {|d|
+      d.smart
+      s = d.status_s
+      s = "PASSED" if s == "UNTESTED"
+      highlight(s + " ")
+      d.output_drive_descriptor
+    }
+    Thread.current['is_parent_thread'] = false
+    busy_drives = show_busy_drives(drives)
+    RubyTUI::PromptColor.replace(["magenta", "bold"])
+    FORM_FACTORS = ['2.5"', '3.5"', 'Other']
     prompt_serials = true
-    if ENV['DISKTEST_DATA_SECURITY_BATCH_MODE'] == "true"
-      count = -1
-      while count != 0
-        count = 0
-        drives.each do |d|
-          if d.missing_serial?
-            count += 1
-            errorMessage("Warning: #{d.dev} does not have a serial number, please correct it before starting the test.\n")
-          end
+    count = -1
+    while count != 0
+      count = 0
+      drives.each do |d|
+        if d.missing_serial? && ENV['DISKTEST_DATA_SECURITY_BATCH_MODE'] == "true"
+          count += 1
+          errorMessage("Warning: #{d.dev} does not have a serial number, please correct it before starting the test.\n")
         end
-        if count > 0
-          prompt_serials = false
-          menu_about_serials(drives)
+        if d.form_factor == '-?-'
+          count += 1
+          errorMessage("Warning: #{d.dev} does not have a form factor saved, please choose one before starting the test.\n")
         end
+      end
+      if count > 0
+        prompt_serials = false
+        menus(drives)
       end
     end
     if prompt_serials
       promptWithDefault("Are the hard drive serial numbers displayed correctly above?", "yes", "Type 'yes' to continue or 'no' to correct serial numbers.") do |response|
         if response.match(/^n/i)
-          menu_about_serials(drives)
+          menus(drives)
         end
         /^[yn]/i.match(response)
       end
     end
+    puts
+    drives.each do |d|
+      d.output_drive_descriptor
+    end
     busy_drives = show_busy_drives(drives, busy_drives)
-    promptWithDefault("Are these the expected drives and do you want to test them?", "yes", "Type 'yes' to begin") do |response|
+    promptWithDefault("Begin testing the listed drives?", "yes", "Type 'yes' to begin") do |response|
       if response.match(/^n/i)
         errorMessage("Aborted.\n")
         drives.each{|d|
@@ -715,7 +738,6 @@ if __FILE__ == $0
         output.match(/^yes, I want to test . drive\(s\)$/)
       end
     end
-    menu_about_form_factors(drives)
     Thread.current['is_parent_thread'] = true
     threads = drives.map {|drive|
       begin
