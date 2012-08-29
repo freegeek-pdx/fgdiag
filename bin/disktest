@@ -697,7 +697,7 @@ if __FILE__ == $0
       end
     end
     if prompt_serials
-      promptWithDefault("Are the hard drive serial numbers displayed correctly above?", "yes", "Type 'yes' to continue or 'no' to correct serial numbers.") do |response|
+      promptWithDefault("Are the hard drive serial numbers and form factors displayed correctly above?", "yes", "Type 'yes' to continue or 'no' to correct serial numbers.") do |response|
         if response.match(/^n/i)
           menus(drives)
         end

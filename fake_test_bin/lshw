@@ -22,6 +22,7 @@ cat - <<EOF
    <logicalname>/dev/xvdc</logicalname>
    <dev>8:0</dev>
    <version>06.0</version>
+   <serial>WD-ABCD00000456</serial>
    <size units="bytes">80032038912</size>
   </node>
 EOF
