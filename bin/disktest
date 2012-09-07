@@ -666,17 +666,20 @@ if __FILE__ == $0
     drives.each do |drive|
       drive.pull_form_factor
     end
-    drives.each {|d|
-      d.smart
-      s = d.status_s
-      s = "PASSED" if s == "UNTESTED"
-      highlight(s + " ")
-      d.output_drive_descriptor
-    }
+    def output_with_smart_status
+      drives.each {|d|
+        d.smart
+        s = d.status_s
+        s = "PASSED" if s == "UNTESTED"
+        highlight(s + " ")
+        d.output_drive_descriptor
+      }
+    end
+    output_with_smart_status
     Thread.current['is_parent_thread'] = false
     busy_drives = show_busy_drives(drives)
     RubyTUI::PromptColor.replace(["magenta", "bold"])
-    FORM_FACTORS = ['2.5"', '3.5"', 'Other']
+    FORM_FACTORS = ['Other', '2.5"', '3.5"']
     prompt_serials = true
     count = -1
     while count != 0
@@ -705,9 +708,7 @@ if __FILE__ == $0
       end
     end
     puts
-    drives.each do |d|
-      d.output_drive_descriptor
-    end
+    output_with_smart_status
     busy_drives = show_busy_drives(drives, busy_drives)
     promptWithDefault("Begin testing the listed drives?", "yes", "Type 'yes' to begin") do |response|
       if response.match(/^n/i)

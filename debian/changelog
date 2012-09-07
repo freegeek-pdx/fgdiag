@@ -1,3 +1,12 @@
+fgdiag (0.2.56) freegeek-test; urgency=low
+
+  * Tweaks to display involving the serial/form factor correction menu
+    (Closes: #30678)
+    - display results of the SMART test again after modifications
+    - rearrange the form factors to work around a bug in humans
+
+ -- Ryan Niebur <ryan@debian.org>  Fri, 07 Sep 2012 12:45:32 -0700
+
 fgdiag (0.2.55) freegeek-test; urgency=low
 
   * Fix question text
