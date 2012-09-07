@@ -666,7 +666,7 @@ if __FILE__ == $0
     drives.each do |drive|
       drive.pull_form_factor
     end
-    def output_with_smart_status
+    def output_with_smart_status(drives)
       drives.each {|d|
         d.smart
         s = d.status_s
@@ -675,7 +675,7 @@ if __FILE__ == $0
         d.output_drive_descriptor
       }
     end
-    output_with_smart_status
+    output_with_smart_status(drives)
     Thread.current['is_parent_thread'] = false
     busy_drives = show_busy_drives(drives)
     RubyTUI::PromptColor.replace(["magenta", "bold"])
@@ -708,7 +708,7 @@ if __FILE__ == $0
       end
     end
     puts
-    output_with_smart_status
+    output_with_smart_status(drives)
     busy_drives = show_busy_drives(drives, busy_drives)
     promptWithDefault("Begin testing the listed drives?", "yes", "Type 'yes' to begin") do |response|
       if response.match(/^n/i)
