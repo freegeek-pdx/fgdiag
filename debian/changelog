@@ -1,3 +1,10 @@
+fgdiag (0.2.57) UNRELEASED; urgency=low
+
+  * Remove the MBR from drives which failed when ending disktest early
+    (Closes: #31211)
+
+ -- Ryan Niebur <ryan@debian.org>  Sat, 06 Oct 2012 15:45:18 -0700
+
 fgdiag (0.2.56) freegeek-test; urgency=low
 
   * Tweaks to display involving the serial/form factor correction menu
