@@ -191,7 +191,7 @@ class HardDrive
 
   def remove_mbr
     log << "removing MBR"
-    system("dd", "if=/dev/zero", "of=/dev/#{dev}", "bs=512", "count=1")
+    system(DD, "if=/dev/zero", "of=/dev/#{dev}", "bs=512", "count=1")
   end
 
   def bus_type
