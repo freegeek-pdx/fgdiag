@@ -686,7 +686,8 @@ if __FILE__ == $0
     Thread.current['is_parent_thread'] = false
     busy_drives = show_busy_drives(drives)
     RubyTUI::PromptColor.replace(["magenta", "bold"])
-    FORM_FACTORS = ['Other', '2.5"', '3.5"']
+    # TODO: pull the FORM_FACTORS over the disktest API now that it's needed on the other side
+    FORM_FACTORS = ['Other', '2.5"', '3.5"'] # README: Because I'm lame, this list is also in fgdb.rb:app/helpers/conditions_helper.rb:html_for_form_factor_condition
     prompt_serials = true
     count = -1
     while count != 0
