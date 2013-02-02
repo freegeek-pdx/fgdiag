@@ -1,3 +1,10 @@
+fgdiag (0.2.58) UNRELEASED; urgency=low
+
+  * Reduce typing 'yes, I want to test 1 drive(s)' to only require a
+    'yes' (Closes: #33427)
+
+ -- Ryan Niebur <ryan@debian.org>  Sat, 02 Feb 2013 15:54:52 -0800
+
 fgdiag (0.2.57) freegeek-test; urgency=low
 
   * Remove the MBR from drives which failed when ending disktest early
