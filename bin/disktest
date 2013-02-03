@@ -11,6 +11,7 @@ require 'rbconfig'
 require 'disktestlog'
 
 # Environment variables that disktest pays attention to:
+# * DISKTEST_TIME_LIMIT_IGNORED_MODELS="FireWire Target"
 # * DISKTEST_REQUIRED_NUMBER_OF_DRIVES
 # * DISKTEST_ALLOW_LESS_THAN_REQUIRED
 # * DISKTEST_DISK_REGEX
@@ -60,6 +61,7 @@ class HardDrive
 
   def timeout_limit
     return -1 if ENV['DISKTEST_TIME_LIMIT_PER_GB'].nil?
+    return -1 if ENV['DISKTEST_TIME_LIMIT_IGNORED_MODELS'] && self.model_name.match(/#{ENV['DISKTEST_TIME_LIMIT_IGNORED_MODELS']}/i)
     limit = ENV['DISKTEST_TIME_LIMIT_PER_GB'].to_f * self.size_in_gb
     if ! ENV['DISKTEST_TIME_LIMIT_MINIMUM'].nil?
       if limit < ENV['DISKTEST_TIME_LIMIT_MINIMUM'].to_f

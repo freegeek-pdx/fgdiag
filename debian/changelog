@@ -2,8 +2,10 @@ fgdiag (0.2.58) UNRELEASED; urgency=low
 
   * Reduce typing 'yes, I want to test 1 drive(s)' to only require a
     'yes' (Closes: #33427)
+  * Ignore time limit when testing drives that match
+    DISKTEST_TIME_LIMIT_IGNORED_MODELS, FireWire Target (Closes: #32526)
 
- -- Ryan Niebur <ryan@debian.org>  Sat, 02 Feb 2013 15:54:52 -0800
+ -- Ryan Niebur <ryan@debian.org>  Sat, 02 Feb 2013 16:00:13 -0800
 
 fgdiag (0.2.57) freegeek-test; urgency=low
 
