@@ -1,8 +1,8 @@
-fgdiag (0.2.60) UNRELEASED; urgency=low
+fgdiag (0.2.60) freegeek-test; urgency=low
 
   * Fix typo found while testing previous version
 
- -- Ryan Niebur <ryan@debian.org>  Sun, 03 Mar 2013 13:43:29 -0800
+ -- Ryan Niebur <ryan@debian.org>  Sun, 03 Mar 2013 13:43:49 -0800
 
 fgdiag (0.2.59) freegeek-test; urgency=low
 
