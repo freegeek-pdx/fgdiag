@@ -1,3 +1,10 @@
+fgdiag (0.2.61) freegeek-test; urgency=low
+
+  * Also missed the \n that is needed for errorMessage, 3rd try will
+    work
+
+ -- Ryan Niebur <ryan@debian.org>  Sun, 03 Mar 2013 13:57:55 -0800
+
 fgdiag (0.2.60) freegeek-test; urgency=low
 
   * Fix typo found while testing previous version
