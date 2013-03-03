@@ -1,3 +1,10 @@
+fgdiag (0.2.59) UNRELEASED; urgency=low
+
+  * If SMART fails with code 2, tell them to save the drive for Ryan to
+    check
+
+ -- Ryan Niebur <ryan@debian.org>  Sun, 03 Mar 2013 13:31:31 -0800
+
 fgdiag (0.2.58) freegeek-test; urgency=low
 
   * Reduce typing 'yes, I want to test 1 drive(s)' to only require a

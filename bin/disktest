@@ -111,6 +111,7 @@ class HardDrive
     @already_testing = DisktestLog.already_testing?(vendor, model_name, serial)
     @disktest_run = DisktestLog.new(vendor, model_name, serial, self.megabytes_size, self.bus_type)
   end
+  attr_reader :save_for_ryan
   attr_reader :dev, :size
   attr_accessor :finished, :testing, :log
   attr_accessor :status
@@ -229,6 +230,9 @@ class HardDrive
     if retval != 0
       smart_s = "smart test returned: '#{retval}'"
       log << smart_s
+      if retval == 2
+        @save_for_ryan = true
+      end
       if retval > 4
         @status = FAILED
         @reason = smart_s
@@ -786,7 +790,11 @@ if __FILE__ == $0
     drives.each {|d|
       d.output_drive_descriptor
       if d.passed?
-        puts colored( "#{d.dev} passed!  Label and store it.", 'bold', 'black', 'on_green' )
+        if d.save_for_ryan
+          errorMessagee( "#{d.dev} may have not actually passed. Label and set it aside for Ryan to check." )
+        else
+          puts colored( "#{d.dev} passed!  Label and store it.", 'bold', 'black', 'on_green' )
+        end
       elsif d.aborted?
         errorMessage "#{d.dev} reached its time limit and did not finish testing.  Recycle it.\n"
       elsif d.stopped?
