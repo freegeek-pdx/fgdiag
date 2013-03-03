@@ -791,7 +791,7 @@ if __FILE__ == $0
       d.output_drive_descriptor
       if d.passed?
         if d.save_for_ryan
-          errorMessagee( "#{d.dev} may have not actually passed. Label and set it aside for Ryan to check." )
+          errorMessage( "#{d.dev} may have not actually passed. Label and set it aside for Ryan to check." )
         else
           puts colored( "#{d.dev} passed!  Label and store it.", 'bold', 'black', 'on_green' )
         end
