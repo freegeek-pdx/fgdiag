@@ -1,0 +1,34 @@
+#!/usr/bin/ruby
+
+require 'soap/rpc/driver'
+
+@server = "data:3000"
+@@driver = SOAP::RPC::Driver.new("http://#{@server}/", "urn:procdb")
+
+@@driver.add_method("ping")
+@@driver.add_method("soap_methods")
+
+begin
+  retval = @@driver.ping
+  if retval != "pong"
+    raise "I could not connect to the server.\nMake sure you are connected to the network and try again.\n\n"
+  end
+rescue SOAP::FaultError => e
+  raise "Server returned this error: #{e.message}\n\n"
+rescue SOAP::RPCRoutingError, SOAP::ResponseFormatError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ECONNRESET, Errno::ETIMEDOUT, NoMethodError, SocketError, NameError => e
+  raise "I could not connect to the server (#{e.message}).\nMake sure you are connected to the network and try again.\n\n"
+end
+@@soap_methods = @@driver.soap_methods
+@@soap_methods.each{|x|
+  @@driver.add_method(*x)
+}
+
+@proc = `lshw -class cpu | grep 'product: ' | cut -d ' ' -f 9- | head -1`
+
+begin
+  @results = @@driver.find_results(@proc)
+rescue SOAP::RPCRoutingError, SOAP::ResponseFormatError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ECONNRESET, Errno::ETIMEDOUT, NoMethodError, SocketError, NameError, SOAP::FaultError => e
+  raise "Soap communication error: #{e.message}"
+end
+
+puts @results.inspect
