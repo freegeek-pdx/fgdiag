@@ -2,7 +2,7 @@
 
 require 'soap/rpc/driver'
 
-@server = "data:3000"
+@server = "data"
 @@driver = SOAP::RPC::Driver.new("http://#{@server}/", "urn:procdb")
 
 @@driver.add_method("ping")
