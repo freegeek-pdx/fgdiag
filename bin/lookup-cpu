@@ -23,7 +23,11 @@ end
   @@driver.add_method(*x)
 }
 
+puts "Detecting processor in machine.."
+
 @proc = `lshw -class cpu | grep 'product: ' | cut -d ' ' -f 9- | head -1`
+
+puts "Searching databases for the processor found: #{@proc}"
 
 begin
   @results = @@driver.find_results(@proc)
@@ -31,4 +35,21 @@ rescue SOAP::RPCRoutingError, SOAP::ResponseFormatError, Errno::ECONNREFUSED, Er
   raise "Soap communication error: #{e.message}"
 end
 
-puts @results.inspect
+matches = @results
+
+puts "Found #{matches.length} match(es)."
+
+display_values = @@driver.display_fields
+
+for match in matches
+  db, found, values = match
+  puts
+  puts "Found in database: #{db}"
+  puts "Matched product: #{found}"
+  for i in display_values
+    puts "#{i}: #{values[i]}"
+  end
+end
+
+
+
