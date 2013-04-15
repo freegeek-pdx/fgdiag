@@ -23,11 +23,15 @@ end
   @@driver.add_method(*x)
 }
 
-puts "Detecting processor in machine.."
+progress = IO.popen('dialog --progressbox "Looking up CPU in Processor DB:" 8 80', 'w')
 
-@proc = `lshw -class cpu | grep 'product: ' | cut -d ' ' -f 9- | head -1`
+progress.puts "Detecting processor in machine, please wait.."
 
-puts "Searching databases for the processor found: #{@proc}"
+@proc = `lshw -class cpu 2>/dev/null | grep 'product: ' | cut -d ' ' -f 9- | head -1`
+
+progress.puts
+progress.puts "Searching databases for the processor found:"
+progress.puts "#{@proc}"
 
 begin
   @results = @@driver.find_results(@proc)
@@ -37,19 +41,26 @@ end
 
 matches = @results
 
-puts "Found #{matches.length} match(es)."
+
+tempf = `mktemp`
+results = File.open(tempf, 'w')
+
+results.puts "Found #{matches.length} match(es)."
 
 display_values = @@driver.display_fields
 
 for match in matches
   db, found, values = match
-  puts
-  puts "Found in database: #{db}"
-  puts "Matched product: #{found}"
+  results.puts
+  results.puts "Found in database: #{db}"
+  results.puts "Matched product: #{found}"
   for i in display_values
-    puts "#{i}: #{values[i]}"
+    results.puts "#{i}: #{values[i]}"
   end
 end
 
-
+results.close
+progress.close
+system("dialog", "--textbox", tempf, "25", "80")
+File.delete(tempf)
 
