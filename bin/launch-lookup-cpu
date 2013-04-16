@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+lookup-cpu
+
+while dialog --yesno 'Would you like to search for another processor?' 5 60; do
+    TEMPF=$(mktemp)
+    dialog --inputbox 'What processor would you like to search for?' 7 60 2>$TEMPF
+    PROC="$(cat $TEMPF)"
+    lookup-cpu "$PROC"
+done

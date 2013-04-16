@@ -2,7 +2,7 @@
 
 require 'soap/rpc/driver'
 
-@server = "data:3000"
+@server = "data"
 @@driver = SOAP::RPC::Driver.new("http://#{@server}/", "urn:procdb")
 
 @@driver.add_method("ping")
@@ -23,7 +23,18 @@ end
   @@driver.add_method(*x)
 }
 
-@proc = `lshw -class cpu | grep 'product: ' | cut -d ' ' -f 9- | head -1`
+progress = IO.popen('dialog --progressbox "Looking up CPU in Processor DB:" 8 80', 'w')
+
+@proc = ARGV.shift
+
+unless @proc
+  progress.puts "Detecting processor in machine, please wait.."
+  progress.puts
+  @proc = `lshw -class cpu 2>/dev/null | grep 'product: ' | cut -d ' ' -f 9- | head -1`
+end
+
+progress.puts "Searching databases for the processor:"
+progress.puts "#{@proc}"
 
 begin
   @results = @@driver.find_results(@proc)
@@ -31,4 +42,30 @@ rescue SOAP::RPCRoutingError, SOAP::ResponseFormatError, Errno::ECONNREFUSED, Er
   raise "Soap communication error: #{e.message}"
 end
 
-puts @results.inspect
+matches = @results
+
+
+tempf = `mktemp`
+results = File.open(tempf, 'w')
+
+results.puts "Found #{matches.length} match#{matches.length == 1 ? "" : "es"}."
+
+display_values = ["Found in database", "Matched product"] + @@driver.display_fields
+maxlength = display_values.map{|x| x.length}.max + 1
+
+for match in matches
+  db, found, values = match
+  hash = {}
+  values["Found in database"] = db
+  values["Matched product"] = found
+  results.puts
+  display_values.each do |i|
+    results.puts sprintf("%-#{maxlength}s: %s", i, values[i].strip)
+  end
+end
+
+results.close
+progress.close
+system("dialog", "--textbox", tempf, "25", "80")
+File.delete(tempf)
+
