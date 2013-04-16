@@ -1,0 +1,41 @@
+#!/usr/bin/ruby
+
+require 'digest'
+
+def scan
+  mnt = `mount`
+  Dir.open('/sys/block').find_all {|dev|
+    (ENV['DISKTEST_DISK_REGEX'] ? /#{ENV['DISKTEST_DISK_REGEX']}/ : /^([sh]|xv)d[a-z]$/).match(dev) and
+    `cat /sys/block/#{dev}/removable`.chomp == '0' and
+    ! mnt.include?(dev)
+  }
+end
+
+SMARTCTL = '/usr/sbin/smartctl'
+def smart(dev)
+  system(SMARTCTL, '-q', 'silent', '--all', '-d', 'ata', "/dev/#{dev}")
+  $?.exitstatus
+end
+
+drives = scan
+puts "Checking: #{drives.join(", ")}"
+gig = (1024*1024*1024)
+
+for dev in drives
+  puts
+  puts
+  puts "Checking #{dev}"
+  retval=smart(dev)
+  puts "smart test returned: '#{retval}'"
+  
+  size = `cat /sys/block/#{dev}/size`.chomp.to_i * 512
+  gigs = (size / gig)
+  puts "size: #{gigs}GB"
+  to_check = (gigs/5)
+  drive = open("/dev/#{dev}")
+
+  to_check.times do |n|
+    drive.seek(n*5*gig)
+    puts "At #{5*n}GB: #{Digest::MD5.hexdigest(drive.read(1024))}"
+  end
+end
