@@ -25,12 +25,15 @@ end
 
 progress = IO.popen('dialog --progressbox "Looking up CPU in Processor DB:" 8 80', 'w')
 
-progress.puts "Detecting processor in machine, please wait.."
+@proc = ARGV.shift
 
-@proc = `lshw -class cpu 2>/dev/null | grep 'product: ' | cut -d ' ' -f 9- | head -1`
+unless @proc
+  progress.puts "Detecting processor in machine, please wait.."
+  progress.puts
+  @proc = `lshw -class cpu 2>/dev/null | grep 'product: ' | cut -d ' ' -f 9- | head -1`
+end
 
-progress.puts
-progress.puts "Searching databases for the processor found:"
+progress.puts "Searching databases for the processor:"
 progress.puts "#{@proc}"
 
 begin

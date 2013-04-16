@@ -1,9 +1,12 @@
 fgdiag (0.2.62) UNRELEASED; urgency=low
 
   * Add new lookup-cpu script using dialog
+  * Implement a wrapper around lookup-cpu called launch-lookup-cpu,
+    which will initially search for the machine's processor but offer
+    further searches of the database
 
  -- Ryan Niebur <ryan@debian.org>  Sun, 14 Apr 2013 23:30:53 -0700
-	
+
 fgdiag (0.2.61) freegeek-test; urgency=low
 
   * Also missed the \n that is needed for errorMessage, 3rd try will
