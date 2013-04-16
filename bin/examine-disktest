@@ -34,8 +34,17 @@ for dev in drives
   to_check = (gigs/5)
   drive = open("/dev/#{dev}")
 
+  digest = nil
+  olddigest = nil
+  meh = false
   to_check.times do |n|
     drive.seek(n*5*gig)
-    puts "At #{5*n}GB: #{Digest::MD5.hexdigest(drive.read(1024))}"
+    olddigest = digest
+    digest = Digest::MD5.hexdigest(drive.read(1024))
+    if olddigest && olddigest != digest
+      meh = true
+    end
+    puts "At #{5*n}GB: #{digest}"
   end
+  puts "FAIL!" if meh
 end
