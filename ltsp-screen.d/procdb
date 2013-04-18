@@ -1,0 +1,5 @@
+#!/bin/sh
+
+/usr/sbin/launch-lookup-cpu
+dialog --msgbox 'Press enter to shutdown...' 5 30
+poweroff -f
