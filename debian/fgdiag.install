@@ -5,3 +5,5 @@ bin/lookup-cpu usr/sbin
 bin/launch-lookup-cpu usr/sbin
 lib/disktestlog.rb usr/lib/ruby/1.8/
 ltsp-screen.d/*test usr/share/ltsp/screen.d/
+ltsp-screen.d/procdb usr/share/ltsp/screen.d/
+ltsp-screen.d/examine usr/share/ltsp/screen.d/

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+/usr/sbin/examine-disktest | less
+poweroff -f
