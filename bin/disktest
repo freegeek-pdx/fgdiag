@@ -20,6 +20,7 @@ require 'disktestlog'
 # * DISKTEST_TIME_LIMIT_PER_GB
 # * DISKTEST_TIME_LIMIT_MINIMUM
 # * DISKTEST_DATA_SECURITY_BATCH_MODE
+# * DISKTEST_NO_SYSLOG=true
 
 def clear_stdin(parent = true)
   flags=$stdin.fcntl(Fcntl::F_GETFL)
@@ -571,20 +572,22 @@ if __FILE__ == $0
   logpipe = Tempfile.new("klog")
   logpipe.close
   logpipe = logpipe.path
-  logconf = Tempfile.new("syslog.conf")
-  logconf.puts "*.* #{logpipe}"
-  #    logconf.puts "*.* /dev/console"
-  logconf.close
-  logconf = logconf.path
-  if File.exists?("/sbin/syslogd")
-    `/usr/sbin/invoke-rc.d sysklogd stop`
-    `/sbin/syslogd -f #{logconf}`
-  elsif File.exists?("/usr/sbin/rsyslogd")
-    `/usr/sbin/invoke-rc.d rsyslog stop`
-    `/usr/sbin/rsyslogd -f #{logconf}`
-  else
-    errorMessage "You need to install a supported syslog daemon.\n\n"
-    exit 1
+  unless ENV["DISKTEST_NO_SYSLOG"] == "true"
+    logconf = Tempfile.new("syslog.conf")
+    logconf.puts "*.* #{logpipe}"
+    #    logconf.puts "*.* /dev/console"
+    logconf.close
+    logconf = logconf.path
+    if File.exists?("/sbin/syslogd")
+      `/usr/sbin/invoke-rc.d sysklogd stop`
+      `/sbin/syslogd -f #{logconf}`
+    elsif File.exists?("/usr/sbin/rsyslogd")
+      `/usr/sbin/invoke-rc.d rsyslog stop`
+      `/usr/sbin/rsyslogd -f #{logconf}`
+    else
+      errorMessage "You need to install a supported syslog daemon.\n\n"
+      exit 1
+    end
   end
   klpid, klin, klout, klerr = open4("tail -F #{logpipe}")
   loglines = []
