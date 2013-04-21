@@ -234,7 +234,7 @@ class HardDrive
       if retval == 2
         @save_for_ryan = true
       end
-      if retval > 4
+      if retval > 1
         @status = FAILED
         @reason = smart_s
         return false
@@ -793,11 +793,7 @@ if __FILE__ == $0
     drives.each {|d|
       d.output_drive_descriptor
       if d.passed?
-        if d.save_for_ryan
-          errorMessage( "#{d.dev} may have not actually passed. Label and set it aside for Ryan to check.\n" )
-        else
-          puts colored( "#{d.dev} passed!  Label and store it.", 'bold', 'black', 'on_green' )
-        end
+        puts colored( "#{d.dev} passed!  Label and store it.", 'bold', 'black', 'on_green' )
       elsif d.aborted?
         errorMessage "#{d.dev} reached its time limit and did not finish testing.  Recycle it.\n"
       elsif d.stopped?
@@ -805,7 +801,11 @@ if __FILE__ == $0
       elsif d.retry?
         errorMessage "#{d.dev} did not wipe the entire disk.  Test it again.\n"
       elsif d.failed?
-        errorMessage "#{d.dev} failed.  Recycle it.\n"
+        if d.save_for_ryan
+          errorMessage( "#{d.dev} failed but may work in another system. Otherwise, recycle it.\n" )
+        else
+          errorMessage "#{d.dev} failed.  Recycle it.\n"
+        end
       else
         errorMessage "#{d.dev} did not finish testing.  Seek expert attention.\n"
       end
