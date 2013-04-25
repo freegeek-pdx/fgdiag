@@ -1,9 +1,12 @@
 fgdiag (0.2.63) UNRELEASED; urgency=low
 
+  [ Vagrant Cascadian ]
   * Add procdb LTSP screen script. 
   * Add examine LTSP screen script. 
+
+  [ Ryan Niebur ]
   * Add failure status for smart return code 2 and mention it failed but
-    may work in another system. Otherwise, recycle it.
+    may work in another system. Otherwise, recycle it. (Closes: #35003)
 
  -- Vagrant Cascadian <vagrant@debian.org>  Thu, 18 Apr 2013 16:09:01 -0700
 
