@@ -802,7 +802,7 @@ if __FILE__ == $0
         errorMessage "#{d.dev} did not wipe the entire disk.  Test it again.\n"
       elsif d.failed?
         if d.save_for_ryan
-          errorMessage( "#{d.dev} failed but may work in another system. Otherwise, recycle it.\n" )
+          errorMessage( "#{d.dev} failed but may test successfully in another system. Otherwise, Recycle it.\n" )
         else
           errorMessage "#{d.dev} failed.  Recycle it.\n"
         end
