@@ -1,15 +1,19 @@
 module ByteFloatWrapper
+  def to_bytes
+    my_float.to_bytes
+  end
+
+  def to_hertz
+    my_float.to_hertz
+  end
+
+  def to_bitspersecond
+    my_float.to_bitspersecond
+  end
+
   def my_float
     @my_float ||= self.to_f
   end
-
-  def forward_to_float(*args)
-    self.my_float.send(caller(0)[0].match(/^.+ `(.+)'$/)[1].to_sym, *args)
-  end
-
-  alias :to_bytes :forward_to_float
-  alias :to_hertz :forward_to_float
-  alias :to_bitspersecond :forward_to_float
 end
 
 class Bignum
