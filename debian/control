@@ -3,7 +3,7 @@ Section: debian/utils
 Priority: optional
 Maintainer: Freegeek Coders <coders@freegeek.org>
 Uploaders: Martin Chase <mchase@freegeek.org>, Vagrant Cascadian <vagrant@freegeek.org>, Ryan Niebur <ryan@debian.org>, Vagrant Cascadian <vagrant@debian.org>
-Build-Depends: debhelper (>= 7.2)
+Build-Depends: debhelper (>= 7.2), gem2deb
 Standards-Version: 3.8.4
 
 Package: fgdiag
