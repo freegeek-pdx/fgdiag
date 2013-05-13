@@ -8,17 +8,30 @@ Standards-Version: 3.8.4
 
 Package: fgdiag
 Architecture: all
-Depends: mtools, time, less, smartmontools, libtui-ruby (>= 1.9), ruby, lsscsi, dialog, lshw, libopen4-ruby1.8, e2fsprogs (>= 1.41.3), libbytes-ruby1.8 (= ${binary:Version}), ${misc:Depends}, hdparm
+Depends: mtools, time, less, smartmontools, libtui-ruby (>= 1.9), ruby, lsscsi, dialog, lshw, libopen4-ruby1.8, e2fsprogs (>= 1.41.3), ruby-bytes (= ${binary:Version}), ${misc:Depends}, hdparm
 Recommends: i2c-tools, dmidecode, xresprobe
 Description: Free Geek Diagnostics
  Software used to test hardware at Free Geek.
 
-Package: libbytes-ruby1.8
-Architecture: all
+Package: ruby-bytes
 Section: debian/ruby
-Depends: ruby1.8, ${misc:Depends}
-Description: library for calculating bytes values (Ruby 1.8)
+Replaces: libbytes-ruby (<< 0.2.63~)
+Breaks: libbytes-ruby (<< 0.2.63~)
+Provides: libbytes-ruby
+Architecture: all
+XB-Ruby-Versions: ${ruby:Versions}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ruby | ruby-interpreter
+Description: ruby library for calculating bytes values
  This library adds to_bytes, to_hertz, and to_bitspersecond methods to
  the String, Fixnum, Bignum, and Float class.
  .
  This code is used by fgdb and disktest.
+
+Package: libbytes-ruby1.8
+Architecture: all
+Section: oldlibs
+Priority: extra
+Depends: ${misc:Depends}, ruby-bytes
+Description: Transitional package for ruby-bytes
+ This is a transitional package to ease upgrades to the ruby-bytes
+ package. It can safely be removed.
