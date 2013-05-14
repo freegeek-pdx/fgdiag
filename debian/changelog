@@ -1,3 +1,9 @@
+fgdiag (0.2.65) freegeek-test; urgency=low
+
+  * Fix section on libbytes-ruby1.8 to be within the debian/ component
+
+ -- Ryan Niebur <ryan@debian.org>  Tue, 14 May 2013 12:18:57 -0700
+
 fgdiag (0.2.64) freegeek-test; urgency=low
 
   * Replace the libbytes-ruby1.8 package with ruby-bytes, compatible

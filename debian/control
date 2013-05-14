@@ -29,7 +29,7 @@ Description: ruby library for calculating bytes values
 
 Package: libbytes-ruby1.8
 Architecture: all
-Section: oldlibs
+Section: debian/oldlibs
 Priority: extra
 Depends: ${misc:Depends}, ruby-bytes
 Description: Transitional package for ruby-bytes
