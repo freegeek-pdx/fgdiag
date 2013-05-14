@@ -1,11 +1,11 @@
-fgdiag (0.2.64) UNRELEASED; urgency=low
+fgdiag (0.2.64) freegeek-test; urgency=low
 
   * Replace the libbytes-ruby1.8 package with ruby-bytes, compatible
     with wheezy's ruby policy and ruby 1.9 (Closes: #35337)
     - Add Build-Depends on gem2deb
     - Replace some clever code that broke with upgrade to ruby 1.9
 
- -- Ryan Niebur <ryan@debian.org>  Sun, 12 May 2013 22:34:34 -0700
+ -- Ryan Niebur <ryan@debian.org>  Tue, 14 May 2013 11:52:44 -0700
 
 fgdiag (0.2.63) freegeek-test; urgency=low
 
