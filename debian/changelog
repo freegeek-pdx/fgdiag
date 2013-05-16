@@ -1,8 +1,8 @@
-fgdiag (0.2.66) UNRELEASED; urgency=low
+fgdiag (0.2.66) freegeek-test; urgency=low
 
   * fix wrapper module to still pass args to methods
 
- -- Ryan Niebur <ryan@debian.org>  Thu, 16 May 2013 11:10:18 -0700
+ -- Ryan Niebur <ryan@debian.org>  Thu, 16 May 2013 11:10:31 -0700
 
 fgdiag (0.2.65) freegeek-test; urgency=low
 
