@@ -1,14 +1,14 @@
 module ByteFloatWrapper
-  def to_bytes
-    my_float.to_bytes
+  def to_bytes(*args)
+    my_float.to_bytes(*args)
   end
 
-  def to_hertz
-    my_float.to_hertz
+  def to_hertz(*args)
+    my_float.to_hertz(*args)
   end
 
-  def to_bitspersecond
-    my_float.to_bitspersecond
+  def to_bitspersecond(*args)
+    my_float.to_bitspersecond(*args)
   end
 
   def my_float
