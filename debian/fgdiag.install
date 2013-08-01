@@ -3,6 +3,7 @@ bin/video-detect usr/bin
 bin/memid usr/bin
 bin/lookup-cpu usr/sbin
 bin/launch-lookup-cpu usr/sbin
+bin/examine-disktest usr/sbin
 lib/disktestlog.rb usr/lib/ruby/1.8/
 ltsp-screen.d/*test usr/share/ltsp/screen.d/
 ltsp-screen.d/procdb usr/share/ltsp/screen.d/

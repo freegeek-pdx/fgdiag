@@ -1,3 +1,9 @@
+fgdiag (0.2.67) UNRELEASED; urgency=low
+
+  * Install examine-disktest, used by examine screen script. 
+
+ -- Vagrant Cascadian <vagrant@debian.org>  Thu, 01 Aug 2013 11:57:52 -0700
+
 fgdiag (0.2.66) freegeek-test; urgency=low
 
   * fix wrapper module to still pass args to methods
