@@ -1,6 +1,7 @@
 fgdiag (0.2.67) UNRELEASED; urgency=low
 
-  * Install examine-disktest, used by examine screen script. 
+  * Install examine-disktest, used by examine LTSP screen script. 
+  * Halt after running keyboardtest LTSP screen script (Closes: #36819). 
 
  -- Vagrant Cascadian <vagrant@debian.org>  Thu, 01 Aug 2013 11:57:52 -0700
 

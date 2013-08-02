@@ -71,3 +71,5 @@ if [ -x /usr/share/ltsp/xinitrc ]; then
 fi
 
 xinit $xinitrc /usr/bin/wx-keyboard-tester -- ${DISPLAY} vt${TTY} -auth ${XAUTHORITY} ${X_ARGS} -br >/dev/null 2>&1
+
+halt
