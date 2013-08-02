@@ -60,7 +60,7 @@ for match in matches
   values["Matched product"] = found
   results.puts
   display_values.each do |i|
-    results.puts sprintf("%-#{maxlength}s: %s", i, values[i].strip)
+    results.puts sprintf("%-#{maxlength}s: %s", i, values[i].to_s.strip)
   end
 end
 
