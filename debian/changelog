@@ -2,6 +2,8 @@ fgdiag (0.2.67) UNRELEASED; urgency=low
 
   * Install examine-disktest, used by examine LTSP screen script. 
   * Halt after running keyboardtest LTSP screen script (Closes: #36819). 
+  * disktest: no longer load ide related kernel modules, as they're not present
+    in wheezy, and shouldn't be needed in squeeze anyways.
 
  -- Vagrant Cascadian <vagrant@debian.org>  Thu, 01 Aug 2013 11:57:52 -0700
 
