@@ -75,7 +75,7 @@ class HardDrive
   def HardDrive.modules
     @@modules ||= case (arch = Config::CONFIG["arch"].split("-")[0])
                   when "i486", "x86_64"
-                    %w[ide_core ide_disk ide_generic usb_storage]
+                    %w[usb_storage]
                   when "powerpc"
                     %w[usb_storage]
                   else
