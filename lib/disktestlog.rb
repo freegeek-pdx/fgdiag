@@ -36,6 +36,10 @@ class DisktestLog
     }
   end
 
+  def get_batch
+    return DisktestLog.enabled? ? @@driver.get_batch_description(@serial_number) : ""
+  end
+
   def self.already_testing?(vendor, model, serial_number)
     self.prepare
     return false if !DisktestLog.enabled?
@@ -47,7 +51,7 @@ class DisktestLog
   def initialize(vendor, model, serial_number, size, bus_type)
     @vendor = vendor
     @model = model
-#    @serial_number = serial_number
+    @serial_number = serial_number
     return if !DisktestLog.enabled?
     begin
       self.class.prepare
