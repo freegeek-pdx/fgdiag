@@ -418,7 +418,7 @@ class HardDrive
 
   def unique_identity
     s = "%s %s\n(%s)" % [vendor, model_name, serial]
-    s += "\n%s" % [batch] if batch.length >= 0
+    s += " %s" % [batch] if batch.to_s.length >= 0
     return "<< " + s + " >>"
   end
 
