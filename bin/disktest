@@ -435,6 +435,7 @@ class HardDrive
   def set_serial(value)
     @serial = value
     @disktest_run.update_serial(value)
+    @batch = @disktest_run.get_batch
   end
 
   def serial

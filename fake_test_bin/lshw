@@ -7,10 +7,9 @@ cat - <<EOF
    <vendor>Western Digital</vendor>
    <physid>0</physid>
    <businfo>scsi@2:0.0.0</businfo>
-   <logicalname>/dev/xvdb</logicalname>
+   <logicalname>/dev/vdb</logicalname>
    <dev>8:0</dev>
    <version>06.0</version>
-   <serial>WD-ABCD00000123</serial>
    <size units="bytes">80032038912</size>
   </node>
   <node id="disk:1" claimed="true" class="disk" handle="SCSI:02:00:00:00">
