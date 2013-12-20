@@ -1,4 +1,4 @@
-fgdiag (0.2.67) UNRELEASED; urgency=low
+fgdiag (0.2.67) freegeek-test; urgency=low
 
   [ Vagrant Cascadian ]
   * Install examine-disktest, used by examine LTSP screen script. 
@@ -6,10 +6,11 @@ fgdiag (0.2.67) UNRELEASED; urgency=low
   * disktest: no longer load ide related kernel modules, as they're not present
     in wheezy, and shouldn't be needed in squeeze anyways.
 
-  [  ]
+  [ Ryan Niebur ]
   * disktest should use ruby 1.8 for soap4r
+  * Display drives in batch
 
- -- Vagrant Cascadian <vagrant@debian.org>  Thu, 01 Aug 2013 11:57:52 -0700
+ -- Ryan Niebur <ryan@debian.org>  Fri, 20 Dec 2013 00:03:41 -0800
 
 fgdiag (0.2.66) freegeek-test; urgency=low
 
