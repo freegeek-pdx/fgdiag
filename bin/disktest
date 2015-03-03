@@ -328,12 +328,12 @@ class HardDrive
         self.check_time
         begin
           needed = size.to_i - drive.pos
-          str = ZEROS
-          str = str[0..(needed - 1)] if needed < ZEROS.length
+          str = RANDOM
+          str = str[0..(needed - 1)] if needed < RANDOM.length
           written = drive.write(str)
           total += written
           log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
-          if end_test? or written < ZEROS.length
+          if end_test? or written < RANDOM.length
             break
           end
         rescue Errno::ENOSPC => e
@@ -346,12 +346,12 @@ class HardDrive
         self.check_time
         begin
           needed = size.to_i - drive.pos
-          str = RANDOM
-          str = str[0..(needed - 1)] if needed < RANDOM.length
+          str = ZEROS
+          str = str[0..(needed - 1)] if needed < ZEROS.length
           written = drive.write(str)
           total += written
           log[-1] = "#{(total.to_i * 100) / (2 * size.to_i)}% of wipe complete"
-          if end_test? or written < RANDOM.length
+          if end_test? or written < ZEROS.length
             break
           end
         rescue Errno::ENOSPC => e
