@@ -70,6 +70,7 @@ class DisktestLog
   end
 
   def update_serial(serial)
+    @serial_number = serial
     return if !DisktestLog.enabled?
     begin
       @@driver.update_serial(@this_id, serial)

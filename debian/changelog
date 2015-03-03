@@ -7,6 +7,7 @@ fgdiag (0.2.67) freegeek-test; urgency=low
     in wheezy, and shouldn't be needed in squeeze anyways.
 
   [ Ryan Niebur ]
+  * disktest should use ruby 1.8 for soap4r
   * Display drives in batch
 
  -- Ryan Niebur <ryan@debian.org>  Fri, 20 Dec 2013 00:03:41 -0800
